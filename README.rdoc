@@ -1,0 +1,7 @@
+= zgomot
+
+Description goes here.
+
+== Copyright
+
+Copyright (c) 2009 troystribling. See LICENSE for details.
