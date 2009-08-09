@@ -1,0 +1,1 @@
+require 'zgomot/patches/object'

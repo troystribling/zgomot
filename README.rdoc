@@ -1,7 +1,7 @@
 = zgomot
 
-Description goes here.
+zgomot is a MIDI generator
 
 == Copyright
 
-Copyright (c) 2009 troystribling. See LICENSE for details.
+Copyright (c) 2009 Troy Stribling. See LICENSE for details.
