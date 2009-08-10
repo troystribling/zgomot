@@ -23,10 +23,14 @@ module Zgomot
         Zgomot.logger.level = Logger::WARN 
 
         ####..............
-        raise ZgomotError, "Configuration file #{Zgomot.config_file} required." unless File.exist?(Zgomot.config_file) 
+        raise ZgomotError, "Configuration file #{Zgomot.config_file} required." unless  
 
         ####..............
-        Zgomot.config = File.open(Zgomot.config_file) {|yf| YAML::load(yf)}
+        config = if File.exist?(Zgomot.config_file)
+                   (c = File.open(Zgomot.config_file) {|yf| YAML::load(yf)}) ? c : {}
+                 else; {}; end
+        Zgomot.config = Zgomot::DEFAULT_CONFIG.inject({}){|r,(k,v)| r.update(k => (config[k] || v))}         
+                          
         call_if_implemented(:call_before_start)
         
       end

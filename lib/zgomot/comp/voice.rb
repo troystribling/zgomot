@@ -1,20 +1,19 @@
 ##############################################################################################################
-module Zgomot::Midi
+module Zgomot::Comp
 
   #####-------------------------------------------------------------------------------------------------------
-  class Interface
+  class Voice
 
     #.........................................................................................................
-    attr_reader :driver
+    attr_reader :interface
     
     #.........................................................................................................
-    def intitialize
-      @driver = MIDIator::Interface.new
-      @driver.autodetect_driver
+    def intitialize(interface)
+      @interface = interface
     end
 
-  #### Midi
+  #### Voice
   end
 
-#### Zgomot::Midi 
+#### Zgomot::Comp 
 end

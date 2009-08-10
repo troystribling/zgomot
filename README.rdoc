@@ -1,6 +1,6 @@
 = zgomot
 
-zgomot is a MIDI generator
+A music composition DSL
 
 == Copyright
 
