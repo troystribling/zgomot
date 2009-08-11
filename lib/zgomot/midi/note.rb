@@ -3,9 +3,9 @@ module Zgomot::Midi
 
   #####-------------------------------------------------------------------------------------------------------
   class Note
-
+    
     #.........................................................................................................
-    PITCH = {
+    PITCH_CLASS = {
       :C  => 0,  :Bs => 0,
       :Cs => 1,  :Db => 1,
       :D  => 2,
@@ -14,7 +14,7 @@ module Zgomot::Midi
       :F  => 5,  :Es => 5,
       :Fs => 6,  :Gb => 6,
       :G  => 7, 
-      :Gs => 8,  :Ab => 7,
+      :Gs => 8,  :Ab => 8,
       :A  => 9,
       :As => 10, :Bb => 10,
       :B  => 11, :Cb => 11, 
@@ -27,27 +27,46 @@ module Zgomot::Midi
     #.........................................................................................................
     OCTAVE = (-1..9).to_a
 
-    #.........................................................................................................
-    attr_reader :time, :pitch, :duration, :octave
+    #####-------------------------------------------------------------------------------------------------------
+    class << self
+
+      #.........................................................................................................
+      def next_pitch_class(pc, interval)
+        start_pos = PITCH_CLASS[pc]
+        PITCH_CLASS.inject([]){|r,(c,p)|  p.eql?(start_pos+interval) ? r << c : r} if start_pos
+      end
+      
+    end
+    
+    #####-------------------------------------------------------------------------------------------------------
+    attr_reader :time, :pitch_class, :duration, :octave, :midi, :velocity
   
     #.........................................................................................................
     def initialize(args)
       [:time, :pitch].each{|a| raise ArgumentError "#{a} is a required argument" unless args.include?(a)}
       @time = args[:time]
-      args[:duration] ||= 4
-      args[:octave] ||= 5
-      @octave = OCTAVE.include?(args[:octave])? args[:octave] : raise ArgumentError "#{args[:octave]} is invalid octave"
-      @duration = DURATION.include?(args[:duration])? args[:duration] : raise ArgumentError "#{args[:duration]} is invalid duration"
-      @pitch = pitch_to_midi(args[:pitch]) || raise ArgumentError "#{args[:pitch]} is invalid"
+      @pitch_class, @octave = (args[:pitch].kind_of?(Array) ? args[:pitch] : [args[:pitch], 5])
+      @duration = args[:duration] || 4
+      @velocity = args[:velocity] || 100 
+      @midi = to_midi(pitch_class, octave)
+      raise ArgumentError "#{octave} is invalid octave" unless OCTAVE.include?(octave)
+      raise ArgumentError "#{duration} is invalid duration" unless DURATION.include?(duration)
+      raise ArgumentError "#{args[:pitch].inspect} is invalid" if midi.nil?
+      raise ArgumentError "#{velocity} is invalid velocity" unless velocity < 128
     end
 
   private
   
   #.........................................................................................................
-  def pitch_to_midi(pitch, octave)
-    if PITCH[pitch]
-      (midi = 12*(octave+1)+PITCH[pitch]) <= 127 ? midi : nil
+  def to_midi(pitch_class, octave)
+    if PITCH_CLASS[pitch_class]
+      (midi = 12*(octave+1)+PITCH_CLASS[pitch_class]) <= 127 ? midi : nil
     else
+  end
+
+  #.........................................................................................................
+  def length
+    Clock.whole_note_length/duration
   end
   
   #### Note
