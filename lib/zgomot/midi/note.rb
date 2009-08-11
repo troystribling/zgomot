@@ -17,7 +17,8 @@ module Zgomot::Midi
       :Gs => 8,  :Ab => 7,
       :A  => 9,
       :As => 10, :Bb => 10,
-      :B  => 11, :Cb => 11  
+      :B  => 11, :Cb => 11, 
+      :R  => -1, 
     }
 
     #.........................................................................................................
@@ -31,8 +32,10 @@ module Zgomot::Midi
   
     #.........................................................................................................
     def initialize(args)
-      [:time, :pitch, :duration, :octave].each{|a| raise ArgumentError "#{a} is a required argument" unless args.include?(a)}
+      [:time, :pitch].each{|a| raise ArgumentError "#{a} is a required argument" unless args.include?(a)}
       @time = args[:time]
+      args[:duration] ||= 4
+      args[:octave] ||= 5
       @octave = OCTAVE.include?(args[:octave])? args[:octave] : raise ArgumentError "#{args[:octave]} is invalid octave"
       @duration = DURATION.include?(args[:duration])? args[:duration] : raise ArgumentError "#{args[:duration]} is invalid duration"
       @pitch = pitch_to_midi(args[:pitch]) || raise ArgumentError "#{args[:pitch]} is invalid"
@@ -43,7 +46,7 @@ module Zgomot::Midi
   #.........................................................................................................
   def pitch_to_midi(pitch, octave)
     if PITCH[pitch]
-      (midi = 12*(octave+1) + PITCH[pitch]) <= 127 ? midi : nil
+      (midi = 12*(octave+1)+PITCH[pitch]) <= 127 ? midi : nil
     else
   end
   
