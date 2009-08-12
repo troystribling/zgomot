@@ -82,8 +82,15 @@ module Zgomot::Midi
     end
 
     #...........................................................................................................
-    def update(sec)
-      current_time = Midi::Time.new(current_time.to_f + sec)
+    def update(time)
+      csecs = if sec.kind_of?(Float)
+                current_time.to_f + time
+              elsif sec.kind_of?(Zgomot::Midi::Time)
+                current_time.to_f + time.to_f
+              else
+                raise ArgumentError "argument must by of type Float or Zgomot::Midi::Time" 
+              end
+      current_time = Midi::Time.new(current_secs)              
     end
 
 
