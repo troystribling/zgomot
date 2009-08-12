@@ -5,25 +5,49 @@ module Zgomot::Midi
   class Time
 
     #.........................................................................................................
-    attr_reader :measure, :note, :tick
+    attr_reader :measure, :beat, :tick, :seconds
   
     #.........................................................................................................
-    def initialize
-      @measure = 0
-      @note = 0
-      @tick = 0
+    def initialize(arg)
+      if arg.kind_of?(Hash)
+        [:measure, :beat, :tick].each{|a| raise ArgumentError "#{a} is a required argument" unless args.include?(a)}
+        init_with_measure_beat_tick(arg) 
+      elsif arg.nil?; init_with_nil     
+      elsif arg.kind_of?(Float); init_with_seconds(arg); end
     end
 
     #.........................................................................................................
     def to_s
       "#{measure}.#{note}.#{tick}"
     end
-    
+
     #.........................................................................................................
-    def to_sec 
-      measure*Clock.measure_length + note*Clock.beat_length + tick*Clock.tick_length     
+    def to_f
+      seconds
+    end
+    
+  private
+  
+    #.........................................................................................................
+    def init_with_seconds(sec)
+      @seconds = sec
+      @measure = (sec/Clock.measure_sec).to_i
+      @beat = ((sec % Clock.measure_sec)/Clock.beat_sec).to_i
+      @tick = ((sec - measure*Clock.measure_sec - beat*Clock.beat_sec)/Clock.tick_sec).to_i
     end
 
+    #.........................................................................................................
+    def init_with_measure_beat_tick(args)
+      @measure, @beat, @tick = args[:measure], args[:beat], args[:tick]
+      @seconds = (measure*Clock.measure_sec + beat*Clock.beat_sec + tick*Clock.tick_sec).to_f
+    end
+
+    #.........................................................................................................
+    def init_with_nil
+      @measure, @beat, @tick = 0, 0, 0
+      @seconds = 0.0
+    end
+    
   #### Time
   end
 
@@ -36,23 +60,30 @@ module Zgomot::Midi
       #.........................................................................................................
       @beats_per_measure, @beat_note = Zgomot.config[:time_signature].split('/').map{|v| v.to_f}
       @beats_per_minute = Zgomot.config[:beats_per_minute].to_f
-      @whole_note_ticks = 2*Zgomot.config[:resolution].split('/').last.to_f
-      @beat_length = 60./@beats_per_minute
-      @whole_note_length = @beat_length*@beat_note
-      @measure_length = @beat_length*@beats_per_measure
-      @tick_length = @whole_note_length/(2*@min_note)
+      @resolution = Zgomot.config[:resolution].split('/').last.to_f
+      @beat_sec= 60.0/@beats_per_minute
+      @whole_note_sec = @beat_sec*@beat_note
+      @measure_sec = @beat_sec*@beats_per_measure
+      @tick_sec = @whole_note_sec/(2*@resolution)
 
       #.........................................................................................................
-      attr_reader :clocks, :beat_note, :beats_per_measure, :beats_per_minute, :min_note, :tick_length,
-                  :seconds_per_beat, :whole_note_ticks, :whole_note_length
+      attr_reader :beat_note, :beats_per_measure, :beats_per_minute, :resolution, 
+                  :beat_sec, :whole_note_sec, :measure_sec, :tick_sec, 
           
     #### self
     end
     
     #####-------------------------------------------------------------------------------------------------------
+    attr_reader :current_time
     
-    #.........................................................................................................
-    def update(ticks)
+    #...........................................................................................................
+    def initialize
+      @current_time = Midi::Time.new
+    end
+
+    #...........................................................................................................
+    def update(sec)
+      current_time = Midi::Time.new(current_time.to_f + sec)
     end
 
 

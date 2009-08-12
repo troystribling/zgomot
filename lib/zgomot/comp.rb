@@ -1,2 +1,2 @@
 require 'zgomot/comp/key'
-require 'zgomot/comp/voice'
+require 'zgomot/comp/note'

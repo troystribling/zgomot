@@ -40,6 +40,7 @@ module Zgomot
     end
 
     delegate Zgomot::Boot, :before_start
+    delegate Zgomot::Midi::Stream, :stream
 
   #### Delegator 
   end
