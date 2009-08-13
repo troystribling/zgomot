@@ -1,3 +1,6 @@
 require 'zgomot/midi/clock'
 require 'zgomot/midi/stream'
 require 'zgomot/midi/interface'
+require 'zgomot/midi/clock'
+require 'zgomot/midi/dispatcher'
+require 'zgomot/midi/note'

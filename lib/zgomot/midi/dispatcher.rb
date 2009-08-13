@@ -2,45 +2,51 @@
 module Zgomot::Midi
 
   #####-------------------------------------------------------------------------------------------------------
-  class Stream
+  class Dispatcher
 
     #####-------------------------------------------------------------------------------------------------------
     class << self
       
       #.........................................................................................................
-      @streams = []
+      attr_reader :resolution, :queue, :thread, :clock, :tick
 
       #.........................................................................................................
-      def stream(name, opts={}, &blk)
-        strm = new()
-        if blk.arity.eql?(0)
-          strm.define_meta_class_method(:play, &blk)   
-        elsif blk.arity.eql?(1) 
-        else
-          raise ArgumentError "block argument arity must be 0 or 1"
-        end   
-        streams << strm
+      @queue = []
+      @clock = Clock.new
+      @tick = Clock.tick_length
+      @thread = Thread.new do
+        loop do
+          dispatch
+          clock.update(tick)
+          sleep(tick)
+        end
       end
 
       #.........................................................................................................
-      def play
+      def flush
+        @queue.clear
       end
 
       #.........................................................................................................
-      def 
-      
+      def at(time, &blk)
+        time = time.to_f if time.kind_of? Time
+        @queue.push [time, blk]
+      end
+
+    private
+
+      #.........................................................................................................
+      def dispatch
+        now = Time.now.to_f
+        ready, @queue = @queue.partition {|time, blk| time.to_f <= now.to_f}
+        ready.each {|time, blk| blk[time]}
+      end
+
     #### self
     end
-    
-    #####-------------------------------------------------------------------------------------------------------
-    attr_reader :channels, :clock
-    
-    #.........................................................................................................
-    def intitialize()
-    end
 
-  #### Stream
+  #### Dispatcher
   end
 
-#### Zgomot::Comp 
+#### Zgomot::Midi 
 end

@@ -1,2 +1,2 @@
 require 'zgomot/comp/key'
-require 'zgomot/comp/note'
+require 'zgomot/comp/mode'

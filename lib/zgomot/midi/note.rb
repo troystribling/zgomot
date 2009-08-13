@@ -26,7 +26,7 @@ module Zgomot::Comp
     CIRCLE_OF_FIFTHS_MINOR = [:A, :E, :B, :Fs, :Cs, :Gs, :Ds, :Bb, :F, :C, :G, :D]
 
     #.........................................................................................................
-    DURATION = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024].select{|d| d <= Clock.resolution}
+    LENGTH = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024].select{|d| d <= Clock.resolution}
 
     #.........................................................................................................
     OCTAVE = (-1..9).to_a
@@ -43,18 +43,18 @@ module Zgomot::Comp
     end
     
     #####-------------------------------------------------------------------------------------------------------
-    attr_reader :time, :pitch_class, :duration, :octave, :midi, :velocity
+    attr_reader :time, :pitch_class, :length, :octave, :midi, :velocity
   
     #.........................................................................................................
     def initialize(args)
       [:time, :pitch].each{|a| raise ArgumentError "#{a} is a required argument" unless args.include?(a)}
       @time = args[:time]
-      @pitch_class, @octave = (args[:pitch].kind_of?(Array) ? args[:pitch] : [args[:pitch], 5])
-      @duration = args[:duration] || 4
+      @pitch_class, @octave = (args[:pitch].kind_of?(Array) ? args[:pitch] : [args[:pitch], 4])
+      @length = args[:length] || 4
       @velocity = args[:velocity] || 100 
       @midi = to_midi(pitch_class, octave)
       raise ArgumentError "#{octave} is invalid octave" unless OCTAVE.include?(octave)
-      raise ArgumentError "#{duration} is invalid duration" unless DURATION.include?(duration)
+      raise ArgumentError "#{length} is invalid duration" unless LENGTH.include?(duration)
       raise ArgumentError "#{args[:pitch].inspect} is invalid" if midi.nil?
       raise ArgumentError "#{velocity} is invalid velocity" unless velocity < 128
     end
@@ -70,7 +70,7 @@ module Zgomot::Comp
 
   #.........................................................................................................
   def sec
-    Clock.whole_note_sec/duration
+    Clock.whole_note_sec/length
   end
   
   #### Note
