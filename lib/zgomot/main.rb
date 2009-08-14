@@ -43,7 +43,9 @@ module Zgomot
     end
 
     delegate Zgomot::Boot, :before_start
-    delegate Zgomot::Midi::Stream, :stream
+    delegate Zgomot::Midi::Stream, :strm
+    delegate Zgomot::Midi::Channel, :chize
+    delegate Zgomot::Comp::Patterns, :n, :c
 
   #### Delegator 
   end

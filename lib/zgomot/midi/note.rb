@@ -43,15 +43,14 @@ module Zgomot::Comp
     end
     
     #####-------------------------------------------------------------------------------------------------------
-    attr_reader :time, :pitch_class, :length, :octave, :midi, :velocity
+    attr_reader :pitch_class, :length, :octave, :midi, :velocity
+    attr_accessor :time
   
     #.........................................................................................................
-    def initialize(args)
-      [:time, :pitch].each{|a| raise ArgumentError "#{a} is a required argument" unless args.include?(a)}
-      @time = args[:time]
-      @pitch_class, @octave = (args[:pitch].kind_of?(Array) ? args[:pitch] : [args[:pitch], 4])
-      @length = args[:length] || 4
-      @velocity = args[:velocity] || 100 
+    def initialize(n)
+      @time = nil
+      @pitch_class, @octave = n[:pitch]
+      @length, @velocity = n[:length], n[:velocity] 
       @midi = to_midi(pitch_class, octave)
       raise ArgumentError "#{octave} is invalid octave" unless OCTAVE.include?(octave)
       raise ArgumentError "#{length} is invalid duration" unless LENGTH.include?(duration)

@@ -11,13 +11,12 @@ module Zgomot::Midi
       @streams = []
 
       #.........................................................................................................
-      def stream(name, opts={}, &blk)
+      def strm(name, opts={}, &blk)
         strm = new()
-        if blk.arity.eql?(0)
-          strm.define_meta_class_method(:play, &blk)   
-        elsif blk.arity.eql?(1) 
+        opts[:infinite] = true if blk.arity > 0 
+        if opts[:infinite]
         else
-          raise ArgumentError "block argument arity must be 0 or 1"
+          strm.define_meta_class_method(:play, &blk)   
         end   
         streams << strm
       end
