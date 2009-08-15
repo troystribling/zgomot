@@ -5,7 +5,7 @@ module Zgomot::Midi
   class Channel
 
     #.........................................................................................................
-    include Transforms
+    include Zgomot::Comp::Transforms
     
     #####-------------------------------------------------------------------------------------------------------
     class << self
@@ -17,26 +17,18 @@ module Zgomot::Midi
       attr_reader :channels
 
       #.........................................................................................................
-      def chize(pattern, opts={})
-        channels << new(pattern, aquire_channel(opts[:chan]))
+      def ch(num, opts={})
+        channels << new(is_valid(num))
       end
 
       #.........................................................................................................
-      def aquire_channel_number(number=nil)
-        if number
-          raise ZgomotError "1<= channel <= 16" if number > 15 or number < 1
-          if not channels.select{|c| c.number.eql?(number)}.empty?
-            raise ZgomotError "channel #{number} in use" 
-          else; number; end 
-        else
-          number = (1..16).to_a.inject(nil){|c,i| channels.select{|c| c.number.eql?(i)}.empty? ? c = i : c}
-          raise ZgomotError "channel #{number} in use" unless number; number
-        end
+      def is_valid(num)
+        [num].flatten.each{|n| raise ZgomotError "1<= channel <= 16" if num > 15 or num < 1}
       end
 
       #.........................................................................................................
-      def release_channel(chan)
-        channels.delete_if{|c| c.number = chan.number}
+      def release(chan)
+        channels.delete_if{|c| c.eql?(chan)}
       end
 
     #### self
@@ -46,12 +38,11 @@ module Zgomot::Midi
     attr_reader :number, :clock, :pattern
     
     #.........................................................................................................
-    def intitialize(pattern, number)
-      @pattern = pattern
+    def intitialize(num)
+      @pattern = []
       @number = number
       @clock = Clock.new
       @notes = []
-      self << pattern
     end
 
     #.........................................................................................................
@@ -84,7 +75,7 @@ module Zgomot::Midi
       raise ArgumentError "must be Zgomot::Midi::Note" unless n.kind_of?(Zgomot::Midi::Note)  
       if n.pitch_class.eql?(:R)    
         n.time = clock.current_time
-        @notes << note unless
+        @notes << note
       end
     end    
     clock.update(items.first.sec)
@@ -93,5 +84,5 @@ module Zgomot::Midi
   #### Channel
   end
 
-#### Zgomot::Comp 
+#### Zgomot::Midi 
 end

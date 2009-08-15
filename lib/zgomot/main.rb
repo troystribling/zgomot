@@ -1,26 +1,5 @@
 ##############################################################################################################
-OptionParser.new do |opts|
-  opts.banner = 'Usage: agent_xmpp.rb [options]'
-  opts.separator ''
-  opts.on('-c', '--config config.yml', 'YAML agent configuration file relative to application path') {|f| AgentXmpp.config_file = f}
-  opts.on('-l', '--logfile file.log', 'name of logfile') {|f| AgentXmpp.log_file = f}
-  opts.on_tail('-h', '--help', 'Show this message') {
-    puts opts
-    exit
-  }
-  opts.parse!(ARGV)
-end
-
-##############################################################################################################
 module Zgomot
-  
-  #####-------------------------------------------------------------------------------------------------------
-  class ZgomotError < Exception; end
-  
-  #####-------------------------------------------------------------------------------------------------------
-  class << self            
-  #### self
-  end
   
   #####-------------------------------------------------------------------------------------------------------
   module Delegator 
@@ -43,8 +22,8 @@ module Zgomot
     end
 
     delegate Zgomot::Boot, :before_start
-    delegate Zgomot::Midi::Stream, :strm
-    delegate Zgomot::Midi::Channel, :chize
+    delegate Zgomot::Midi::Stream, :str
+    delegate Zgomot::Midi::Channel, :ch
     delegate Zgomot::Comp::Patterns, :n, :c
 
   #### Delegator 
@@ -57,4 +36,7 @@ end
 include Zgomot::Delegator
 
 ##############################################################################################################
-at_exit {Zgomot::Boot.boot}
+at_exit do 
+  Zgomot::Boot.boot
+  sleep unless Zgomot.live
+end

@@ -1,5 +1,5 @@
 ##############################################################################################################
-module Zgomot::Comp
+module Zgomot::Midi
 
   #####-------------------------------------------------------------------------------------------------------
   class Note
@@ -39,7 +39,8 @@ module Zgomot::Comp
         start_pos = PITCH_CLASS[pc]
         PITCH_CLASS.inject([]){|r,(c,p)|  p.eql?(start_pos+interval) ? r << c : r}.first if start_pos
       end
-      
+    
+    #### self  
     end
     
     #####-------------------------------------------------------------------------------------------------------
@@ -58,19 +59,19 @@ module Zgomot::Comp
       raise ArgumentError "#{velocity} is invalid velocity" unless velocity < 128
     end
 
+    #.........................................................................................................
+    def sec
+      Clock.whole_note_sec/length
+    end
+
   private
   
-  #.........................................................................................................
-  def to_midi(pitch_class, octave)
-    if PITCH_CLASS[pitch_class]
-      (midi = 12*(octave+1)+PITCH_CLASS[pitch_class]) <= 127 ? midi : nil
-    else
-  end
-
-  #.........................................................................................................
-  def sec
-    Clock.whole_note_sec/length
-  end
+    #.........................................................................................................
+    def to_midi(pitch_class, octave)
+      if PITCH_CLASS[pitch_class]
+        (midi = 12*(octave+1)+PITCH_CLASS[pitch_class]) <= 127 ? midi : nil
+      end
+    end
   
   #### Note
   end

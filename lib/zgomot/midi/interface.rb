@@ -11,16 +11,16 @@ module Zgomot::Midi
       attr_reader :driver
     
       #.........................................................................................................
-      @driver = MIDIator::Interface.new
-      driver.autodetect_driver
-
-      #.........................................................................................................
       def method_missing(method, *args, &blk )
         return @driver.send(method, *args, &blk)
       end
 
     #### self
     end
+    
+    #.........................................................................................................
+    @driver = MIDIator::Interface.new
+    driver.autodetect_driver
     
   #### Interface
   end

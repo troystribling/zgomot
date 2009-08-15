@@ -4,6 +4,11 @@ module Zgomot::Midi
   #####-------------------------------------------------------------------------------------------------------
   class Dispatcher
 
+    #.........................................................................................................
+    @queue = []
+    @clock = Clock.new
+    @tick = Clock.tick_sec
+
     #####-------------------------------------------------------------------------------------------------------
     class << self
       
@@ -11,38 +16,30 @@ module Zgomot::Midi
       attr_reader :resolution, :queue, :thread, :clock, :tick
 
       #.........................................................................................................
-      @queue = []
-      @clock = Clock.new
-      @tick = Clock.tick_length
-      @thread = Thread.new do
-        loop do
-          dispatch
-          clock.update(tick)
-          sleep(tick)
-        end
-      end
-
-      #.........................................................................................................
       def flush
         @queue.clear
-      end
-
-      #.........................................................................................................
-      def at(time, &blk)
-        time = time.to_f if time.kind_of? Time
-        @queue.push [time, blk]
       end
 
     private
 
       #.........................................................................................................
       def dispatch
-        now = Time.now.to_f
-        ready, @queue = @queue.partition {|time, blk| time.to_f <= now.to_f}
-        ready.each {|time, blk| blk[time]}
+        now = ::Time.now.to_f
+        # ready, @queue = @queue.partition {|n| n.time.to_f <= now.to_f}
       end
 
     #### self
+    end
+
+    #.........................................................................................................
+    @thread = Thread.new do
+      loop do
+        dispatch
+p tick        
+        clock.update(tick)
+p tick
+        sleep(tick)
+      end
     end
 
   #### Dispatcher

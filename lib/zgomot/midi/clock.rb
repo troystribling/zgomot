@@ -8,7 +8,7 @@ module Zgomot::Midi
     attr_reader :measure, :beat, :tick, :seconds
   
     #.........................................................................................................
-    def initialize(arg)
+    def initialize(arg=nil)
       if arg.kind_of?(Hash)
         [:measure, :beat, :tick].each{|a| raise ArgumentError "#{a} is a required argument" unless args.include?(a)}
         init_with_measure_beat_tick(arg) 
@@ -54,21 +54,21 @@ module Zgomot::Midi
   #####-------------------------------------------------------------------------------------------------------
   class Clock
 
+    #.........................................................................................................
+    @beats_per_measure, @beat_note = Zgomot.config[:time_signature].split('/').map{|v| v.to_f}
+    @beats_per_minute = Zgomot.config[:beats_per_minute].to_f
+    @resolution = Zgomot.config[:resolution].split('/').last.to_f
+    @beat_sec= 60.0/@beats_per_minute
+    @whole_note_sec = @beat_sec*@beat_note
+    @measure_sec = @beat_sec*@beats_per_measure
+    @tick_sec = @whole_note_sec/(4*@resolution)
+
     #####-------------------------------------------------------------------------------------------------------
     class << self
 
       #.........................................................................................................
-      @beats_per_measure, @beat_note = Zgomot.config[:time_signature].split('/').map{|v| v.to_f}
-      @beats_per_minute = Zgomot.config[:beats_per_minute].to_f
-      @resolution = Zgomot.config[:resolution].split('/').last.to_f
-      @beat_sec= 60.0/@beats_per_minute
-      @whole_note_sec = @beat_sec*@beat_note
-      @measure_sec = @beat_sec*@beats_per_measure
-      @tick_sec = @whole_note_sec/(4*@resolution)
-
-      #.........................................................................................................
       attr_reader :beat_note, :beats_per_measure, :beats_per_minute, :resolution, 
-                  :beat_sec, :whole_note_sec, :measure_sec, :tick_sec, 
+                  :beat_sec, :whole_note_sec, :measure_sec, :tick_sec
           
     #### self
     end
@@ -78,7 +78,7 @@ module Zgomot::Midi
     
     #...........................................................................................................
     def initialize
-      @current_time = Midi::Time.new
+      @current_time = Time.new
     end
 
     #...........................................................................................................
@@ -90,9 +90,8 @@ module Zgomot::Midi
               else
                 raise ArgumentError "argument must by of type Float or Zgomot::Midi::Time" 
               end
-      current_time = Midi::Time.new(current_secs)              
+      current_time = Time.new(csecs)              
     end
-
 
   #### Clock
   end

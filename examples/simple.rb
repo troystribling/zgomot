@@ -7,3 +7,8 @@ before_start do
   Zgomot.logger.info "before_start"
   puts "#{Zgomot.config.inspect}"
 end
+
+#.........................................................................................................
+str 'simple' do
+  
+end
