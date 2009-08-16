@@ -34,10 +34,8 @@ module Zgomot::Midi
     #.........................................................................................................
     @thread = Thread.new do
       loop do
-        dispatch
-p tick        
+        dispatch        
         clock.update(tick)
-p tick
         sleep(tick)
       end
     end

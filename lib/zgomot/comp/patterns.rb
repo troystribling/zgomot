@@ -9,12 +9,12 @@ module Zgomot::Comp
     
       #.........................................................................................................
       def n(pc, oct=4, len=4, v=100)
-        Midi::Note.new(:pitch => [pc, oct], :length => len, :velocity => v)
+        Zgomot::Midi::Note.new(:pitch => [pc, oct], :length => len, :velocity => v)
       end
 
       #.........................................................................................................
       def c(ps, len=4, v=100)
-        ps.map{|p| Midi::Note.new(:pitch => p, :length => len, :velocity => v)}
+        ps.map{|p| Zgomot::Midi::Note.new(:pitch => p, :length => len, :velocity => v)}
       end
 
     #### self

@@ -22,8 +22,9 @@ module Zgomot
     end
 
     delegate Zgomot::Boot, :before_start
-    delegate Zgomot::Midi::Stream, :str
+    delegate Zgomot::Midi::Stream, :str, :play
     delegate Zgomot::Midi::Channel, :ch
+    delegate Zgomot::Midi::Dispatcher, :clock
     delegate Zgomot::Comp::Patterns, :n, :c
 
   #### Delegator 

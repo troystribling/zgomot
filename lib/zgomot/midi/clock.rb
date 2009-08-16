@@ -44,8 +44,7 @@ module Zgomot::Midi
 
     #.........................................................................................................
     def init_with_nil
-      @measure, @beat, @tick = 0, 0, 0
-      @seconds = 0.0
+      @measure, @beat, @tick, @seconds = 0, 0, 0, 0.0
     end
     
   #### Time
@@ -83,14 +82,14 @@ module Zgomot::Midi
 
     #...........................................................................................................
     def update(time)
-      csecs = if sec.kind_of?(Float)
+      csecs = if time.kind_of?(Float)
                 current_time.to_f + time
-              elsif sec.kind_of?(Zgomot::Midi::Time)
+              elsif time.kind_of?(Zgomot::Midi::Time)
                 current_time.to_f + time.to_f
               else
                 raise ArgumentError "argument must by of type Float or Zgomot::Midi::Time" 
               end
-      current_time = Time.new(csecs)              
+      @current_time = Time.new(csecs)
     end
 
   #### Clock

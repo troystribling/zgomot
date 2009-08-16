@@ -19,24 +19,35 @@ module Zgomot::Midi
         opts[:infinite] = true if blk.arity > 0 
         if opts[:infinite]
         else
-          strm.define_meta_class_method(:play, &blk)   
+          strm.define_meta_class_method(:play, &blk) 
+p strm          
+p n(:C)          
+p strm.play            
         end           
-        streams << strm
+        @streams << strm
       end
 
       #.........................................................................................................
-      def play
-        streams.each{|s| s.play}
+      def play  
+        streams.each{|s| p s; s.play_channels}
       end
       
     #### self
     end
     
     #####-------------------------------------------------------------------------------------------------------
-    attr_reader :channels, :clock
+    attr_reader :channels
     
     #.........................................................................................................
     def intitialize()
+    end
+
+    #.........................................................................................................
+    def play_channels      
+p play      
+      if (ch = play).kind_of?(Channel)
+        p ch
+      end
     end
 
   #### Stream
