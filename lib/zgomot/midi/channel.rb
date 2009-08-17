@@ -7,23 +7,25 @@ module Zgomot::Midi
     #.........................................................................................................
     include Zgomot::Comp::Transforms
     
+    #.........................................................................................................
+    @channels = []
+    
     #####-------------------------------------------------------------------------------------------------------
     class << self
       
       #.........................................................................................................
-      @channels = []
-
-      #.........................................................................................................
       attr_reader :channels
 
       #.........................................................................................................
-      def ch(num, opts={})
-        channels << new(is_valid(num))
+      def ch(num=1, opts={})
+        (channels << new(is_valid(num), opts)).last
       end
 
       #.........................................................................................................
       def is_valid(num)
-        [num].flatten.each{|n| raise ZgomotError "1<= channel <= 16" if num > 15 or num < 1}
+        nums = [num].flatten
+        valid = nums.select{|n| 1 <= n and n <= 16 }
+        valid.length.eql?(nums.length) ? num : raise(Zgomot::ZgomotError, "channel number invalid: 1<= channel <= 16")
       end
 
       #.........................................................................................................
@@ -35,11 +37,12 @@ module Zgomot::Midi
     end
     
     #####-------------------------------------------------------------------------------------------------------
-    attr_reader :number, :clock, :pattern
+    attr_reader :number, :clock, :notes
+    attr_accessor :time_offset
     
     #.........................................................................................................
-    def intitialize(num)
-      @pattern = []
+    def initialize(num, opts={})
+      @time_offset = opts[:time_offset] || 0.0
       @number = number
       @clock = Clock.new
       @notes = []
@@ -52,15 +55,15 @@ module Zgomot::Midi
     
     #.........................................................................................................
     def <<(item)
-      add_at_time(item)
+      add_at_time(item); self
     end
 
     #.........................................................................................................
     def +(items)
       raise ArgumentError "must be Array" unless items.kind_of?(Array)
-      items.each {|n| add_at_time(n)}
+      items.each {|n| add_at_time(n)}; self
     end
-    
+
     #.........................................................................................................
     def method_missing(method, *args, &blk )
       return @notes.send(method, *args, &blk)
@@ -68,18 +71,18 @@ module Zgomot::Midi
 
   private
   
-  #.........................................................................................................
-  def add_at_time(item)
-    items = [item].flatten
-    items.flatten.each do |n|
-      raise ArgumentError "must be Zgomot::Midi::Note" unless n.kind_of?(Zgomot::Midi::Note)  
-      if n.pitch_class.eql?(:R)    
-        n.time = clock.current_time
-        @notes << note
-      end
-    end    
-    clock.update(items.first.sec)
-  end
+    #.........................................................................................................
+    def add_at_time(item)
+      items = [item].flatten
+      items.flatten.each do |n|
+        raise ArgumentError "must be Zgomot::Midi::Note" unless n.kind_of?(Zgomot::Midi::Note)  
+        unless n.pitch_class.eql?(:R)    
+          n.time = clock.current_time
+          @notes << n
+        end
+      end  
+      clock.update(items.first.length_to_sec)
+    end
   
   #### Channel
   end

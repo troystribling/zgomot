@@ -6,6 +6,9 @@ module Zgomot::Midi
 
     #.........................................................................................................
     @queue = []
+    @queue.extend(MonitorMixin)
+    
+    #.........................................................................................................
     @clock = Clock.new
     @tick = Clock.tick_sec
 
@@ -20,12 +23,25 @@ module Zgomot::Midi
         @queue.clear
       end
 
+      #.........................................................................................................
+      def enqueue(ch)
+        queue.synchronize do
+          @queue += ch.notes
+        end
+      end
+        
+      #.........................................................................................................
+      def dequeue(time)
+        queue.synchronize do
+          ready, @queue = queue.partition {|n| n.play_at <= time}
+        end
+      end
+
     private
 
       #.........................................................................................................
       def dispatch
-        now = ::Time.now.to_f
-        # ready, @queue = @queue.partition {|n| n.time.to_f <= now.to_f}
+        dequeue(::Time.now.to_f)
       end
 
     #### self

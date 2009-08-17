@@ -6,6 +6,7 @@ module Zgomot
 
   #.........................................................................................................
   VERSION = "0.0.0"
+  PLAY_DELAY = 1.0
 
   #.........................................................................................................
   DEFAULT_CONFIG = {
@@ -42,9 +43,9 @@ module Zgomot
   OptionParser.new do |opts|
     opts.banner = 'Usage: agent_xmpp.rb [options]'
     opts.separator ''
-    opts.on('-c', '--config config.yml', 'YAML agent configuration file relative to application path') {|f| config_file = f}
-    opts.on('-f', '--logfile file.log', 'name of logfile') {|f| log_file = f}
-    opts.on('-l', '--logfile file.log', 'name of logfile') {|l| live = true}
+    opts.on('-c', '--config config.yml', 'YAML agent configuration file relative to application path') {|f| @config_file = f}
+    opts.on('-f', '--logfile file.log', 'name of logfile') {|f| @log_file = f}
+    opts.on('-l', '--live', 'name of logfile') {|l| @live = true}
     opts.on_tail('-h', '--help', 'Show this message') {
       puts opts
       exit

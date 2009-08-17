@@ -45,23 +45,34 @@ module Zgomot::Midi
     
     #####-------------------------------------------------------------------------------------------------------
     attr_reader :pitch_class, :length, :octave, :midi, :velocity
-    attr_accessor :time
+    attr_accessor :time, :start_time
   
     #.........................................................................................................
     def initialize(n)
       @time = nil
+      @start_time = 0.0
       @pitch_class, @octave = n[:pitch]
       @length, @velocity = n[:length], n[:velocity] 
       @midi = to_midi(pitch_class, octave)
       raise ArgumentError "#{octave} is invalid octave" unless OCTAVE.include?(octave)
-      raise ArgumentError "#{length} is invalid duration" unless LENGTH.include?(duration)
+      raise ArgumentError "#{length} is invalid duration" unless LENGTH.include?(length)
       raise ArgumentError "#{args[:pitch].inspect} is invalid" if midi.nil?
       raise ArgumentError "#{velocity} is invalid velocity" unless velocity < 128
     end
 
     #.........................................................................................................
-    def sec
+    def length_to_sec
       Clock.whole_note_sec/length
+    end
+
+    #.........................................................................................................
+    def to_s
+      "pitch=[#{pitch_class.to_s}, #{octave}], duration=1/#{length}, midi=#{midi}, velocity=#{velocity}"
+    end
+    
+    #.........................................................................................................
+    def play_at
+      time.to_f + start_time.to_f
     end
 
   private

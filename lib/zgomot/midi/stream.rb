@@ -20,16 +20,13 @@ module Zgomot::Midi
         if opts[:infinite]
         else
           strm.define_meta_class_method(:play, &blk) 
-p strm          
-p n(:C)          
-p strm.play            
         end           
         @streams << strm
       end
 
       #.........................................................................................................
-      def play  
-        streams.each{|s| p s; s.play_channels}
+      def play 
+        streams.each{|s| s.dispatch(::Time.now.to_f + Zgomot::PLAY_DELAY)}
       end
       
     #### self
@@ -39,14 +36,13 @@ p strm.play
     attr_reader :channels
     
     #.........................................................................................................
-    def intitialize()
+    def initialize()
     end
 
     #.........................................................................................................
-    def play_channels      
-p play      
-      if (ch = play).kind_of?(Channel)
-        p ch
+    def dispatch(time)       
+      if (chan = play).kind_of?(Zgomot::Midi::Channel)        
+        Zgomot::Midi::Dispatcher.enqueue(chan.time_shift(time))
       end
     end
 

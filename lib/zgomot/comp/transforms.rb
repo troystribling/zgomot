@@ -4,18 +4,17 @@ module Zgomot::Comp
   #####-------------------------------------------------------------------------------------------------------
   module Transforms
 
-    #####-------------------------------------------------------------------------------------------------------
-    class << self
-      
-      #.........................................................................................................
-      def repeat(notes, times, opts={})
-        (1..times).to_a.inject(Midi::Channel.create(opts[:chan])) do |c,i|
-          notes.kind_of?(Array) ? c + notes : c << notes
-        end
-      end
+    #.........................................................................................................
+    def repeat(times, opts={})
+      (1..times).to_a.inject(Midi::Channel.create(opts[:chan])) do |c,i|
+        notes.kind_of?(Array) ? c + notes : c << notes
+      end; self
+    end
 
-      #### self
-      end
+    #.........................................................................................................
+    def time_shift(secs)
+      notes.each{|n| n.start_time=secs+time_offset.to_f}; self
+    end
 
   #### Repeat
   end
