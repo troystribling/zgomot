@@ -38,21 +38,16 @@ module Zgomot::Midi
     
     #####-------------------------------------------------------------------------------------------------------
     attr_reader :number, :clock, :notes
-    attr_accessor :time_offset
+    attr_accessor :offset_time
     
     #.........................................................................................................
     def initialize(num, opts={})
-      @time_offset = opts[:time_offset] || 0.0
+      @offset_time = opts[:offset_time] || 0.0
       @number = number
       @clock = Clock.new
       @notes = []
     end
 
-    #.........................................................................................................
-    def notes
-      @notes.flatten.compact 
-    end
-    
     #.........................................................................................................
     def <<(item)
       add_at_time(item); self
@@ -78,6 +73,7 @@ module Zgomot::Midi
         raise ArgumentError "must be Zgomot::Midi::Note" unless n.kind_of?(Zgomot::Midi::Note)  
         unless n.pitch_class.eql?(:R)    
           n.time = clock.current_time
+          n.channel = number
           @notes << n
         end
       end  

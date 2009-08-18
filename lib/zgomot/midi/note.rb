@@ -45,12 +45,12 @@ module Zgomot::Midi
     
     #####-------------------------------------------------------------------------------------------------------
     attr_reader :pitch_class, :length, :octave, :midi, :velocity
-    attr_accessor :time, :start_time
+    attr_accessor :time, :offset_time, :channel
   
     #.........................................................................................................
     def initialize(n)
       @time = nil
-      @start_time = 0.0
+      @offset_time = 0.0
       @pitch_class, @octave = n[:pitch]
       @length, @velocity = n[:length], n[:velocity] 
       @midi = to_midi(pitch_class, octave)
@@ -72,7 +72,7 @@ module Zgomot::Midi
     
     #.........................................................................................................
     def play_at
-      time.to_f + start_time.to_f
+      time.to_f + offset_time.to_f
     end
 
   private

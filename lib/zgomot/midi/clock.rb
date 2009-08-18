@@ -60,14 +60,14 @@ module Zgomot::Midi
     @beat_sec= 60.0/@beats_per_minute
     @whole_note_sec = @beat_sec*@beat_note
     @measure_sec = @beat_sec*@beats_per_measure
-    @tick_sec = @whole_note_sec/(4*@resolution)
+    @tick_sec = @whole_note_sec/(2*@resolution)
 
     #####-------------------------------------------------------------------------------------------------------
     class << self
 
       #.........................................................................................................
-      attr_reader :beat_note, :beats_per_measure, :beats_per_minute, :resolution, 
-                  :beat_sec, :whole_note_sec, :measure_sec, :tick_sec
+      attr_accessor :beat_note, :beats_per_measure, :beats_per_minute, :resolution, 
+                    :beat_sec, :whole_note_sec, :measure_sec, :tick_sec
           
     #### self
     end

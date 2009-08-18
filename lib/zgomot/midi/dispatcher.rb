@@ -6,7 +6,8 @@ module Zgomot::Midi
 
     #.........................................................................................................
     @queue = []
-    @queue.extend(MonitorMixin)
+    @playing = []
+    @qmutex = Mutex.new
     
     #.........................................................................................................
     @clock = Clock.new
@@ -16,7 +17,7 @@ module Zgomot::Midi
     class << self
       
       #.........................................................................................................
-      attr_reader :resolution, :queue, :thread, :clock, :tick
+      attr_reader :resolution, :queue, :thread, :clock, :tick, :qmutex, :playing
 
       #.........................................................................................................
       def flush
@@ -24,16 +25,16 @@ module Zgomot::Midi
       end
 
       #.........................................................................................................
-      def enqueue(ch)
-        queue.synchronize do
-          @queue += ch.notes
+      def enqueue(ch)        
+        qmutex.synchronize do
+          @queue += ch.notes.flatten.compact
         end
       end
         
       #.........................................................................................................
       def dequeue(time)
-        queue.synchronize do
-          ready, @queue = queue.partition {|n| n.play_at <= time}
+        qmutex.synchronize do
+          queue.partition{|n| n.play_at <= time}
         end
       end
 
@@ -41,7 +42,24 @@ module Zgomot::Midi
 
       #.........................................................................................................
       def dispatch
-        dequeue(::Time.now.to_f)
+        now = ::Time.now.to_f
+        ready, @queue = dequeue(now)
+p ready        
+        notes_on(ready)
+        notes_off(now)
+      end
+
+      #.........................................................................................................
+      def notes_on(notes)
+        # notes.each{|n| puts "ON: #{n}";Interface.note_on(n.midi, n.channel, n.velocity)}
+        @playing += notes
+      end
+
+      #.........................................................................................................
+      def notes_off(time)
+        turn_off, @playing = playing.partition{|n| (n.play_at+n.length_to_sec) >= time}
+p turn_off        
+        # turn_off.each{|n| puts "OFF: #{n}";Interface.note_off(n.midi, n.channel, n.velocity)}
       end
 
     #### self

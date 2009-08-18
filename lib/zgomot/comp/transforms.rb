@@ -13,7 +13,7 @@ module Zgomot::Comp
 
     #.........................................................................................................
     def time_shift(secs)
-      notes.each{|n| n.start_time=secs+time_offset.to_f}; self
+      notes.each{|n| n.offset_time=secs+offset_time.to_f}; self
     end
 
   #### Repeat

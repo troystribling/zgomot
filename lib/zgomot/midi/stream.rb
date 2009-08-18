@@ -14,9 +14,9 @@ module Zgomot::Midi
       attr_reader :streams
 
       #.........................................................................................................
-      def str(name, opts={}, &blk)
-        strm = new()
-        opts[:infinite] = true if blk.arity > 0 
+      def str(name, pattern, opts={}, &blk)
+        strm = new(pattern)
+        raise ArgumentError 'str block arity must be 2' unless blk.arity.eql?(2)
         if opts[:infinite]
         else
           strm.define_meta_class_method(:play, &blk) 
@@ -33,16 +33,19 @@ module Zgomot::Midi
     end
     
     #####-------------------------------------------------------------------------------------------------------
-    attr_reader :channels
+    attr_reader :patterns, :times, :status
     
     #.........................................................................................................
-    def initialize()
+    def initialize(pattern)
+      @patterns = [pattern]
+      @times = [Time.new]
+      @status = :playing
     end
 
     #.........................................................................................................
     def dispatch(time)       
-      if (chan = play).kind_of?(Zgomot::Midi::Channel)        
-        Zgomot::Midi::Dispatcher.enqueue(chan.time_shift(time))
+      if (chan = play(times.first, patterns.first)).kind_of?(Zgomot::Midi::Channel)      
+        Dispatcher.enqueue(chan.time_shift(time))
       end
     end
 
