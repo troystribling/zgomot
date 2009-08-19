@@ -17,15 +17,15 @@ module Zgomot::Midi
       attr_reader :channels
 
       #.........................................................................................................
-      def ch(num=1, opts={})
+      def ch(num=0, opts={})
         (channels << new(is_valid(num), opts)).last
       end
 
       #.........................................................................................................
       def is_valid(num)
         nums = [num].flatten
-        valid = nums.select{|n| 1 <= n and n <= 16 }
-        valid.length.eql?(nums.length) ? num : raise(Zgomot::ZgomotError, "channel number invalid: 1<= channel <= 16")
+        valid = nums.select{|n| 0 <= n and n <= 15 }
+        valid.length.eql?(nums.length) ? num : raise(Zgomot::Error, "channel number invalid: 1<= channel <= 16")
       end
 
       #.........................................................................................................
@@ -43,7 +43,7 @@ module Zgomot::Midi
     #.........................................................................................................
     def initialize(num, opts={})
       @offset_time = opts[:offset_time] || 0.0
-      @number = number
+      @number = num
       @clock = Clock.new
       @notes = []
     end
@@ -55,7 +55,7 @@ module Zgomot::Midi
 
     #.........................................................................................................
     def +(items)
-      raise ArgumentError "must be Array" unless items.kind_of?(Array)
+      raise(Zgomot::Error, "must be Array") unless items.kind_of?(Array)
       items.each {|n| add_at_time(n)}; self
     end
 
@@ -64,13 +64,18 @@ module Zgomot::Midi
       return @notes.send(method, *args, &blk)
     end
 
+    #.........................................................................................................
+    def to_sec
+      clock.current_time.to_f
+    end
+
   private
   
     #.........................................................................................................
     def add_at_time(item)
       items = [item].flatten
       items.flatten.each do |n|
-        raise ArgumentError "must be Zgomot::Midi::Note" unless n.kind_of?(Zgomot::Midi::Note)  
+        raise(Zgomot::Error, "must be Zgomot::Midi::Note") unless n.kind_of?(Zgomot::Midi::Note)  
         unless n.pitch_class.eql?(:R)    
           n.time = clock.current_time
           n.channel = number

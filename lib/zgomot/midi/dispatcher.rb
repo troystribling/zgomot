@@ -44,22 +44,26 @@ module Zgomot::Midi
       def dispatch
         now = ::Time.now.to_f
         ready, @queue = dequeue(now)
-p ready        
         notes_on(ready)
         notes_off(now)
       end
 
       #.........................................................................................................
       def notes_on(notes)
-        # notes.each{|n| puts "ON: #{n}";Interface.note_on(n.midi, n.channel, n.velocity)}
+        notes.each do |n| 
+          Zgomot.logger.info "NOTE ON: #{n.to_s}:#{n.time.to_s}:#{clock.current_time.to_s}"
+         Interface.driver.note_on(n.midi, n.channel, n.velocity)
+        end
         @playing += notes
       end
 
       #.........................................................................................................
       def notes_off(time)
-        turn_off, @playing = playing.partition{|n| (n.play_at+n.length_to_sec) >= time}
-p turn_off        
-        # turn_off.each{|n| puts "OFF: #{n}";Interface.note_off(n.midi, n.channel, n.velocity)}
+        turn_off, @playing = playing.partition{|n| (n.play_at+n.length_to_sec) <= time}
+        turn_off.each do |n| 
+          Zgomot.logger.info "NOTE OFF:#{n.to_s}:#{n.time.to_s}:#{clock.current_time.to_s}"
+          Interface.driver.note_off(n.midi, n.channel, n.velocity)
+        end
       end
 
     #### self

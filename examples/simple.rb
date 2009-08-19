@@ -7,8 +7,9 @@ before_start do
   puts "#{Zgomot.config.inspect}"
 end
 
+score = [n(:C,5), n(:B), n(:R), n(:G), n(:C,4,2), n(:E,5,2)]
 #.........................................................................................................
-str 'simple', [n(:C), n(:B), n(:R), n(:G)] do |clock, pattern|
+str 'simple', score do |clock, pattern|
   ch + pattern
 end
 

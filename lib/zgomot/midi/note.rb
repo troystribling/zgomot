@@ -54,10 +54,10 @@ module Zgomot::Midi
       @pitch_class, @octave = n[:pitch]
       @length, @velocity = n[:length], n[:velocity] 
       @midi = to_midi(pitch_class, octave)
-      raise ArgumentError "#{octave} is invalid octave" unless OCTAVE.include?(octave)
-      raise ArgumentError "#{length} is invalid duration" unless LENGTH.include?(length)
-      raise ArgumentError "#{args[:pitch].inspect} is invalid" if midi.nil?
-      raise ArgumentError "#{velocity} is invalid velocity" unless velocity < 128
+      raise(Zgomot::Error, "#{octave} is invalid octave") unless OCTAVE.include?(octave)
+      raise(Zgomot::Error, "#{length} is invalid duration") unless LENGTH.include?(length)
+      raise(Zgomot::Error, "#{n[:pitch].inspect} is invalid") if midi.nil?
+      raise(Zgomot::Error, "#{velocity} is invalid velocity") unless velocity < 128
     end
 
     #.........................................................................................................
@@ -67,7 +67,7 @@ module Zgomot::Midi
 
     #.........................................................................................................
     def to_s
-      "pitch=[#{pitch_class.to_s}, #{octave}], duration=1/#{length}, midi=#{midi}, velocity=#{velocity}"
+      "[#{pitch_class.to_s},#{octave}].#{length}.#{midi}.#{velocity}"
     end
     
     #.........................................................................................................

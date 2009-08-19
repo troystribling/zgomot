@@ -10,7 +10,7 @@ module Zgomot::Midi
     #.........................................................................................................
     def initialize(arg=nil)
       if arg.kind_of?(Hash)
-        [:measure, :beat, :tick].each{|a| raise ArgumentError "#{a} is a required argument" unless args.include?(a)}
+        [:measure, :beat, :tick].each{|a| raise(Zgomot::Error, "#{a} is a required argument") unless args.include?(a)}
         init_with_measure_beat_tick(arg) 
       elsif arg.nil?; init_with_nil     
       elsif arg.kind_of?(Float); init_with_seconds(arg); end
@@ -87,7 +87,7 @@ module Zgomot::Midi
               elsif time.kind_of?(Zgomot::Midi::Time)
                 current_time.to_f + time.to_f
               else
-                raise ArgumentError "argument must by of type Float or Zgomot::Midi::Time" 
+                raise(Zgomot::Error, "argument must by of type Float or Zgomot::Midi::Time") 
               end
       @current_time = Time.new(csecs)
     end
