@@ -46,8 +46,7 @@ module Zgomot::Midi
                     @count += 1
                     if self.respond_to?(play_meth, true)  
                       if (chan = self.send(play_meth)).kind_of?(Zgomot::Midi::Channel)  
-                       chan_copy =  Marshal.load(Marshal.dump(chan))
-                       Dispatcher.enqueue(chan_copy.time_shift(start_time+ch_time))
+                       Dispatcher.enqueue(chan.time_shift(start_time+ch_time))
                       else; break; end
                     else
                       raise(Zgomot::Error, 'str block arity not supported')
@@ -66,7 +65,7 @@ module Zgomot::Midi
   
     #.........................................................................................................
     def play0;play;end
-    def play2;play(times.last, patterns.last);end
+    def play2;play(times.last, Marshal.load(Marshal.dump(patterns.last)));end
     
   #### Stream
   end
