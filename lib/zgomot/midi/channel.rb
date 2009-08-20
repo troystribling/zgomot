@@ -76,11 +76,9 @@ module Zgomot::Midi
       items = [item].flatten
       items.flatten.each do |n|
         raise(Zgomot::Error, "must be Zgomot::Midi::Note") unless n.kind_of?(Zgomot::Midi::Note)  
-        unless n.pitch_class.eql?(:R)    
-          n.time = clock.current_time
-          n.channel = number
-          @notes << n
-        end
+        n.time = clock.current_time
+        n.channel = number
+        @notes << n
       end  
       clock.update(items.first.length_to_sec)
     end

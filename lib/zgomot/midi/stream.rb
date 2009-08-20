@@ -14,13 +14,9 @@ module Zgomot::Midi
       attr_reader :streams
 
       #.........................................................................................................
-      def str(name, pattern, limit=1, opts={}, &blk)
-        strm = new(pattern, limit)
-        raise(Zgomot::Error, 'str block arity must be 2') unless blk.arity.eql?(2)
-        if opts[:infinite]
-        else
-          strm.define_meta_class_method(:play, &blk) 
-        end           
+      def str(name, pattern=nil, opts={}, &blk)
+        strm = new(name, blk.arity, pattern, opts[:limit])
+        strm.define_meta_class_method(:play, &blk) 
         @streams << strm
       end
 
@@ -33,38 +29,45 @@ module Zgomot::Midi
     end
     
     #####-------------------------------------------------------------------------------------------------------
-    attr_reader :patterns, :times, :status, :count, :thread
+    attr_reader :patterns, :times, :status, :count, :thread, :limit, :name, :play_meth
     
     #.........................................................................................................
-    def initialize(pattern, limit)
-      @patterns = [pattern]
-      @times = [Time.new]
-      @status = :playing
-      @limit = limit
-      @count = 0
-      @thread = nil
+    def initialize(name, arity, pattern, limit)
+      @patterns, @times = [pattern], [Time.new]
+      @limit, @name, @count, @thread, @status = limit || 1, name, 0, nil, :playing
+      @play_meth = "play#{arity.eql?(-1) ? 0 : arity}".to_sym
     end
 
     #.........................................................................................................
-    def dispatch(offset)    
-      Thread.new do
-        loop do
-          pattern, time = patterns.last, times.last
-          @count += 1
-          if (chan = play(time, pattern)).kind_of?(Zgomot::Midi::Channel)  
-            Dispatcher.enqueue(chan.time_shift(offset))
-          else; break; end
-          break if not limit.eql?(:inf) and count.eql?(limit)
-          csec = chan.to_sec
-          offset += csec
-          patterns << chan.notes
-          times << Time.new(csec)
-          delay 
-          sleep(0.95*csec)
-        end
+    def dispatch(start_time)  
+      ch_time = 0.0  
+      @thread = Thread.new do
+                  loop do
+                    @count += 1
+                    if self.respond_to?(play_meth, true)  
+                      if (chan = self.send(play_meth)).kind_of?(Zgomot::Midi::Channel)  
+                       chan_copy =  Marshal.load(Marshal.dump(chan))
+                       Dispatcher.enqueue(chan_copy.time_shift(start_time+ch_time))
+                      else; break; end
+                    else
+                      raise(Zgomot::Error, 'str block arity not supported')
+                    end
+                    Zgomot.logger.info "STREAM:#{name}:#{count}"
+                    break if not limit.eql?(:inf) and count.eql?(limit)
+                    ch_time += chan.to_sec; patterns << chan.notes; times << Time.new(ch_time)
+                    sleep(0.90*(start_time+ch_time-::Time.now.to_f))
+                  end
+        Zgomot.logger.info "STREAM:#{name}:finished"
+        @status = :finished          
       end         
     end
 
+  private
+  
+    #.........................................................................................................
+    def play0;play;end
+    def play2;play(times.last, patterns.last);end
+    
   #### Stream
   end
 

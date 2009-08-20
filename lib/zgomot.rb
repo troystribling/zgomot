@@ -7,7 +7,7 @@ require 'monitor'
 require 'midiator'
 
 require 'zgomot/config'
-require 'zgomot/app'
+require 'zgomot/boot'
 require 'zgomot/patches'
 require 'zgomot/comp'
 require 'zgomot/midi'

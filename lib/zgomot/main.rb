@@ -39,5 +39,7 @@ include Zgomot::Delegator
 ##############################################################################################################
 at_exit do 
   Zgomot::Boot.boot
-  sleep unless Zgomot.live
+  unless Zgomot.live
+    sleep 
+  end
 end
