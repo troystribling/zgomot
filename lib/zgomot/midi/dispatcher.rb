@@ -17,7 +17,7 @@ module Zgomot::Midi
     class << self
       
       #.........................................................................................................
-      attr_reader :resolution, :queue, :thread, :clock, :tick, :qmutex, :playing
+      attr_reader :resolution, :queue, :thread, :clock, :tick, :qmutex, :playing, :last_time
 
       #.........................................................................................................
       def flush
@@ -41,8 +41,7 @@ module Zgomot::Midi
     private
 
       #.........................................................................................................
-      def dispatch
-        now = ::Time.now.to_f
+      def dispatch(now)
         ready, @queue = dequeue(now)
         notes_on(ready)
         notes_off(now)
@@ -72,8 +71,10 @@ module Zgomot::Midi
     #.........................................................................................................
     @thread = Thread.new do
       loop do
-        dispatch        
-        clock.update(tick)
+        now = ::Time.now.truncate_to(Clock.tick_sec)
+        dispatch(now)       
+        clock.update(last_time.nil? ? tick : now-last_time)
+        @last_time = now
         sleep(tick)
       end
     end

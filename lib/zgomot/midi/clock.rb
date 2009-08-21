@@ -81,11 +81,13 @@ module Zgomot::Midi
     end
 
     #...........................................................................................................
-    def update(time)
+    def update(time=nil)
       csecs = if time.kind_of?(Float)
                 current_time.to_f + time
               elsif time.kind_of?(Zgomot::Midi::Time)
                 current_time.to_f + time.to_f
+              elsif time.nil?
+                current_time.to_f + Clock.tick_sec
               else
                 raise(Zgomot::Error, "argument must by of type Float or Zgomot::Midi::Time") 
               end

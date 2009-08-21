@@ -1,14 +1,14 @@
 ##############################################################################################################
 module Zgomot  
   module CoreLibrary
-    module ObjectPatches
+    module TimePatches
     
       ####----------------------------------------------------------------------------------------------------
       module InstanceMethods
   
         #.......................................................................................................
-        def define_meta_class_method(name, &blk)
-          (class << self; self; end).instance_eval {define_method(name, &blk)}
+        def truncate_to(tick_sec)
+          tick_sec*(to_f/tick_sec).to_i
         end
 
       #### InstanceMethods
@@ -22,4 +22,4 @@ module Zgomot
 end
 
 ##############################################################################################################
-Object.send(:include, Zgomot::CoreLibrary::ObjectPatches::InstanceMethods)
+Time.send(:include, Zgomot::CoreLibrary::TimePatches::InstanceMethods)

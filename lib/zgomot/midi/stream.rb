@@ -22,7 +22,7 @@ module Zgomot::Midi
 
       #.........................................................................................................
       def play 
-        streams.each{|s| s.dispatch(::Time.now.to_f + Zgomot::PLAY_DELAY)}
+        streams.each{|s| s.dispatch(::Time.now.truncate_to(Clock.tick_sec) + Zgomot::PLAY_DELAY)}
       end
       
     #### self
@@ -54,7 +54,7 @@ module Zgomot::Midi
                     Zgomot.logger.info "STREAM:#{name}:#{count}"
                     break if not limit.eql?(:inf) and count.eql?(limit)
                     ch_time += chan.to_sec; patterns << chan.notes; times << Time.new(ch_time)
-                    sleep(0.90*(start_time+ch_time-::Time.now.to_f))
+                    sleep(0.90*(start_time+ch_time-::Time.now.truncate_to(Clock.tick_sec)))
                   end
         Zgomot.logger.info "STREAM:#{name}:finished"
         @status = :finished          
