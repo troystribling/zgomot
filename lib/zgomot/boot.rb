@@ -15,11 +15,11 @@ module Zgomot
         Zgomot.logger = Logger.new(Zgomot.log_file, 10, 1024000)
 
         ####..............
-        Zgomot.logger.info "STARTING Zgomot"
+        Zgomot.logger.info "ZGOMOT BEGINNING"
         Zgomot.logger.info "APPLICATION PATH: #{Zgomot.app_path}"
         Zgomot.logger.info "LOG FILE: #{Zgomot.log_file.kind_of?(String) ? Zgomot.log_file : "STDOUT"}"
         Zgomot.logger.info "CONFIGURATION FILE: #{Zgomot.config_file}"
-        Zgomot.logger.level = Logger::WARN 
+        # Zgomot.logger.level = Logger::WARN 
 
         ####..............
         call_if_implemented(:call_before_start)

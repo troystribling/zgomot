@@ -22,7 +22,7 @@ module Zgomot
     end
 
     delegate Zgomot::Boot, :before_start
-    delegate Zgomot::Midi::Stream, :str, :play
+    delegate Zgomot::Midi::Stream, :str, :play, :streams
     delegate Zgomot::Midi::Channel, :ch
     delegate Zgomot::Midi::Dispatcher, :clock
     delegate Zgomot::Comp::Patterns, :n, :c
@@ -38,8 +38,13 @@ include Zgomot::Delegator
 
 ##############################################################################################################
 at_exit do 
-  Zgomot::Boot.boot
   unless Zgomot.live
-    sleep 
+    Zgomot::Boot.boot
+    Zgomot::Midi::Stream.streams.each{|s| s.thread.join}
+    loop do
+      break if Zgomot::Midi::Dispatcher.queue.empty?
+      sleep(Zgomot::DISPATCHER_POLL)
+    end
   end
+  Zgomot.logger.info "ZGOMOT IS FINISHED"    
 end

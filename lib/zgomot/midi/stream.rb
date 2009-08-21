@@ -15,14 +15,14 @@ module Zgomot::Midi
 
       #.........................................................................................................
       def str(name, pattern=nil, opts={}, &blk)
-        strm = new(name, blk.arity, pattern, opts[:limit])
+        strm = new(name, blk.arity, pattern, opts[:lim])
         strm.define_meta_class_method(:play, &blk) 
         @streams << strm
       end
 
       #.........................................................................................................
       def play 
-        streams.each{|s| s.dispatch(::Time.now.truncate_to(Clock.tick_sec) + Zgomot::PLAY_DELAY)}
+        streams.each{|s| s.dispatch(::Time.now.truncate_to(Clock.tick_sec) + Zgomot::PLAY_DELAY) if s.status.eql?(:new)}
       end
       
     #### self
@@ -34,13 +34,13 @@ module Zgomot::Midi
     #.........................................................................................................
     def initialize(name, arity, pattern, limit)
       @patterns, @times = [pattern], [Time.new]
-      @limit, @name, @count, @thread, @status = limit || 1, name, 0, nil, :playing
+      @limit, @name, @count, @thread, @status = limit || 1, name, 0, nil, :new
       @play_meth = "play#{arity.eql?(-1) ? 0 : arity}".to_sym
     end
 
     #.........................................................................................................
     def dispatch(start_time)  
-      ch_time = 0.0  
+      ch_time, @status = 0.0, :playing 
       @thread = Thread.new do
                   loop do
                     @count += 1
@@ -51,12 +51,12 @@ module Zgomot::Midi
                     else
                       raise(Zgomot::Error, 'str block arity not supported')
                     end
-                    Zgomot.logger.info "STREAM:#{name}:#{count}"
+                    Zgomot.logger.info "STREAM:#{count}:#{name}"
                     break if not limit.eql?(:inf) and count.eql?(limit)
                     ch_time += chan.to_sec; patterns << chan.notes; times << Time.new(ch_time)
                     sleep(0.90*(start_time+ch_time-::Time.now.truncate_to(Clock.tick_sec)))
                   end
-        Zgomot.logger.info "STREAM:#{name}:finished"
+        Zgomot.logger.info "STREAM FINISHED:#{name}"
         @status = :finished          
       end         
     end

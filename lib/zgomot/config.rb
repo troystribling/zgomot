@@ -7,6 +7,7 @@ module Zgomot
   #.........................................................................................................
   VERSION = "0.0.0"
   PLAY_DELAY = 1.0
+  DISPATCHER_POLL = 1.0
 
   #.........................................................................................................
   DEFAULT_CONFIG = {
@@ -39,26 +40,13 @@ module Zgomot
   #### self
   end
 
-  #.........................................................................................................
-  OptionParser.new do |opts|
-    opts.banner = 'Usage: agent_xmpp.rb [options]'
-    opts.separator ''
-    opts.on('-c', '--config config.yml', 'YAML agent configuration file relative to application path') {|f| @config_file = f}
-    opts.on('-f', '--logfile file.log', 'name of logfile') {|f| @log_file = f}
-    opts.on('-l', '--live', 'name of logfile') {|l| @live = true}
-    opts.on_tail('-h', '--help', 'Show this message') {
-      puts opts
-      exit
-    }
-    opts.parse!(ARGV)
-  end
-
   #.......................................................................................................
   @config_file = add_path(config_file)
   user_config = if File.exist?(config_file)
                   (c = File.open(config_file) {|yf| YAML::load(yf)}) ? c : {}
                 else; {}; end
   @config = DEFAULT_CONFIG.inject({}){|r,(k,v)| r.update(k => (user_config[k.to_s] || v))}         
+  Zgomot.logger.info "CONFIGURATION: #{Zgomot.config.inspect}"    
                           
 end
 
