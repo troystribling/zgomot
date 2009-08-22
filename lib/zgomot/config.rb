@@ -46,7 +46,6 @@ module Zgomot
                   (c = File.open(config_file) {|yf| YAML::load(yf)}) ? c : {}
                 else; {}; end
   @config = DEFAULT_CONFIG.inject({}){|r,(k,v)| r.update(k => (user_config[k.to_s] || v))}         
-  Zgomot.logger.info "CONFIGURATION: #{Zgomot.config.inspect}"    
                           
 end
 

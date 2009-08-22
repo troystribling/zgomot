@@ -1,25 +1,11 @@
 ##############################################################################################################
-module Zgomot  
-  module CoreLibrary
-    module ObjectPatches
-    
-      ####----------------------------------------------------------------------------------------------------
-      module InstanceMethods
-  
-        #.......................................................................................................
-        def define_meta_class_method(name, &blk)
-          (class << self; self; end).instance_eval {define_method(name, &blk)}
-        end
+class Object  
 
-      #### InstanceMethods
-      end  
-        
-    #### ObjectPatches
-    end
-  ##### CoreLibrary
+  #.......................................................................................................
+  def define_meta_class_method(name, &blk)
+    (class << self; self; end).instance_eval {define_method(name, &blk)}
   end
-#### AgentXmpp
+
+#### Object
 end
 
-##############################################################################################################
-Object.send(:include, Zgomot::CoreLibrary::ObjectPatches::InstanceMethods)

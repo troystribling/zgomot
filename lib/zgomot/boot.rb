@@ -11,18 +11,17 @@ module Zgomot
       def boot
         
         ####..............
-        Zgomot.log_file = add_path(Zgomot.log_file) if Zgomot.log_file.kind_of?(String)
-        Zgomot.logger = Logger.new(Zgomot.log_file, 10, 1024000)
+        Zgomot.logger = Logger.new(STDOUT)
+        Zgomot.logger.level = Logger::WARN 
+
+        ####..............
+        call_if_implemented(:call_before_start)
 
         ####..............
         Zgomot.logger.info "ZGOMOT BEGINNING"
         Zgomot.logger.info "APPLICATION PATH: #{Zgomot.app_path}"
-        Zgomot.logger.info "LOG FILE: #{Zgomot.log_file.kind_of?(String) ? Zgomot.log_file : "STDOUT"}"
         Zgomot.logger.info "CONFIGURATION FILE: #{Zgomot.config_file}"
-        # Zgomot.logger.level = Logger::WARN 
-
-        ####..............
-        call_if_implemented(:call_before_start)
+        Zgomot.logger.info "CONFIGURATION: #{Zgomot.config.inspect}"    
         
       end
       
