@@ -49,8 +49,8 @@ module Zgomot::Midi
   
     #.........................................................................................................
     def initialize(n)
-      @time = nil
-      @offset_time = 0.0
+      @offset_time = n[:offset_time] || 0.0
+      @channel, @time = n[:channel], n[:time]
       @pitch_class, @octave = n[:pitch]
       @length, @velocity = n[:length], n[:velocity] 
       @midi = to_midi(pitch_class, octave)
@@ -68,6 +68,11 @@ module Zgomot::Midi
     #.........................................................................................................
     def to_s
       "[#{pitch_class.to_s},#{octave}].#{length}.#{midi}.#{velocity}"
+    end
+
+    #.........................................................................................................
+    def to_notes
+      self
     end
     
     #.........................................................................................................
