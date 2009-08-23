@@ -2,39 +2,37 @@
 module Zgomot::Comp
 
   #####-------------------------------------------------------------------------------------------------------
-  class Chord
+  class Key
     
     #####-------------------------------------------------------------------------------------------------------
-    attr_reader :pitches, :length, :velocity, :time
-    attr_accessor :time, :offset_time, :channel
+    attr_reader :tonic, :mode
   
     #.........................................................................................................
-    def initialize(c)
-      @offset_time = n[:offset_time] || 0.0
-      @channel, @time = n[:channel], n[:time]
-      @length, @velocity = n[:length], n[:velocity] 
-      @pitches = n[:pitches]
+    def initialize(tonic, mode)
+      @mode = mode.kind_of?(:Mode) ? mode : Mode.new(mode)
+      @tonic = tonic
     end
 
     #.........................................................................................................
-    def length_to_sec
-      Clock.whole_note_sec/length
+    def piches
+      get_pitches
     end
 
+  private
+  
     #.........................................................................................................
-    def to_s
-      "#{pitches.inspect}.#{length}.#{midi}.#{velocity}"
+    def get_pitches
+      pc = mode.inject([tonic.first]) do |p,i| 
+             p << Zgomot::Midi::Note.next_pitch_class(tonic.first, sum(mode[0..i]))
+           end
     end
-
+    
     #.........................................................................................................
-    def to_notes
-      pitches.map do |p| 
-        Zgomot::Midi::Note.new(:pitch => p, :length => length, :velocity => velocity, :time => time, 
-                               :offset_time => offset_time, :channel => channel)
-      end
+    def sum(a)
+      a.inject(0) {|s,n| s+n}
     end
-      
-  #### Chord
+  
+  #### Key
   end
 
 #### Zgomot::Comp 

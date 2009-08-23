@@ -5,11 +5,24 @@ module Zgomot::Comp
   class Scale
     
     #####-------------------------------------------------------------------------------------------------------
-    attr_reader :intervals
+    attr_reader :intervals, :shift, :scale
   
     #.........................................................................................................
-    def initialize(int)
+    def initialize(int, shift)
       @intervals = int
+      @shift = shift
+      @scale = interval.clone
+      shift.times{scale}
+    end
+
+    #.........................................................................................................
+    def next
+      scale.push(scale.shift) 
+    end
+    
+    #.........................................................................................................
+    def method_missing(method, *args, &blk )
+      return scale.send(method, *args, &blk)
     end
       
   #### Scale

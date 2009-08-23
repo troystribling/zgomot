@@ -5,13 +5,14 @@ module Zgomot::Comp
   class Mode
     
     #.........................................................................................................
-    @modes = [:ionian, :dorian, :phygrian, :lydian, :mixolydian, :aeolian, :locrain]
+    @modes = [:ionian, :dorian, :phrygian, :lydian, :mixolydian, :aeolian, :locrian]
+    @intervals = [2,2,1,2,2,2,1]
     
     #####-------------------------------------------------------------------------------------------------------
     class << self
     
       #.........................................................................................................
-      attr_reader :modes
+      attr_reader :modes, :intervals
     
     #### self  
     end
@@ -21,7 +22,18 @@ module Zgomot::Comp
   
     #.........................................................................................................
     def initialize(mode = 0)
-      @mode = mode
+      @mode = if mode.kind_of?(:Symbol)
+                slef.class.modes.index(mode)
+              else
+                mode if mode < 6
+              end
+      raise(Zgomot::Error, 'mode invalid') if mode.nil?
+      @scale = Scale.new(self.class.intervals, mode)        
+    end
+      
+    #.........................................................................................................
+    def method_missing(method, *args, &blk )
+      return scale.send(method, *args, &blk)
     end
       
   #### Mode
