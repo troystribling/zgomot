@@ -30,16 +30,10 @@ module Zgomot::Midi
     #####-------------------------------------------------------------------------------------------------------
     class << self
 
-      #.........................................................................................................
-      def next_pitch_class(pc, interval)
-        start_pos = PITCH_CLASS[pc]
-        PITCH_CLASS.inject([]){|r,(c,p)|  p.eql?(start_pos+interval) ? r << c : r}.first if start_pos
-      end
-    
     #### self  
     end
     
-    #####-------------------------------------------------------------------------------------------------------
+    #.........................................................................................................
     attr_reader :pitch_class, :length, :octave, :midi, :velocity
     attr_accessor :time, :offset_time, :channel
   
@@ -80,8 +74,8 @@ module Zgomot::Midi
   
     #.........................................................................................................
     def to_midi(pitch_class, octave)
-      if PITCH_CLASS[pitch_class]
-        (midi = 12*(octave+1)+PITCH_CLASS[pitch_class]) <= 127 ? midi : nil
+      if MIDI_MAP_PITCH_CLASS[pitch_class]
+        (midi = 12*(octave+1)+MIDI_MAP_PITCH_CLASS[pitch_class]) <= 127 ? midi : nil
       end
     end
   

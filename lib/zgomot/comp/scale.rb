@@ -11,7 +11,7 @@ module Zgomot::Comp
     def initialize(int, shift)
       @intervals = int
       @shift = shift
-      @scale = interval.clone
+      @scale = int.clone
       shift.times{scale}
     end
 
@@ -22,7 +22,7 @@ module Zgomot::Comp
     
     #.........................................................................................................
     def method_missing(method, *args, &blk )
-      return scale.send(method, *args, &blk)
+      scale.send(method, *args, &blk)
     end
       
   #### Scale

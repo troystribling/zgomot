@@ -17,6 +17,11 @@ module Zgomot::Comp
         Chords.new(:pitches => ps, :length => len, :velocity => (127.0*v).to_i)
       end
 
+      #.........................................................................................................
+      def k(tonic, mode)
+        Key.new(tonic, mode)
+      end
+
     #### self
     end
 

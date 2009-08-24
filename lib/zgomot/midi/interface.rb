@@ -12,7 +12,7 @@ module Zgomot::Midi
     
       #.........................................................................................................
       def method_missing(method, *args, &blk )
-        return @driver.send(method, *args, &blk)
+        @driver.send(method, *args, &blk)
       end
 
     #### self
