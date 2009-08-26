@@ -7,7 +7,7 @@ before_start do
 end
 
 #.........................................................................................................
-str 'scales', [k([:A,3],:locrian,4)], :lim=>3 do |time, pattern|
+str 'scales', [k([:A,3],:locrian,4), k([:A,3],:locrian,4).reverse!], :lim=>3 do |time, pattern|
   ch + pattern
 end
 

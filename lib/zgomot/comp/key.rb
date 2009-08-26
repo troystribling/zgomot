@@ -5,16 +5,14 @@ module Zgomot::Comp
   class Key
      
     #.........................................................................................................
-    attr_reader :tonic, :mode, :length, :velocity, :time, :clock
+    attr_reader :tonic, :mode, :length, :velocity, :clock, :time
     attr_accessor :offset_time, :channel
   
     #.........................................................................................................
     def initialize(args)
       @offset_time = args[:offset_time] || 0.0
-      @channel, @time = args[:channel], args[:time]
-      @length, @velocity, @tonic = args[:length], args[:velocity], args[:tonic]
+      @length, @velocity, @tonic, @channel = args[:length], args[:velocity], args[:tonic], args[:channel]
       @mode = args[:mode].kind_of?(Mode) ? args[:mode] : Mode.new(args[:mode])
-      @clock = Zgomot::Midi::Clock.new
     end
 
     #.........................................................................................................
@@ -28,6 +26,29 @@ module Zgomot::Comp
       end.unshift(tonic)
     end
 
+#     #.........................................................................................................
+#     def reverse
+# p to_notes      
+#       to_notes.reverse 
+# p to_notes      
+#       self
+#     end
+    
+    #.........................................................................................................
+    def shift
+      (@notes = to_notes.shift); self
+    end
+
+    #.........................................................................................................
+    def pop
+      (@notes = to_notes.po); self
+    end
+
+    #.........................................................................................................
+    def method_missing(method, *args, &blk )
+      to_notes.send(method, *args, &blk); self
+    end
+
     #.........................................................................................................
     # channel and dispatch interface
     def length_to_sec
@@ -36,7 +57,9 @@ module Zgomot::Comp
 
     #.........................................................................................................
     def time=(t)
+      @clock = Zgomot::Midi::Clock.new
       clock.update(t)
+      @time = clock.current_time
       to_notes.each do |n|
         n.time = clock.current_time
         clock.update(n.length_to_sec)
