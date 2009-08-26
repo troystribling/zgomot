@@ -25,8 +25,13 @@ module Zgomot::Comp
 
       #.........................................................................................................
       def next(pc, interval)
-        start_pos = PITCH_CLASS[pc]
+        start_pos = PITCH_CLASS[to_value(pc)]
         new(PITCH_CLASS.inject([]){|r,(c,p)|  p.eql?((start_pos+interval) % 12) ? r << c : r}.first) if start_pos
+      end
+    
+      #.........................................................................................................
+      def to_value(p)
+        p.kind_of?(PitchClass) ? p.value : p
       end
     
     #### self  
@@ -43,16 +48,14 @@ module Zgomot::Comp
 
     #.........................................................................................................
     def <(p)
-      PITCH_CLASS[value] < PITCH_CLASS[to_value(p)]
+      PITCH_CLASS[value] < PITCH_CLASS[self.class.to_value(p)]
     end
-      
-  private
-      
-  #.........................................................................................................
-  def to_value(p)
-    p.kind_of?(PitchClass) ? p.value : p
-  end
-      
+
+    #.........................................................................................................
+    def >(p)
+      PITCH_CLASS[value] > PITCH_CLASS[self.class.to_value(p)]
+    end
+            
   #### PitchClass
   end
 

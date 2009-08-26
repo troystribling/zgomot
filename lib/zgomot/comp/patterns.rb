@@ -8,8 +8,8 @@ module Zgomot::Comp
     class << self
     
       #.......................................................................................................
-      def n(pc, oct=4, len=4, v=0.6)
-        Zgomot::Midi::Note.new(:pitch => [pc, oct], :length => len, :velocity => (127.0*v).to_i)
+      def n(p=[:C,4], len=4, v=0.6)
+        Zgomot::Midi::Note.new(:pitch => p, :length => len, :velocity => (127.0*v).to_i)
       end
 
       #.........................................................................................................
@@ -18,8 +18,8 @@ module Zgomot::Comp
       end
 
       #.........................................................................................................
-      def k(tonic, mode)
-        Key.new(tonic, mode)
+      def k(tonic=[:C,4], mode=0, len=4, v=0.6)
+        Key.new(:tonic => tonic, :mode => mode, :length => len, :velocity => (127.0*v).to_i)
       end
 
     #### self

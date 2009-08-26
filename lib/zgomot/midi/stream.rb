@@ -53,7 +53,8 @@ module Zgomot::Midi
                     end
                     Zgomot.logger.info "STREAM:#{count}:#{name}"
                     break if not limit.eql?(:inf) and count.eql?(limit)
-                    ch_time += chan.to_sec; patterns << chan.notes; times << Time.new(ch_time)
+                    patterns << chan.patterns
+                    ch_time += chan.length_to_sec; times << Time.new(ch_time)
                     sleep(0.90*(start_time+ch_time-::Time.now.truncate_to(Clock.tick_sec)))
                   end
         Zgomot.logger.info "STREAM FINISHED:#{name}"

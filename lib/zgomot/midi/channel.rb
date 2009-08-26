@@ -37,15 +37,13 @@ module Zgomot::Midi
     end
     
     #####-------------------------------------------------------------------------------------------------------
-    attr_reader :number, :clock, :notes
-    attr_accessor :offset_time
+    attr_reader :number, :clock, :patterns
     
     #.........................................................................................................
     def initialize(num, opts={})
-      @offset_time = opts[:offset_time] || 0.0
       @number = num
       @clock = Clock.new
-      @notes = []
+      @patterns = []
     end
 
     #.........................................................................................................
@@ -61,11 +59,11 @@ module Zgomot::Midi
 
     #.........................................................................................................
     def method_missing(method, *args, &blk )
-      @notes.send(method, *args, &blk)
+      patterns.send(method, *args, &blk)
     end
 
     #.........................................................................................................
-    def to_sec
+    def length_to_sec
       clock.current_time.to_f
     end
 
@@ -73,14 +71,10 @@ module Zgomot::Midi
   
     #.........................................................................................................
     def add_at_time(item)
-      items = [item].flatten
-      items.flatten.each do |n|
-        raise(Zgomot::Error, "must be Zgomot::Midi::Note") unless n.kind_of?(Zgomot::Midi::Note)  
-        n.time = clock.current_time
-        n.channel = number
-        @notes << n
-      end  
-      clock.update(items.first.length_to_sec)
+      item.time = clock.current_time
+      item.channel = number
+      @patterns << item.clone
+      clock.update(item.length_to_sec)
     end
   
   #### Channel

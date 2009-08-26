@@ -5,33 +5,69 @@ module Zgomot::Comp
   class Key
      
     #.........................................................................................................
-    attr_reader :tonic, :mode
+    attr_reader :tonic, :mode, :length, :velocity, :time, :clock
+    attr_accessor :offset_time, :channel
   
     #.........................................................................................................
-    def initialize(tonic, mode)
-      @mode = mode.kind_of?(Mode) ? mode : Mode.new(mode)
-      @tonic = tonic
+    def initialize(args)
+      @offset_time = args[:offset_time] || 0.0
+      @channel, @time = args[:channel], args[:time]
+      @length, @velocity, @tonic = args[:length], args[:velocity], args[:tonic]
+      @mode = args[:mode].kind_of?(Mode) ? args[:mode] : Mode.new(args[:mode])
+      @clock = Zgomot::Midi::Clock.new
     end
 
     #.........................................................................................................
     def pitches
-      get_pitches
-    end
-
-  private
-  
-    #.........................................................................................................
-    def get_pitches
-      pitch = [tonic.first]
-      mode[0..-2].each_index do |i| 
-        pitch << PitchClass.next(tonic.first, sum(mode[0..i]))
-      end
-      octave = tonic.last
-      pitch[1..-1].map do |p| 
-        [p.value, (p < :B ? octave : (octave+1))]
+      last_pitch, octave = tonic
+      pitch = [last_pitch]
+      mode[0..-2].each_index{|i| pitch << PitchClass.next(tonic.first, sum(mode[0..i]))}
+      pitch[1..-1].map do |p|
+        octave += 1 if p < last_pitch 
+        last_pitch = p.value; [last_pitch, octave]
       end.unshift(tonic)
     end
+
+    #.........................................................................................................
+    # channel and dispatch interface
+    def length_to_sec
+      notes.inject(0.0){|s,n| s += Zgomot::Midi::Clock.whole_note_sec/n.length}
+    end
+
+    #.........................................................................................................
+    def time=(t)
+      clock.update(t)
+      to_notes.each do |n|
+        n.time = clock.current_time
+        clock.update(n.length_to_sec)
+      end
+    end
     
+    #.........................................................................................................
+    def channel=(c)
+      to_notes.each{|n| n.channel = c}
+    end
+    
+    #.........................................................................................................
+    def to_notes
+      @notes || notes
+    end
+
+    #.........................................................................................................
+    def offset_time=(t)
+      to_notes.each{|n| n.offset_time = t}
+    end
+    
+  private
+
+    #.........................................................................................................
+    def notes
+      @notes = pitches.map do |p| 
+                 Zgomot::Midi::Note.new(:pitch => p, :length => length, :velocity => velocity,  
+                                        :time => time, :offset_time => offset_time, :channel => channel)
+               end
+    end
+  
     #.........................................................................................................
     def sum(a)
       a.inject(0) {|s,n| s+n}

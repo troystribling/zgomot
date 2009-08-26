@@ -27,7 +27,7 @@ module Zgomot::Midi
       #.........................................................................................................
       def enqueue(ch)        
         qmutex.synchronize do
-          @queue += ch.notes.flatten.compact.select{|n| not n.pitch_class.eql?(:R)}.map{|n| n.to_notes}
+          @queue += ch.patterns.map{|p| p.to_notes}.flatten.compact.select{|n| not n.pitch_class.eql?(:R)}
         end
       end
         
@@ -50,7 +50,7 @@ module Zgomot::Midi
       #.........................................................................................................
       def notes_on(notes)
         notes.each do |n| 
-          Zgomot.logger.info "NOTE ON: #{n.to_s}:#{n.time.to_s}:#{clock.current_time.to_s}"
+          Zgomot.logger.info "NOTE ON: #{n.to_s} : #{n.time.to_s} : #{clock.current_time.to_s}"
          Interface.driver.note_on(n.midi, n.channel, n.velocity)
         end
         @playing += notes
@@ -60,7 +60,7 @@ module Zgomot::Midi
       def notes_off(time)
         turn_off, @playing = playing.partition{|n| (n.play_at+n.length_to_sec) <= time}
         turn_off.each do |n| 
-          Zgomot.logger.info "NOTE OFF:#{n.to_s}:#{n.time.to_s}:#{clock.current_time.to_s}"
+          Zgomot.logger.info "NOTE OFF:#{n.to_s} : #{n.time.to_s} : #{clock.current_time.to_s}"
           Interface.driver.note_off(n.midi, n.channel, n.velocity)
         end
       end

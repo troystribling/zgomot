@@ -51,13 +51,19 @@ module Zgomot::Midi
     end
 
     #.........................................................................................................
-    def length_to_sec
-      Clock.whole_note_sec/length
+    def to_s
+      "[#{pitch_class.to_s},#{octave}].#{length}.#{midi}.#{velocity}"
     end
 
     #.........................................................................................................
-    def to_s
-      "[#{pitch_class.to_s},#{octave}].#{length}.#{midi}.#{velocity}"
+    def play_at
+      time.to_f + offset_time.to_f
+    end
+
+    #.........................................................................................................
+    # channel and dispatch interface
+    def length_to_sec
+      Clock.whole_note_sec/length
     end
 
     #.........................................................................................................
@@ -65,17 +71,12 @@ module Zgomot::Midi
       self
     end
     
-    #.........................................................................................................
-    def play_at
-      time.to_f + offset_time.to_f
-    end
-
   private
   
     #.........................................................................................................
     def to_midi(pitch_class, octave)
-      if MIDI_MAP_PITCH_CLASS[pitch_class]
-        (midi = 12*(octave+1)+MIDI_MAP_PITCH_CLASS[pitch_class]) <= 127 ? midi : nil
+      if PITCH_CLASS[pitch_class]
+        (midi = 12*(octave+1)+PITCH_CLASS[pitch_class]) <= 127 ? midi : nil
       end
     end
   
