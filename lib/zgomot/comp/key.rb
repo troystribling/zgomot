@@ -5,14 +5,14 @@ module Zgomot::Comp
   class Key
      
     #.........................................................................................................
-    attr_reader :tonic, :mode, :length, :velocity, :clock, :time
+    attr_reader :mode, :length, :velocity, :clock, :time, :tonic 
     attr_accessor :offset_time, :channel
   
     #.........................................................................................................
     def initialize(args)
       @offset_time = args[:offset_time] || 0.0
       @length, @velocity, @tonic, @channel = args[:length], args[:velocity], args[:tonic], args[:channel]
-      @mode = args[:mode].kind_of?(Mode) ? args[:mode] : Mode.new(args[:mode])
+      self.mode!(args[:mode])
     end
 
     #.........................................................................................................
@@ -26,22 +26,24 @@ module Zgomot::Comp
       end.unshift(tonic)
     end
 
-#     #.........................................................................................................
-#     def reverse
-# p to_notes      
-#       to_notes.reverse 
-# p to_notes      
-#       self
-#     end
-    
     #.........................................................................................................
-    def shift
-      (@notes = to_notes.shift); self
+    def mode!(v)
+      @mode = v.kind_of?(Mode) ? v : Mode.new(v); self
     end
 
     #.........................................................................................................
-    def pop
-      (@notes = to_notes.po); self
+    def tonic!(v)
+      @tonic = v; self
+    end
+
+    #.........................................................................................................
+    def velocity!(v)
+      @velocity = v; self
+    end
+
+    #.........................................................................................................
+    def length!(v)
+      @length = v; self
     end
 
     #.........................................................................................................
@@ -50,9 +52,9 @@ module Zgomot::Comp
     end
 
     #.........................................................................................................
-    # channel and dispatch interface
+    # midi interface
     def length_to_sec
-      notes.inject(0.0){|s,n| s += Zgomot::Midi::Clock.whole_note_sec/n.length}
+      to_notes.inject(0.0){|s,n| s += Zgomot::Midi::Clock.whole_note_sec/n.length}
     end
 
     #.........................................................................................................

@@ -25,7 +25,7 @@ module Zgomot::Comp
       @mode = if mode.kind_of?(Symbol)
                 self.class.modes.index(mode)
               else
-                mode if mode < 6
+                mode if mode <= 6
               end
       raise(Zgomot::Error, 'mode invalid') if @mode.nil?
       @scale = Scale.new(self.class.intervals, @mode)        

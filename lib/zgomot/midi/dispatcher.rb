@@ -27,7 +27,7 @@ module Zgomot::Midi
       #.........................................................................................................
       def enqueue(ch)        
         qmutex.synchronize do
-          @queue += ch.patterns.map{|p| p.to_notes}.flatten.compact.select{|n| not n.pitch_class.eql?(:R)}
+          @queue += ch.pattern.map{|p| p.to_notes}.flatten.compact.select{|n| not n.pitch_class.eql?(:R)}
         end
       end
         
@@ -43,8 +43,8 @@ module Zgomot::Midi
       #.........................................................................................................
       def dispatch(now)
         ready, @queue = dequeue(now)
-        notes_on(ready)
         notes_off(now)
+        notes_on(ready)
       end
 
       #.........................................................................................................

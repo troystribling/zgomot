@@ -7,13 +7,13 @@ module Zgomot::Comp
     #.........................................................................................................
     def repeat(times, opts={})
       (1..times).to_a.inject(Midi::Channel.create(opts[:chan])) do |c,i|
-        patterns.kind_of?(Array) ? c + patterns : c << patterns
+        c + pattern
       end; self
     end
 
     #.........................................................................................................
     def time_shift(secs)
-      patterns.each{|p| p.offset_time=secs}; self
+      pattern.each{|p| p.offset_time=secs}; self
     end
 
   #### Repeat

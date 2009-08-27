@@ -37,29 +37,24 @@ module Zgomot::Midi
     end
     
     #####-------------------------------------------------------------------------------------------------------
-    attr_reader :number, :clock, :patterns
+    attr_reader :number, :clock, :pattern
     
     #.........................................................................................................
     def initialize(num, opts={})
       @number = num
       @clock = Clock.new
-      @patterns = []
+      @pattern = []
     end
 
     #.........................................................................................................
-    def <<(item)
-      add_at_time(item); self
-    end
-
-    #.........................................................................................................
-    def +(items)
-      raise(Zgomot::Error, "must be Array") unless items.kind_of?(Array)
-      items.each {|n| add_at_time(n)}; self
+    def <<(pat)
+      raise(Zgomot::Error, "must be class Zgomot::Comp::Pattern") unless pat.kind_of?(Zgomot::Comp::Pattern)
+      pat.seq.each {|n| add_at_time(n)}; self
     end
 
     #.........................................................................................................
     def method_missing(method, *args, &blk )
-      patterns.send(method, *args, &blk)
+      pattern.send(method, *args, &blk)
     end
 
     #.........................................................................................................
@@ -68,12 +63,12 @@ module Zgomot::Midi
     end
 
   private
-  
+    
     #.........................................................................................................
     def add_at_time(item)
       item.time = clock.current_time
       item.channel = number
-      @patterns << item.clone
+      @pattern << item.clone
       clock.update(item.length_to_sec)
     end
   

@@ -33,7 +33,7 @@ module Zgomot::Midi
     
     #.........................................................................................................
     def initialize(name, arity, pattern, limit)
-      @patterns, @times = [pattern], [Time.new]
+      @patterns, @times = [Zgomot::Comp::Pattern.new(pattern)], [Time.new]
       @limit, @name, @count, @thread, @status = limit || 1, name, 0, nil, :new
       @play_meth = "play#{arity.eql?(-1) ? 0 : arity}".to_sym
     end
@@ -44,6 +44,7 @@ module Zgomot::Midi
       @thread = Thread.new do
                   loop do
                     @count += 1
+                    break if not limit.eql?(:inf) and count > limit
                     if self.respond_to?(play_meth, true)  
                       if (chan = self.send(play_meth)).kind_of?(Zgomot::Midi::Channel)  
                        Dispatcher.enqueue(chan.time_shift(start_time+ch_time))
@@ -52,8 +53,7 @@ module Zgomot::Midi
                       raise(Zgomot::Error, 'str block arity not supported')
                     end
                     Zgomot.logger.info "STREAM:#{count}:#{name}"
-                    break if not limit.eql?(:inf) and count.eql?(limit)
-                    patterns << chan.patterns
+                    patterns << Zgomot::Comp::Pattern.new(chan.pattern)
                     ch_time += chan.length_to_sec; times << Time.new(ch_time)
                     sleep(0.80*(start_time+ch_time-::Time.now.truncate_to(Clock.tick_sec)))
                   end
