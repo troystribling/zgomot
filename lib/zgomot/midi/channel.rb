@@ -48,7 +48,7 @@ module Zgomot::Midi
 
     #.........................................................................................................
     def <<(pat)
-      raise(Zgomot::Error, "must be class Zgomot::Comp::Pattern") unless pat.kind_of?(Zgomot::Comp::Pattern)
+      pat = Zgomot::Comp::Pattern.new(pat) unless pat.kind_of?(Zgomot::Comp::Pattern)
       pat.seq.each {|n| add_at_time(n)}; self
     end
 
