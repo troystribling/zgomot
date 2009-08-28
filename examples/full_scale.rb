@@ -7,7 +7,7 @@ before_start do
 end
 
 #.........................................................................................................
-str 'full_scale', [k([:A,1],5,4), n([:R,4])], :lim=>7 do |time, pattern|
+str 'full_scale', k([:A,1],5,4), :lim=>7 do |time, pattern|
   ch << pattern.tonic!([:A, count])
 end
 

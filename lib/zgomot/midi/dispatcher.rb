@@ -5,9 +5,8 @@ module Zgomot::Midi
   class Dispatcher
 
     #.........................................................................................................
-    @queue = []
-    @playing = []
-    @qmutex = Mutex.new
+    @queue, @playing = [], []
+    @qmutex, @qdispatch = Mutex.new, Mutex.new
     
     #.........................................................................................................
     @clock = Clock.new
@@ -17,11 +16,15 @@ module Zgomot::Midi
     class << self
       
       #.........................................................................................................
-      attr_reader :resolution, :queue, :thread, :clock, :tick, :qmutex, :playing, :last_time
+      attr_reader :resolution, :queue, :thread, :clock, :tick, :qmutex, :qdispatch, :playing, :last_time
 
       #.........................................................................................................
       def flush
         @queue.clear
+      end
+      #.........................................................................................................
+      def done?
+        qdispatch.synchronize{queue.empty? and playing.empty?}
       end
 
       #.........................................................................................................
@@ -42,9 +45,11 @@ module Zgomot::Midi
 
       #.........................................................................................................
       def dispatch(now)
-        ready, @queue = dequeue(now)
-        notes_off(now)
-        notes_on(ready)
+        qdispatch.synchronize do 
+          ready, @queue = dequeue(now)
+          notes_off(now)
+          notes_on(ready)
+        end
       end
 
       #.........................................................................................................
