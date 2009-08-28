@@ -28,21 +28,25 @@ module Zgomot::Comp
 
     #.........................................................................................................
     def mode!(v)
+      @notes = nil
       @mode = v.kind_of?(Mode) ? v : Mode.new(v); self
     end
 
     #.........................................................................................................
     def tonic!(p,o)
+      @notes = nil
       @tonic = [p,o]; self
     end
 
     #.........................................................................................................
     def velocity!(v)
+      @notes = nil
       @velocity = v; self
     end
 
     #.........................................................................................................
     def length!(v)
+      @notes = nil
       @length = v; self
     end
 
@@ -60,8 +64,7 @@ module Zgomot::Comp
     #.........................................................................................................
     def time=(t)
       @clock = Zgomot::Midi::Clock.new
-      clock.update(t)
-      @time = clock.current_time
+      clock.update(t); @time = clock.current_time
       to_notes.each do |n|
         n.time = clock.current_time
         clock.update(n.length_to_sec)
