@@ -41,7 +41,11 @@ module Zgomot::Midi
     def initialize(n)
       @offset_time = n[:offset_time] || 0.0
       @channel, @time = n[:channel], n[:time]
-      @pitch_class, @octave = n[:pitch]
+      @pitch_class, @octave = case n[:pitch]
+                                when Array then n[:pitch]
+                                when Symbol then [n[:pitch], 4]
+                                else raise(Zgomot::Error, "#{n[:pitch].inspect} is invalid")
+                                end
       @length, @velocity = n[:length], n[:velocity] 
       @midi = to_midi(pitch_class, octave)
       raise(Zgomot::Error, "#{octave} is invalid octave") unless OCTAVE.include?(octave)

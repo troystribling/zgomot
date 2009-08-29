@@ -21,11 +21,11 @@ module Zgomot::Comp
     attr_reader :scale, :mode
   
     #.........................................................................................................
-    def initialize(mode = 0)
+    def initialize(mode = 1)
       @mode = if mode.kind_of?(Symbol)
                 self.class.modes.index(mode)
               else
-                mode if mode <= 6
+                mode if mode > 0 and mode <= 7
               end
       raise(Zgomot::Error, 'mode invalid') if @mode.nil?
       @scale = Scale.new(self.class.intervals, @mode)        

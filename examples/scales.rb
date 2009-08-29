@@ -10,9 +10,9 @@ end
 pclass = [:C, :Cs, :D, :Ds, :E, :F, :Fs, :G, :Gs, :A, :As, :B]
 
 #.........................................................................................................
-str 'scale', [k(nil,:lydian,4), k(nil,:lydian,4).reverse!.shift, n([:R,4])], :lim=>pclass.length do |time, pattern|
-  Zgomot.logger.info "TONIC: [#{pclass[count-1]},4], MODE: lydian"
-  ch << pattern.tonic!(pclass[count-1], 4)
+str 'scale', [k(nil,:dorian,4), k(nil,:dorian,4).reverse!.shift, n(:R)], :lim=>pclass.length do |time, pattern|
+  Zgomot.logger.info "TONIC: [#{pclass[count-1]},4], MODE: dorian"
+  ch << pattern.tonic!([pclass[count-1], 4])
 end
 
 #.........................................................................................................
