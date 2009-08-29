@@ -25,24 +25,6 @@ module Zgomot::Comp
     #### self
     end
 
-    #####-------------------------------------------------------------------------------------------------------
-    class << self
-
-      #.........................................................................................................
-      def define_method(*methods)
-        methods.each do |method_name|
-          class_eval <<-RUBY
-            def #{method_name.to_s}(*args)
-              @notes = nil
-              @#{method_name.to_s} = args.first; self
-            end
-          RUBY
-        end
-      end
-    
-    #### self
-    end
-
     #...........................................................................................................
     attr_reader :seq
     

@@ -5,54 +5,55 @@ module Zgomot::Comp
   class Key
      
     #.........................................................................................................
-    attr_reader :mode, :length, :velocity, :clock, :time, :tonic 
+    attr_reader :mode, :length, :velocity, :clock, :time, :tonic, :progression, :chord 
     attr_accessor :offset_time, :channel
   
     #.........................................................................................................
     def initialize(args)
       @offset_time = args[:offset_time] || 0.0
-      @length, @velocity, @tonic, @channel = args[:length], args[:velocity], args[:tonic], args[:channel]
-      self.mode!(args[:mode])
+      @length, @velocity, @tonic = args[:length], args[:velocity], args[:tonic]
+      @chord, @channel = args[:chord], args[:channel]
+      @progression = (1..7).to_a
+      self.mode!(args[:mode]) if args[:mode]
     end
 
     #.........................................................................................................
     def pitches
-      last_pitch, octave = tonic
-      pitch = [last_pitch]
+      last_pitch, octave = tonic; pitch = [last_pitch]
       mode[0..-2].each_index{|i| pitch << PitchClass.next(tonic.first, sum(mode[0..i]))}
       pitch[1..-1].map do |p|
-        octave += 1 if p < last_pitch 
-        last_pitch = p.value; [last_pitch, octave]
+        octave += 1 if p < last_pitch; last_pitch = p.value; [last_pitch, octave]
       end.unshift(tonic)
     end
 
     #.........................................................................................................
-    def mode!(v)
-      @notes = nil
-      @mode = v.kind_of?(Mode) ? v : Mode.new(v); self
+    def tonic!(p,o)
+      @notes = nil; @tonic = [p,o]; self
     end
 
     #.........................................................................................................
-    def tonic!(p,o)
-      @notes = nil
-      @tonic = [p,o]; self
+    def mode!(v)
+      @notes = nil; @mode = v.kind_of?(Mode) ? v : Mode.new(v); self
     end
 
     #.........................................................................................................
     def velocity!(v)
-      @notes = nil
-      @velocity = v; self
+      @notes = nil; @velocity = v; self
     end
 
     #.........................................................................................................
     def length!(v)
-      @notes = nil
-      @length = v; self
+      @notes = nil; @length = v; self
     end
 
     #.........................................................................................................
-    def method_missing(method, *args, &blk )
-      to_notes.send(method, *args, &blk); self
+    def [](*args)
+      @progression = args; self
+    end
+    
+    #.........................................................................................................
+    def method_missing(method, *args, &blk)
+      progression.send(method, *args, &blk); self
     end
 
     #.........................................................................................................
@@ -90,8 +91,8 @@ module Zgomot::Comp
 
     #.........................................................................................................
     def notes
-      @notes = pitches.map do |p| 
-                 Zgomot::Midi::Note.new(:pitch => p, :length => length, :velocity => velocity,  
+      @notes = progression.map do |d| 
+                 Zgomot::Midi::Note.new(:pitch => pitches[d-1], :length => length, :velocity => velocity,  
                                         :time => time, :offset_time => offset_time, :channel => channel)
                end
     end
@@ -101,24 +102,6 @@ module Zgomot::Comp
       a.inject(0) {|s,n| s+n}
     end
   
-  #### Key
-  end
-
-  #####-------------------------------------------------------------------------------------------------------
-  class KeyNote
-    
-    #.........................................................................................................
-    attr_reader :pitch_class, :length, :octave, :midi, :velocity
-    attr_accessor :time, :offset_time, :channel
-  
-    #.........................................................................................................
-    def initialize(n)
-      @offset_time = n[:offset_time] || 0.0
-      @channel, @time = n[:channel], n[:time]
-      @pitch_class, @octave = n[:pitch]
-      @length, @velocity = n[:length], n[:velocity] 
-    end
-    
   #### Key
   end
 

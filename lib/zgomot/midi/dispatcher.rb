@@ -56,7 +56,7 @@ module Zgomot::Midi
       def notes_on(notes)
         notes.each do |n| 
           Zgomot.logger.info "NOTE ON: #{n.to_s} : #{n.time.to_s} : #{clock.current_time.to_s}"
-         Interface.driver.note_on(n.midi, n.channel, n.velocity)
+          Interface.driver.note_on(n.midi, n.channel, n.velocity)
         end
         @playing += notes
       end
