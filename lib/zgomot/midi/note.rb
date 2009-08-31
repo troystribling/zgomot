@@ -47,7 +47,7 @@ module Zgomot::Midi
                                 else raise(Zgomot::Error, "#{n[:pitch].inspect} is invalid")
                               end
       @length, @velocity = n[:length], n[:velocity] 
-      @midi = to_midi(pitch_class, octave)
+      @midi = pitch_to_midi(pitch_class, octave)
       raise(Zgomot::Error, "#{octave} is invalid octave") unless OCTAVE.include?(octave)
       raise(Zgomot::Error, "#{length} is invalid duration") unless LENGTH.include?(length)
       raise(Zgomot::Error, "#{n[:pitch].inspect} is invalid") if midi.nil?
@@ -71,14 +71,14 @@ module Zgomot::Midi
     end
 
     #.........................................................................................................
-    def to_notes
+    def to_midi
       self
     end
     
   private
   
     #.........................................................................................................
-    def to_midi(pitch_class, octave)
+    def pitch_to_midi(pitch_class, octave)
       if PITCH_CLASS[pitch_class]
         (midi = 12*(octave+1)+PITCH_CLASS[pitch_class]) <= 127 ? midi : nil
       end

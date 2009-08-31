@@ -13,8 +13,8 @@ module Zgomot::Comp
       end
 
       #.........................................................................................................
-      def c(ps, len=4, v=0.6)
-        Chords.new(:pitches => ps, :length => len, :velocity => (127.0*v).to_i)
+      def c(root, chord=:maj, len=4, v=0.6)
+        Chord.new(:root => root, :chord => chord, :length => len, :velocity => (127.0*v).to_i)
       end
 
       #.........................................................................................................

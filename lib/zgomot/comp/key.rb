@@ -59,14 +59,14 @@ module Zgomot::Comp
     #.........................................................................................................
     # midi interface
     def length_to_sec
-      to_notes.inject(0.0){|s,n| s += Zgomot::Midi::Clock.whole_note_sec/n.length}
+      get_notes.inject(0.0){|s,n| s += Zgomot::Midi::Clock.whole_note_sec/n.length}
     end
 
     #.........................................................................................................
     def time=(t)
       @clock = Zgomot::Midi::Clock.new
       clock.update(t); @time = clock.current_time
-      to_notes.each do |n|
+      get_notes.each do |n|
         n.time = clock.current_time
         clock.update(n.length_to_sec)
       end
@@ -74,20 +74,25 @@ module Zgomot::Comp
     
     #.........................................................................................................
     def channel=(c)
-      to_notes.each{|n| n.channel = c}
+      get_notes.each{|n| n.channel = c}
     end
     
     #.........................................................................................................
-    def to_notes
-      @notes || notes
+    def to_midi
+      get_notes
     end
 
     #.........................................................................................................
     def offset_time=(t)
-      to_notes.each{|n| n.offset_time = t}
+      get_notes.each{|n| n.offset_time = t}
     end
     
   private
+
+    #.........................................................................................................
+    def get_notes
+      @notes || notes
+    end
 
     #.........................................................................................................
     def notes

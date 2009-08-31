@@ -30,7 +30,7 @@ module Zgomot::Midi
       #.........................................................................................................
       def enqueue(ch)        
         qmutex.synchronize do
-          @queue += ch.pattern.map{|p| p.to_notes}.flatten.compact.select{|n| not n.pitch_class.eql?(:R)}
+          @queue += ch.pattern.map{|p| p.to_midi}.flatten.compact.select{|n| not n.pitch_class.eql?(:R)}
         end
       end
         
