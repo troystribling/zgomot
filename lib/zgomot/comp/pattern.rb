@@ -18,8 +18,8 @@ module Zgomot::Comp
       end
 
       #.........................................................................................................
-      def k(tonic=[:C,4], mode=0, len=4, v=0.6)
-        Key.new(:tonic => tonic, :mode => mode, :length => len, :velocity => (127.0*v).to_i)
+      def np(tonic=[:C,4], mode=0, len=4, v=0.6)
+        Progression.new(:tonic => tonic, :mode => mode, :length => len, :velocity => (127.0*v).to_i)
       end
 
     #### self

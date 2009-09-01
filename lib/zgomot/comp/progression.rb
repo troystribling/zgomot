@@ -2,7 +2,7 @@
 module Zgomot::Comp
 
   #####-------------------------------------------------------------------------------------------------------
-  class Key
+  class Progression
      
     #.........................................................................................................
     attr_reader :mode, :length, :velocity, :clock, :time, :tonic, :progression, :chord 
@@ -107,7 +107,7 @@ module Zgomot::Comp
       a.inject(0) {|s,n| s+n}
     end
   
-  #### Key
+  #### Progression
   end
 
 #### Zgomot::Comp 
