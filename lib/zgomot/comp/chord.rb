@@ -18,7 +18,22 @@ module Zgomot::Comp
     class << self
     
       #.........................................................................................................
-      attr_reader :all_intervals
+      attr_reader :all_intervals, :type
+
+      #.........................................................................................................
+      def init_class(args={})
+        @type = args[:type]
+      end
+      
+      #.........................................................................................................
+      # progession interface
+      #.........................................................................................................
+      def notes(prog)
+        prog.map do |d| 
+          new(:root => prog.pitches[d-1], :length => prog.length, :velocity => prog.velocity, 
+              :time => prog.time, :offset_time => prog.offset_time, :channel => prog.channel)
+        end
+      end
     
     #### self  
     end
@@ -51,6 +66,7 @@ module Zgomot::Comp
 
     #.........................................................................................................
     # channel and dispatch interface
+    #.........................................................................................................
     def length_to_sec
       Zgomot::Midi::Clock.whole_note_sec/length
     end

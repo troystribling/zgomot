@@ -5,7 +5,7 @@ module Zgomot::Comp
   class Progression
      
     #.........................................................................................................
-    attr_reader :mode, :length, :velocity, :clock, :time, :tonic, :progression, :chord 
+    attr_reader :mode, :length, :velocity, :clock, :time, :tonic, :items, :chord, :item_class 
     attr_accessor :offset_time, :channel
   
     #.........................................................................................................
@@ -13,7 +13,7 @@ module Zgomot::Comp
       @offset_time = args[:offset_time] || 0.0
       @length, @velocity, @tonic = args[:length], args[:velocity], args[:tonic]
       @chord, @channel = args[:chord], args[:channel]
-      @progression = (1..7).to_a
+      @items = (1..7).to_a
       self.mode!(args[:mode]) if args[:mode]
     end
 
@@ -48,12 +48,12 @@ module Zgomot::Comp
 
     #.........................................................................................................
     def [](*args)
-      @progression = args; self
+      @items = args; self
     end
     
     #.........................................................................................................
     def method_missing(method, *args, &blk)
-      @notes = nil; progression.send(method, *args, &blk); self
+      @notes = nil; items.send(method, *args, &blk); self
     end
 
     #.........................................................................................................
@@ -96,7 +96,7 @@ module Zgomot::Comp
 
     #.........................................................................................................
     def notes
-      @notes = progression.map do |d| 
+      @notes = items.map do |d| 
                  Zgomot::Midi::Note.new(:pitch => pitches[d-1], :length => length, :velocity => velocity,  
                                         :time => time, :offset_time => offset_time, :channel => channel)
                end

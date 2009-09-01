@@ -27,7 +27,7 @@ module Zgomot::Comp
               else
                 mode if mode > 0 and mode <= 7
               end
-      raise(Zgomot::Error, 'mode invalid') if @mode.nil?
+      raise(Zgomot::Error, "'#{mode}' is invalid mode") if @mode.nil?
       @scale = Scale.new(self.class.intervals, @mode)        
     end
       
