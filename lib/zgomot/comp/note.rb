@@ -5,25 +5,20 @@ module Zgomot::Comp
   class Note
 
     #####-------------------------------------------------------------------------------------------------------
-    class << self
+    # progession interface
+    #####-------------------------------------------------------------------------------------------------------
+    class Progression
 
-      #.........................................................................................................
-      def init_class(args={})
-      end
-          
-      #.........................................................................................................
-      # progession interface
       #.........................................................................................................
       def notes(prog)
-        prog.map do |d| 
+        prog.items.map do |d| 
           Zgomot::Midi::Note.new(:pitch => prog.pitches[d-1], :length => prog.length, 
-                                :velocity => prog.velocity, :time => prog.time, 
-                                :offset_time => prog.offset_time, :channel => prog.channel)
+                                 :velocity => prog.velocity, :time => prog.time, 
+                                 :offset_time => prog.offset_time, :channel => prog.channel)
         end
       end
-
     
-    #### self  
+    #### Progression  
     end
       
   #### Note

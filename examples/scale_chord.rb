@@ -7,7 +7,7 @@ before_start do
 end
 
 #.........................................................................................................
-str 'chords', [ c(:C), c(:E,:min), c(:D,:min), c(:B,:dim), c(:G,:maj)], :lim=>3 do |time, pattern|
+str 'scale', [np([:A,4],:lydian,4), np([:A,4],:lydian,4).reverse!.shift, n(:R)], :lim=>3 do |time, pattern|
   ch << pattern
 end
 

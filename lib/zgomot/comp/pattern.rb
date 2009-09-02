@@ -19,7 +19,7 @@ module Zgomot::Comp
 
       #.........................................................................................................
       def np(tonic=[:C,4], mode=0, len=4, v=0.6)
-        Progression.new(:tonic => tonic, :mode => mode, :length => len, :velocity => (127.0*v).to_i)
+        Progression.new(:item => Note::Progression.new, :tonic => tonic, :mode => mode, :length => len, :velocity => (127.0*v).to_i)
       end
 
     #### self

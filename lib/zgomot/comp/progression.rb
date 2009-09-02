@@ -5,13 +5,13 @@ module Zgomot::Comp
   class Progression
      
     #.........................................................................................................
-    attr_reader :mode, :length, :velocity, :clock, :time, :tonic, :items, :chord, :item_class 
+    attr_reader :mode, :length, :velocity, :clock, :time, :tonic, :items, :chord, :item
     attr_accessor :offset_time, :channel
   
     #.........................................................................................................
     def initialize(args)
       @offset_time = args[:offset_time] || 0.0
-      @length, @velocity, @tonic = args[:length], args[:velocity], args[:tonic]
+      @length, @velocity, @tonic, @item = args[:length], args[:velocity], args[:tonic], args[:item]
       @chord, @channel = args[:chord], args[:channel]
       @items = (1..7).to_a
       self.mode!(args[:mode]) if args[:mode]
@@ -91,15 +91,7 @@ module Zgomot::Comp
 
     #.........................................................................................................
     def get_notes
-      @notes || notes
-    end
-
-    #.........................................................................................................
-    def notes
-      @notes = items.map do |d| 
-                 Zgomot::Midi::Note.new(:pitch => pitches[d-1], :length => length, :velocity => velocity,  
-                                        :time => time, :offset_time => offset_time, :channel => channel)
-               end
+      @notes ||= item.notes(self)
     end
   
     #.........................................................................................................
