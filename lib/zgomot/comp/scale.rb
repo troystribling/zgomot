@@ -12,7 +12,7 @@ module Zgomot::Comp
       @intervals = int
       @shift = shift - 1
       @scale = int.clone
-      shift.times{self.next}
+      self.shift.times{self.next}
     end
 
     #.........................................................................................................
