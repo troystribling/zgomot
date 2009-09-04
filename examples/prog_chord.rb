@@ -7,7 +7,7 @@ before_start do
 end
 
 #.........................................................................................................
-str 'prog', np([:A,4],nil,4)[7,5,3,1], :lim=>6 do |time, pattern|
+str 'prog', cp([:A,4],nil,4)[7,5,3,1], :lim=>6 do |time, pattern|
   ch << pattern.mode!(count)
 end
 

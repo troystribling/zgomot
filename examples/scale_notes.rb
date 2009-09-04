@@ -7,7 +7,7 @@ before_start do
 end
 
 #.........................................................................................................
-str 'scale', [np([:C,4],:dorian,4), np([:C,4],:dorian,4).reverse!.shift, n(:R)], :lim=>3 do |time, pattern|
+str 'scale', [np([:C,4],:dorian,:l=>4), np([:C,4],:dorian,:l=>4).reverse!.shift, n(:R)], :lim=>3 do |time, pattern|
   ch << pattern
 end
 

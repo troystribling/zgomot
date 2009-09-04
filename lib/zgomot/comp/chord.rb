@@ -10,18 +10,21 @@ module Zgomot::Comp
     class Progression
     
       #.........................................................................................................
-      attr_reader :type
+      attr_reader :chord
 
       #.........................................................................................................
-      def initialize(args={})
-        type = args[:type]
+      def initialize(chord)
+        @chord = chord || :scale
       end
       
       #.........................................................................................................
       def notes(prog)
-        prog.items.map do |d| 
-          new(:root => prog.pitches[d-1], :length => prog.length, :velocity => prog.velocity, 
-              :time => prog.time, :offset_time => prog.offset_time, :channel => prog.channel)
+        chords = prog.mode.chords(chord)
+        prog.items.select do |d| 
+          chords[d-1]
+        end.map do |d|
+          Chord.new(:tonic => prog.pitches[d-1], :chord => chords[d-1], :length => prog.length, :velocity => prog.velocity, 
+                    :time => prog.time, :offset_time => prog.offset_time, :channel => prog.channel)
         end
       end
     
@@ -38,8 +41,17 @@ module Zgomot::Comp
       :sus4 => [5,7]
       }
         
+    #####-------------------------------------------------------------------------------------------------------
+    class << self
+      
+      #.........................................................................................................
+      attr_reader :all_intervals
+
+    #### self
+    end
+        
     #.........................................................................................................
-    attr_reader :root, :length, :velocity, :chord, :intervals, :inversion
+    attr_reader :tonic, :length, :velocity, :chord, :intervals, :inversion
     attr_accessor :offset_time, :channel, :time
   
     #.........................................................................................................
@@ -47,21 +59,21 @@ module Zgomot::Comp
       @offset_time = c[:offset_time] || 0.0
       @channel, @time = c[:channel], c[:time]
       @length, @velocity, @chord = c[:length], c[:velocity], c[:chord]
-      @root = case c[:root]
-                when Array then c[:root]
-                when Symbol then [c[:root], 4]
-                else raise(Zgomot::Error, "#{c[:root].inspect} is invalid")
+      @tonic = case c[:tonic]
+                when Array then c[:tonic]
+                when Symbol then [c[:tonic], 4]
+                else raise(Zgomot::Error, "#{c[:tonic].inspect} is invalid")
               end
       (@intervals =  Chord.all_intervals[chord]) || raise(Zgomot::Error, "#{chord.inspect} is invalid")                      
     end
 
     #.........................................................................................................
     def pitches
-      last_pitch, octave = root; pitches = [root]
-      intervals.each_index{|i| pitches << PitchClass.next(root.first, intervals[i])}
+      last_pitch, octave = tonic; pitches = [tonic]
+      intervals.each_index{|i| pitches << PitchClass.next(tonic.first, intervals[i])}
       pitches[1..-1].map do |p|
         octave += 1 if p < last_pitch; last_pitch = p.value; [last_pitch, octave]
-      end.unshift(root)
+      end.unshift(tonic)
     end
 
     #.........................................................................................................

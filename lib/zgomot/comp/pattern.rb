@@ -8,18 +8,27 @@ module Zgomot::Comp
     class << self
     
       #.......................................................................................................
-      def n(p=[:C,4], len=4, v=0.6)
-        Zgomot::Midi::Note.new(:pitch => p, :length => len, :velocity => (127.0*v).to_i)
+      def n(p=[:C,4], opts = {})
+        l = opts[:l] || 4; v = opts[:v] || 0.6
+        Zgomot::Midi::Note.new(:pitch => p, :length => l, :velocity => (127.0*v).to_i)
       end
 
       #.........................................................................................................
-      def c(root, chord=:maj, len=4, v=0.6)
-        Chord.new(:root => root, :chord => chord, :length => len, :velocity => (127.0*v).to_i)
+      def c(tonic, chord = :maj, opts = {})
+        l = opts[:l] || 4; v = opts[:v] || 0.6
+        Chord.new(:tonic => tonic, :chord => chord, :length => l, :velocity => (127.0*v).to_i)
       end
 
       #.........................................................................................................
-      def np(tonic=[:C,4], mode=0, len=4, v=0.6)
-        Progression.new(:item => Note::Progression.new, :tonic => tonic, :mode => mode, :length => len, :velocity => (127.0*v).to_i)
+      def np(tonic=[:C,4], mode=0, opts = {})
+        l = opts[:l] || 4; v = opts[:v] || 0.6
+        Progression.new(:item => Note::Progression.new, :tonic => tonic, :mode => mode, :length => l, :velocity => (127.0*v).to_i)
+      end
+
+      #.........................................................................................................
+      def cp(tonic=[:C,4], mode=0, opts = {})
+        l = opts[:l] || 4; v = opts[:v] || 0.6
+        Progression.new(:item => Chord::Progression.new(:scale), :tonic => tonic, :mode => mode, :length => l, :velocity => (127.0*v).to_i)
       end
 
     #### self

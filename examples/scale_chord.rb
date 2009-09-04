@@ -7,7 +7,7 @@ before_start do
 end
 
 #.........................................................................................................
-str 'scale', [np([:A,4],:lydian,4), np([:A,4],:lydian,4).reverse!.shift, n(:R)], :lim=>3 do |time, pattern|
+str 'scale', cp([:A,4],:lydian,:l=>4), :lim=>3 do |time, pattern|
   ch << pattern
 end
 

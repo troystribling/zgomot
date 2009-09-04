@@ -7,13 +7,13 @@ module Zgomot::Comp
     #.........................................................................................................
     @modes = [:ionian, :dorian, :phrygian, :lydian, :mixolydian, :aeolian, :locrian]
     @intervals = [2,2,1,2,2,2,1]
-    chords = {:scale => [[:maj,1], [:min,2], [:min,3], [:maj,4], [:maj,5], [:min,6], [:dim,7]],
-              :maj   => [[:maj,1], [:maj,4], [:maj,5]],
-              :min   => [[:min,2], [:min,3], [:min,6]],  
-              :dim   => [[:dim,7]],                                                                                            
-              :sus2  => [[:sus2,1], [:sus2,2], [:sus2,4], [:sus2,5], [:sus2,6]],
-              :sus4  => [[:sus4,1], [:sus4,2], [:sus4,3] ,[:sus4,5], [:sus4,6]],
-              :aug   => []}
+    @chords = {:scale => [:maj, :min, :min, :maj, :maj, :min, :dim],
+               :maj   => [:maj, nil, nil, :maj, :maj, nil, nil],
+               :min   => [nil, :min, :min, nil, nil, :min, nil],  
+               :dim   => [nil, nil, nil, nil, nil, nil, :dim],                                                                                            
+               :sus2  => [:sus2, :sus2, nil, :sus2, :sus2, :sus2, nil],
+               :sus4  => [:sus4, :sus4, :sus4, nil, :sus4, :sus4, nil],
+               :aug   => [nil, nil, nil, nil, nil, nil, nil]}
     
     #####-------------------------------------------------------------------------------------------------------
     class << self
@@ -39,8 +39,8 @@ module Zgomot::Comp
     end
       
     #.........................................................................................................
-    def chords(type = :scale)
-      shift_chords(Mode.chords[type].clone)
+    def chords(chord = :scale)
+      shift_chords(Mode.chords[chord].clone)
     end
     
     #.........................................................................................................
@@ -51,11 +51,6 @@ module Zgomot::Comp
     #.........................................................................................................
     def shift_chords(cs)
       mode.times{cs.push(cs.shift)}  
-      cs.map do |c|
-        s = c.last - mode
-        s += 7 if s < 1
-        [c.first, s]
-      end      
     end
 
     #.........................................................................................................
