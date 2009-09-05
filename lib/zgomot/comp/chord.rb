@@ -20,6 +20,8 @@ module Zgomot::Comp
       #.........................................................................................................
       def notes(prog)
         chords = prog.mode.chords(chord)
+p chords    
+p prog.pitches    
         prog.items.select do |d| 
           chords[d-1]
         end.map do |d|
@@ -32,7 +34,7 @@ module Zgomot::Comp
     end
 
     #.........................................................................................................
-    @all_intervals = {
+    @chord_intervals = {
       :maj  => [4,7],
       :min  => [3,7],
       :dim  => [3,6],
@@ -45,7 +47,7 @@ module Zgomot::Comp
     class << self
       
       #.........................................................................................................
-      attr_reader :all_intervals
+      attr_reader :chord_intervals
 
     #### self
     end
@@ -64,7 +66,7 @@ module Zgomot::Comp
                 when Symbol then [c[:tonic], 4]
                 else raise(Zgomot::Error, "#{c[:tonic].inspect} is invalid")
               end
-      (@intervals =  Chord.all_intervals[chord]) || raise(Zgomot::Error, "#{chord.inspect} is invalid")                      
+      (@intervals =  Chord.chord_intervals[chord]) || raise(Zgomot::Error, "#{chord.inspect} is invalid")                      
     end
 
     #.........................................................................................................

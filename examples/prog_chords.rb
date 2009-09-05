@@ -7,7 +7,7 @@ before_start do
 end
 
 #.........................................................................................................
-str 'scale', cp([:A,4],:lydian,:l=>4), :lim=>3 do |time, pattern|
+str 'prog', cp([:B,4],:ionian,4)[7,5,3,1], :lim=>1 do |time, pattern|
   ch << pattern
 end
 
