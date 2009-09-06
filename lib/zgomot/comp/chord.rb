@@ -20,8 +20,6 @@ module Zgomot::Comp
       #.........................................................................................................
       def notes(prog)
         chords = prog.mode.chords(chord)
-p chords    
-p prog.pitches    
         prog.items.select do |d| 
           chords[d-1]
         end.map do |d|
@@ -53,8 +51,8 @@ p prog.pitches
     end
         
     #.........................................................................................................
-    attr_reader :tonic, :length, :velocity, :chord, :intervals, :inversion
-    attr_accessor :offset_time, :channel, :time
+    attr_reader :tonic, :length, :velocity, :chord, :clock, :intervals, :inversion, :time, :arp
+    attr_accessor :offset_time, :channel
   
     #.........................................................................................................
     def initialize(c)
@@ -79,26 +77,49 @@ p prog.pitches
     end
 
     #.........................................................................................................
+    def arp!(a)
+      @notes = nil; @arp = a; self
+    end
+    
+    #.........................................................................................................
+    def notes
+      @notes ||= pitches.map do |p| 
+                   Zgomot::Midi::Note.new(:pitch => p, :length => length, :velocity => velocity, :time => time, 
+                                          :offset_time => offset_time, :channel => channel)
+                 end                          
+    end
+  
+    #.........................................................................................................
     # channel and dispatch interface
     #.........................................................................................................
     def length_to_sec
-      Zgomot::Midi::Clock.whole_note_sec/length
+      Zgomot::Midi::Clock.whole_note_sec*(1.0/length + (arp.nil? ? 0.0 : intervals.length.to_f/arp.to_f))
     end
 
     #.........................................................................................................
     def to_midi
-      pitches.map do |p| 
-        Zgomot::Midi::Note.new(:pitch => p, :length => length, :velocity => velocity, :time => time, 
-                               :offset_time => offset_time, :channel => channel)
-      end
+      notes.map{|n| n.to_midi}
     end
 
-  private
+    #.........................................................................................................
+    def time=(t)
+      @clock = Zgomot::Midi::Clock.new
+      clock.update(t); @time = clock.current_time
+      if arp
+        notes.each do |n|
+          n.time = clock.current_time
+          clock.update(Zgomot::Midi::Clock.whole_note_sec/arp)
+        end
+      end
+    end
 
     #.........................................................................................................
     def sum(a)
       a.inject(0) {|s,n| s+n}
     end
+
+    #.........................................................................................................
+    private :sum
       
   #### Chord
   end

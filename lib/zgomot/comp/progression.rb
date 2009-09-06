@@ -51,6 +51,13 @@ module Zgomot::Comp
     end
     
     #.........................................................................................................
+    def new_respond_to?(meth, include_provate=false)
+      old_respond_to?(meth, include_provate=false)      
+    end
+    alias_method :old_respond_to?, :respond_to?
+    alias_method :respond_to?, :new_respond_to?
+      
+    #.........................................................................................................
     def method_missing(method, *args, &blk)
       @notes = nil; items.send(method, *args, &blk); self
     end
@@ -58,14 +65,14 @@ module Zgomot::Comp
     #.........................................................................................................
     # midi interface
     def length_to_sec
-      get_notes.inject(0.0){|s,n| s += Zgomot::Midi::Clock.whole_note_sec/n.length}
+      notes.inject(0.0){|s,n| s += Zgomot::Midi::Clock.whole_note_sec/n.length}
     end
 
     #.........................................................................................................
     def time=(t)
       @clock = Zgomot::Midi::Clock.new
       clock.update(t); @time = clock.current_time
-      get_notes.each do |n|
+      notes.each do |n|
         n.time = clock.current_time
         clock.update(n.length_to_sec)
       end
@@ -73,21 +80,21 @@ module Zgomot::Comp
     
     #.........................................................................................................
     def channel=(c)
-      get_notes.each{|n| n.channel = c}
+      notes.each{|n| n.channel = c}
     end
     
     #.........................................................................................................
     def to_midi
-      get_notes.map{|n| n.to_midi}
+      notes.map{|n| n.to_midi}
     end
 
     #.........................................................................................................
     def offset_time=(t)
-      get_notes.each{|n| n.offset_time = t}
+      notes.each{|n| n.offset_time = t}
     end
     
     #.........................................................................................................
-    def get_notes
+    def notes
       @notes ||= item.notes(self)
     end
   
@@ -97,7 +104,7 @@ module Zgomot::Comp
     end
   
     #.........................................................................................................
-    private :get_notes, :sum
+    private :sum
   
   #### Progression
   end

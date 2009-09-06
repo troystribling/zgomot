@@ -41,8 +41,6 @@ module Zgomot::Midi
         end
       end
 
-    private
-
       #.........................................................................................................
       def dispatch(now)
         qdispatch.synchronize do 
@@ -69,6 +67,9 @@ module Zgomot::Midi
           Interface.driver.note_off(n.midi, n.channel, n.velocity)
         end
       end
+
+      #.........................................................................................................
+      private :dispatch, :notes_on, :notes_off
 
     #### self
     end

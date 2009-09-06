@@ -61,12 +61,13 @@ module Zgomot::Midi
         @status = :finished          
       end         
     end
-
-  private
   
     #.........................................................................................................
     def play0;play;end
     def play2;play(times.last, Marshal.load(Marshal.dump(patterns.last)));end
+
+    #.........................................................................................................
+    private :play0, :play2
     
   #### Stream
   end

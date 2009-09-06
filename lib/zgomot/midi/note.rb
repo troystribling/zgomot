@@ -74,15 +74,16 @@ module Zgomot::Midi
     def to_midi
       self
     end
-    
-  private
-  
+      
     #.........................................................................................................
     def pitch_to_midi(pitch_class, octave)
       if PITCH_CLASS[pitch_class]
         (midi = 12*(octave+1)+PITCH_CLASS[pitch_class]) <= 127 ? midi : nil
       end
     end
+
+    #.........................................................................................................
+    private :pitch_to_midi
   
   #### Note
   end
