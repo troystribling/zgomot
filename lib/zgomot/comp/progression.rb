@@ -51,15 +51,23 @@ module Zgomot::Comp
     end
     
     #.........................................................................................................
-    def new_respond_to?(meth, include_provate=false)
-      old_respond_to?(meth, include_provate=false)      
+    def new_respond_to?(meth, include_private=false)
+      old_respond_to?(meth, include_private=false) || (not notes.select{|n| n.respond_to?(meth, include_private=false)}.empty?)    
     end
     alias_method :old_respond_to?, :respond_to?
     alias_method :respond_to?, :new_respond_to?
       
     #.........................................................................................................
-    def method_missing(method, *args, &blk)
-      @notes = nil; items.send(method, *args, &blk); self
+    def method_missing(meth, *args, &blk)
+      @notes = nil
+      if not notes.select{|n| n.respond_to?(meth, include_provate=false)}.empty?
+        @notes = notes.map do |n|
+                   n.respond_to?(meth, include_provate=false) ? n.send(meth, *args, &blk) : n
+                 end
+      else
+        items.send(meth, *args, &blk)
+      end
+      self
     end
 
     #.........................................................................................................

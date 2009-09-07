@@ -7,7 +7,7 @@ before_start do
 end
 
 #.........................................................................................................
-str 'prog', cp([:B,3],:ionian,:l=>4)[7,5,3,1], :lim=>1 do |time, pattern|
+str 'arp', cp([:B,3],:ionian,:l=>4)[7,5,3,1], :lim=>1 do |time, pattern|
   ch << pattern.arp!(4)
 end
 
