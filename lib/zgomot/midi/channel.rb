@@ -24,7 +24,7 @@ module Zgomot::Midi
       #.........................................................................................................
       def is_valid(num)
         nums = [num].flatten
-        valid = nums.select{|n| 0 <= n and n <= 15 }
+        valid = nums.select{|n| 0 <= n and n <= 15}
         valid.length.eql?(nums.length) ? num : raise(Zgomot::Error, "channel number invalid: 1<= channel <= 16")
       end
 
@@ -53,8 +53,9 @@ module Zgomot::Midi
     end
 
     #.........................................................................................................
-    def method_missing(method, *args, &blk )
-      pattern.send(method, *args, &blk)
+    def method_missing(meth, *args, &blk )
+puts "channel: #{meth}"
+      pattern.send(meth, *args, &blk)
     end
 
     #.........................................................................................................

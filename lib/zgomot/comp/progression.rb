@@ -11,9 +11,15 @@ module Zgomot::Comp
     #.........................................................................................................
     def initialize(args)
       @channel, @offset_time = (args[:offset_time] || 0.0), args[:channel]
-      @length, @velocity, @tonic, @item = args[:length], args[:velocity], args[:tonic], args[:item]
+      @length, @velocity, @item = args[:length], args[:velocity], args[:item]
       @items = (1..7).to_a
-      self.mode!(args[:mode]) if args[:mode]
+      self.mode!(args[:mode])
+      @tonic = case args[:tonic]
+                 when Array then args[:tonic]
+                 when Symbol then [args[:tonic], 4]
+                 when nil then [:C,4]
+                 else raise(Zgomot::Error, "#{args[:tonic].inspect} is invalid tonic")
+               end
     end
 
     #.........................................................................................................
@@ -52,19 +58,19 @@ module Zgomot::Comp
     
     #.........................................................................................................
     def new_respond_to?(meth, include_private=false)
-      old_respond_to?(meth, include_private=false) || (not notes.select{|n| n.respond_to?(meth, include_private=false)}.empty?)    
+      old_respond_to?(meth) || (not notes.select{|n| n.respond_to?(meth)}.empty?)    
     end
     alias_method :old_respond_to?, :respond_to?
     alias_method :respond_to?, :new_respond_to?
       
     #.........................................................................................................
     def method_missing(meth, *args, &blk)
-      @notes = nil
-      if not notes.select{|n| n.respond_to?(meth, include_provate=false)}.empty?
+      if not notes.select{|n| n.respond_to?(meth)}.empty?
         @notes = notes.map do |n|
-                   n.respond_to?(meth, include_provate=false) ? n.send(meth, *args, &blk) : n
+                   n.respond_to?(meth) ? n.send(meth, *args, &blk) : n
                  end
       else
+        @notes = nil
         items.send(meth, *args, &blk)
       end
       self

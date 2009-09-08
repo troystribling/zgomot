@@ -37,7 +37,7 @@ module Zgomot::Midi
       #.........................................................................................................
       def dequeue(time)
         qmutex.synchronize do
-          queue.partition{|n| p n.play_at; p time; n.play_at <= time}
+          queue.partition{|n| n.play_at <= time}
         end
       end
 

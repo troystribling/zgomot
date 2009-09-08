@@ -38,19 +38,19 @@ module Zgomot::Midi
     attr_accessor :time, :offset_time, :channel
   
     #.........................................................................................................
-    def initialize(n)
-      @offset_time = n[:offset_time] || 0.0
-      @channel, @time = n[:channel], n[:time]
-      @pitch_class, @octave = case n[:pitch]
-                                when Array then n[:pitch]
-                                when Symbol then [n[:pitch], 4]
-                                else raise(Zgomot::Error, "#{n[:pitch].inspect} is invalid")
+    def initialize(args)
+      @offset_time = args[:offset_time] || 0.0
+      @channel, @time = args[:channel], args[:time]
+      @pitch_class, @octave = case args[:pitch]
+                                when Array then args[:pitch]
+                                when Symbol then [args[:pitch], 4]
+                                else raise(Zgomot::Error, "#{args[:pitch].inspect} is invalid pitch")
                               end
-      @length, @velocity = n[:length], n[:velocity] 
+      @length, @velocity = args[:length], args[:velocity] 
       @midi = pitch_to_midi(pitch_class, octave)
       raise(Zgomot::Error, "#{octave} is invalid octave") unless OCTAVE.include?(octave)
       raise(Zgomot::Error, "#{length} is invalid duration") unless LENGTH.include?(length)
-      raise(Zgomot::Error, "#{n[:pitch].inspect} is invalid") if midi.nil?
+      raise(Zgomot::Error, "#{args[:pitch].inspect} is invalid") if midi.nil?
       raise(Zgomot::Error, "#{velocity} is invalid velocity") unless velocity < 128
     end
 

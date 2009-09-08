@@ -29,11 +29,12 @@ module Zgomot::Comp
   
     #.........................................................................................................
     def initialize(mode = 1)
-      @mode = if mode.kind_of?(Symbol)
-                self.class.modes.index(mode)+1
-              else
-                mode if mode > 0 and mode <= 7
-              end
+      @mode = case mode
+                 when Symbol then self.class.modes.index(mode)+1
+                 when Fixnum then mode
+                 when nil then 1
+                 else raise(Zgomot::Error, "#{mode.inspect} is invalid mode")
+               end
       raise(Zgomot::Error, "'#{mode}' is invalid mode") if @mode.nil?
       @scale = Scale.new(self.class.intervals, @mode)        
     end
@@ -44,8 +45,8 @@ module Zgomot::Comp
     end
     
     #.........................................................................................................
-    def method_missing(method, *args, &blk )
-      scale.send(method, *args, &blk)
+    def method_missing(meth, *args, &blk )
+      scale.send(meth, *args, &blk)
     end
 
     #.........................................................................................................

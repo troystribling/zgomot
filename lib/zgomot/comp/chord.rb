@@ -55,16 +55,17 @@ module Zgomot::Comp
     attr_accessor :offset_time, :channel
   
     #.........................................................................................................
-    def initialize(c)
-      @offset_time = c[:offset_time] || 0.0
-      @channel, @time = c[:channel], c[:time]
-      @length, @velocity, @chord = c[:length], c[:velocity], c[:chord]
-      @tonic = case c[:tonic]
-                when Array then c[:tonic]
-                when Symbol then [c[:tonic], 4]
-                else raise(Zgomot::Error, "#{c[:tonic].inspect} is invalid")
-              end
+    def initialize(args)
+      @offset_time = args[:offset_time] || 0.0
+      @channel, @time = args[:channel], args[:time]
+      @length, @velocity, @chord = args[:length], args[:velocity], args[:chord]
       (@intervals =  Chord.chord_intervals[chord]) || raise(Zgomot::Error, "#{chord.inspect} is invalid")                      
+      @tonic = case args[:tonic]
+                when Array then args[:tonic]
+                when Symbol then [args[:tonic], 4]
+                when nil then [:C,4]
+                else raise(Zgomot::Error, "#{args[:tonic].inspect} is invalid tonic")
+              end
     end
 
     #.........................................................................................................
