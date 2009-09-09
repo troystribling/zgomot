@@ -5,12 +5,11 @@ module Zgomot::Comp
   class Progression
      
     #.........................................................................................................
-    attr_reader :mode, :length, :velocity, :clock, :time, :tonic, :items, :item
+    attr_reader :mode, :length, :velocity, :clock, :tonic, :items, :item
     attr_accessor :offset_time, :channel
   
     #.........................................................................................................
     def initialize(args)
-      @channel, @offset_time = (args[:offset_time] || 0.0), args[:channel]
       @length, @velocity, @item = args[:length], args[:velocity], args[:item]
       @items = (1..7).to_a
       self.mode!(args[:mode])
@@ -85,7 +84,7 @@ module Zgomot::Comp
     #.........................................................................................................
     def time=(t)
       @clock = Zgomot::Midi::Clock.new
-      clock.update(t); @time = clock.current_time
+      clock.update(t)
       notes.each do |n|
         n.time = clock.current_time
         clock.update(n.length_to_sec)

@@ -39,8 +39,6 @@ module Zgomot::Midi
   
     #.........................................................................................................
     def initialize(args)
-      @offset_time = args[:offset_time] || 0.0
-      @channel, @time = args[:channel], args[:time]
       @pitch_class, @octave = case args[:pitch]
                                 when Array then args[:pitch]
                                 when Symbol then [args[:pitch], 4]

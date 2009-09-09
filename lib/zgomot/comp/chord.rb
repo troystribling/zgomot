@@ -23,8 +23,7 @@ module Zgomot::Comp
         prog.items.select do |d| 
           chords[d-1]
         end.map do |d|
-          Chord.new(:tonic => prog.pitches[d-1], :chord => chords[d-1], :length => prog.length, :velocity => prog.velocity, 
-                    :time => prog.time, :offset_time => prog.offset_time, :channel => prog.channel)
+          Chord.new(:tonic => prog.pitches[d-1], :chord => chords[d-1], :length => prog.length, :velocity => prog.velocity)
         end
       end
     
@@ -51,13 +50,11 @@ module Zgomot::Comp
     end
         
     #.........................................................................................................
-    attr_reader :tonic, :length, :velocity, :chord, :clock, :intervals, :inversion, :time, :arp
-    attr_accessor :offset_time, :channel
+    attr_reader :tonic, :length, :velocity, :chord, :clock, :intervals, :inversion, :arp
+    attr_accessor
   
     #.........................................................................................................
     def initialize(args)
-      @offset_time = args[:offset_time] || 0.0
-      @channel, @time = args[:channel], args[:time]
       @length, @velocity, @chord = args[:length], args[:velocity], args[:chord]
       (@intervals =  Chord.chord_intervals[chord]) || raise(Zgomot::Error, "#{chord.inspect} is invalid")                      
       @tonic = case args[:tonic]
@@ -85,8 +82,7 @@ module Zgomot::Comp
     #.........................................................................................................
     def notes
       @notes ||= pitches.map do |p| 
-                   Zgomot::Midi::Note.new(:pitch => p, :length => length, :velocity => velocity, :time => time, 
-                                          :offset_time => offset_time, :channel => channel)
+                   Zgomot::Midi::Note.new(:pitch => p, :length => length, :velocity => velocity)
                  end                          
     end
   
@@ -94,7 +90,7 @@ module Zgomot::Comp
     # channel and dispatch interface
     #.........................................................................................................
     def length_to_sec
-      Zgomot::Midi::Clock.whole_note_sec*(1.0/length + (arp.nil? ? 0.0 : intervals.length.to_f/arp.to_f))
+      Zgomot::Midi::Clock.whole_note_sec*(1.0/length + (arp.to_f.eql?(0.0) ? 0.0 : intervals.length.to_f/arp.to_f))
     end
 
     #.........................................................................................................
@@ -103,14 +99,22 @@ module Zgomot::Comp
     end
 
     #.........................................................................................................
+    def channel=(chan)
+      notes.each{|n| n.channel = chan}
+    end
+
+    #.........................................................................................................
+    def offset_time=(time)
+      notes.each{|n| n.offset_time = time}
+    end
+    
+    #.........................................................................................................
     def time=(t)
       @clock = Zgomot::Midi::Clock.new
-      clock.update(t); @time = clock.current_time
-      if arp
-        notes.each do |n|
-          n.time = clock.current_time
-          clock.update(Zgomot::Midi::Clock.whole_note_sec/arp)
-        end
+      clock.update(t)
+      notes.each do |n|
+        n.time = clock.current_time
+        clock.update(Zgomot::Midi::Clock.whole_note_sec/arp.to_f) if arp.to_f > 0.0        
       end
     end
 

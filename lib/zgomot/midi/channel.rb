@@ -54,7 +54,6 @@ module Zgomot::Midi
 
     #.........................................................................................................
     def method_missing(meth, *args, &blk )
-puts "channel: #{meth}"
       pattern.send(meth, *args, &blk)
     end
 

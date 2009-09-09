@@ -12,9 +12,7 @@ module Zgomot::Comp
       #.........................................................................................................
       def notes(prog)
         prog.items.map do |d| 
-          Zgomot::Midi::Note.new(:pitch => prog.pitches[d-1], :length => prog.length, 
-                                 :velocity => prog.velocity, :time => prog.time, 
-                                 :offset_time => prog.offset_time, :channel => prog.channel)
+          Zgomot::Midi::Note.new(:pitch => prog.pitches[d-1], :length => prog.length, :velocity => prog.velocity)
         end
       end
     
