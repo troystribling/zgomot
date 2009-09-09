@@ -35,7 +35,7 @@ module Zgomot::Midi
     
     #.........................................................................................................
     attr_reader :pitch_class, :length, :octave, :midi, :velocity
-    attr_accessor :time, :offset_time, :channel
+    attr_accessor :time, :offset_time, :channel, :time_scale
   
     #.........................................................................................................
     def initialize(args)
@@ -46,6 +46,7 @@ module Zgomot::Midi
                               end
       @length, @velocity = args[:length], args[:velocity] 
       @midi = pitch_to_midi(pitch_class, octave)
+      @time_scale = Clock.whole_note_sec
       raise(Zgomot::Error, "#{octave} is invalid octave") unless OCTAVE.include?(octave)
       raise(Zgomot::Error, "#{length} is invalid duration") unless LENGTH.include?(length)
       raise(Zgomot::Error, "#{args[:pitch].inspect} is invalid") if midi.nil?
@@ -65,7 +66,7 @@ module Zgomot::Midi
     #.........................................................................................................
     # channel and dispatch interface
     def length_to_sec
-      Clock.whole_note_sec/length
+      time_scale/length
     end
 
     #.........................................................................................................
