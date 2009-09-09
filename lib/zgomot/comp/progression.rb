@@ -78,7 +78,7 @@ module Zgomot::Comp
     #.........................................................................................................
     # midi interface
     def length_to_sec
-      notes.inject(0.0){|s,n| s += Zgomot::Midi::Clock.whole_note_sec/n.length}
+      notes.inject(0.0){|s,n| s += n.length_to_sec}
     end
 
     #.........................................................................................................
