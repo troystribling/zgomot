@@ -50,14 +50,13 @@ module Zgomot::Comp
     end
         
     #.........................................................................................................
-    attr_reader :tonic, :length, :velocity, :chord, :clock, :intervals, :inversion, :arp
-    attr_accessor :time_scale
+    attr_reader :tonic, :length, :velocity, :chord, :clock, :intervals, :inversion, :arp, :time_scale
   
     #.........................................................................................................
     def initialize(args)
       @length, @velocity, @chord = args[:length], args[:velocity], args[:chord]
       (@intervals =  Chord.chord_intervals[chord]) || raise(Zgomot::Error, "#{chord.inspect} is invalid")                      
-      @time_scale = Zgomot::Midi::Clock.whole_note_sec
+      @time_scale = 1.0
       @tonic = case args[:tonic]
                 when Array then args[:tonic]
                 when Symbol then [args[:tonic], 4]
@@ -79,6 +78,11 @@ module Zgomot::Comp
     def arp!(a)
       @notes = nil; @arp = a; self
     end
+
+    #.........................................................................................................
+    def bpm_scale!(bpm)
+      @time_scale = 1.0/bpm.to_f; self
+    end
     
     #.........................................................................................................
     def notes
@@ -91,7 +95,7 @@ module Zgomot::Comp
     # channel and dispatch interface
     #.........................................................................................................
     def length_to_sec
-      time_scale*(1.0/length + (arp.to_f.eql?(0.0) ? 0.0 : (intervals.length.to_f-1)/arp.to_f))
+      time_scale*Zgomot::Midi::Clock.whole_note_sec*(1.0/length + (arp.to_f.eql?(0.0) ? 0.0 : intervals.length.to_f/arp.to_f))
     end
 
     #.........................................................................................................
