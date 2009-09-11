@@ -50,13 +50,13 @@ module Zgomot::Comp
     end
         
     #.........................................................................................................
-    attr_reader :tonic, :length, :velocity, :chord, :clock, :intervals, :inversion, :arp, :time_scale
+    attr_reader :tonic, :length, :velocity, :chord, :clock, :intervals, :arp, :time_scale, :items, :inversion
   
     #.........................................................................................................
     def initialize(args)
       @length, @velocity, @chord = args[:length], args[:velocity], args[:chord]
       (@intervals =  Chord.chord_intervals[chord]) || raise(Zgomot::Error, "#{chord.inspect} is invalid")                      
-      @time_scale = 1.0
+      @time_scale, @inversion = 1.0, 0
       @tonic = case args[:tonic]
                 when Array then args[:tonic]
                 when Symbol then [args[:tonic], 4]
@@ -69,14 +69,20 @@ module Zgomot::Comp
     def pitches
       last_pitch, octave = tonic; pitches = [tonic]
       intervals.each_index{|i| pitches << PitchClass.next(tonic.first, intervals[i])}
-      pitches[1..-1].map do |p|
-        octave += 1 if p < last_pitch; last_pitch = p.value; [last_pitch, octave]
-      end.unshift(tonic)
+      nts = pitches[1..-1].map do |p|
+              octave += 1 if p < last_pitch; last_pitch = p.value; [last_pitch, octave]
+            end.unshift(tonic)
+      invert(nts)      
     end
 
     #.........................................................................................................
     def arp!(a)
       @notes = nil; @arp = a; self
+    end
+
+    #.........................................................................................................
+    def inv!(i)
+      @notes = nil; @inversion = i; self
     end
 
     #.........................................................................................................
@@ -124,12 +130,21 @@ module Zgomot::Comp
     end
 
     #.........................................................................................................
+    # private
+    #.........................................................................................................
     def sum(a)
       a.inject(0) {|s,n| s+n}
     end
 
     #.........................................................................................................
-    private :sum
+    def invert(p)
+      inversion.times do |i|
+        n = p.shift; p.push([n.first, (n.last.eql?(9) ? n.last : n.last+1)]) 
+      end; p
+    end
+
+    #.........................................................................................................
+    private :sum, :invert
       
   #### Chord
   end
