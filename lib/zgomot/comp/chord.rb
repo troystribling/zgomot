@@ -120,9 +120,9 @@ module Zgomot::Comp
     end
     
     #.........................................................................................................
-    def time=(t)
+    def time=(time)
       @clock = Zgomot::Midi::Clock.new
-      clock.update(t)
+      clock.update(time)
       notes.each do |n|
         n.time = clock.current_time
         clock.update(Zgomot::Midi::Clock.whole_note_sec/arp.to_f) if arp.to_f > 0.0        

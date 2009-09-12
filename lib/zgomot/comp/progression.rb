@@ -6,7 +6,6 @@ module Zgomot::Comp
      
     #.........................................................................................................
     attr_reader :mode, :length, :velocity, :clock, :tonic, :items, :item
-    attr_accessor :offset_time, :channel
   
     #.........................................................................................................
     def initialize(args)
@@ -82,9 +81,9 @@ module Zgomot::Comp
     end
 
     #.........................................................................................................
-    def time=(t)
+    def time=(time)
       @clock = Zgomot::Midi::Clock.new
-      clock.update(t)
+      clock.update(time)
       notes.each do |n|
         n.time = clock.current_time
         clock.update(n.length_to_sec)

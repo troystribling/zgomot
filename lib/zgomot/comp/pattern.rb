@@ -31,6 +31,12 @@ module Zgomot::Comp
         Progression.new(:item => Chord::Progression.new(:scale), :tonic => tonic, :mode => mode, :length => l, :velocity => (127.0*v).to_i)
       end
 
+      #.........................................................................................................
+      def pr(percs = acoustic_bass_drum, opts = {})
+        l = opts[:l] || 4; v = opts[:v] || 0.6
+        Perc.new(:percs => percs, :length => l, :velocity => (127.0*v).to_i)
+      end
+
     #### self
     end
 

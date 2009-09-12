@@ -25,7 +25,7 @@ module Zgomot
     delegate Zgomot::Midi::Stream, :str, :play, :streams
     delegate Zgomot::Midi::Channel, :ch
     delegate Zgomot::Midi::Dispatcher, :clock
-    delegate Zgomot::Comp::Pattern, :np, :cp, :c, :n
+    delegate Zgomot::Comp::Pattern, :np, :cp, :c, :n, :pr
 
   #### Delegator 
   end
