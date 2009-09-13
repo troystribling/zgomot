@@ -1,5 +1,4 @@
 require 'zgomot/comp/pattern'
-require 'zgomot/comp/transforms'
 require 'zgomot/comp/chord'
 require 'zgomot/comp/note'
 require 'zgomot/comp/scale'

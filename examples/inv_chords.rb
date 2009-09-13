@@ -7,7 +7,7 @@ before_start do
 end
 
 #.........................................................................................................
-str 'scale', cp([:C,3],:ionian,:l=>4).inv!(2), :lim=>1 do |time, pattern|
+str 'scale', cp([:C,3],:ionian,:l=>4).inv!(2), :lim=>1 do |pattern|
   ch << pattern
 end
 

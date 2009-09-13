@@ -64,10 +64,10 @@ module Zgomot::Midi
   
     #.........................................................................................................
     def play0;play;end
-    def play2;play(times.last, Marshal.load(Marshal.dump(patterns.last)));end
+    def play1;play(Marshal.load(Marshal.dump(patterns.last)));end
 
     #.........................................................................................................
-    private :play0, :play2
+    private :play0, :play1
     
   #### Stream
   end

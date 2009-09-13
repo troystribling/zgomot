@@ -7,7 +7,7 @@ before_start do
 end
 
 #.........................................................................................................
-str 'full_scale', np(nil,5,4), :lim=>6 do |time, pattern|
+str 'full_scale', np(nil,5,4), :lim=>6 do |pattern|
   ch << pattern.tonic!(:A, count)
 end
 

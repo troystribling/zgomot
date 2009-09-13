@@ -20,7 +20,7 @@ module Zgomot::Comp
         :low_timbale        => [:Fs,4], :high_agogo     => [:G,4],  :low_agogo      => [:Gs,4], 
         :cabasa             => [:A,4],  :maracas        => [:As,4], :short_whistle  => [:B,4],
         :long_whistle       => [:C,5],  :short_guiro    => [:Cs,5], :long_guiro     => [:D,5],  
-        :claves             => [:Ds,5], :hi_woodblock  => [:E,5],   :low_woodblock  => [:F,5], 
+        :claves             => [:Ds,5], :hi_woodblock   => [:E,5],  :low_woodblock  => [:F,5], 
         :mute_cuica         => [:Fs,5], :open_cuica     => [:G,5],  :mute_triangle  => [:Gs,5], 
         :open_triangle      => [:A,5],
         :R                  => :R,      
@@ -42,11 +42,6 @@ module Zgomot::Comp
     end
 
     #.........................................................................................................
-    def bpm_scale!(bpm)
-      @time_scale = 1.0/bpm.to_f; self
-    end
-    
-    #.........................................................................................................
     def pitches
       percs.inject([]){|p,r| (m = Perc::PERC_MAP[r]).nil? ? p : p << m}
     end
@@ -58,6 +53,13 @@ module Zgomot::Comp
                  end                          
     end
 
+    #.........................................................................................................
+    # transforms
+    #.........................................................................................................
+    def bpm_scale!(v)
+      @time_scale = 1.0/v.to_f; self
+    end
+    
     #.........................................................................................................
     # channel and dispatch interface
     #.........................................................................................................

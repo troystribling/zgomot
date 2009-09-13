@@ -7,9 +7,11 @@ before_start do
 end
 
 #.........................................................................................................
-str 'scale', [np([:A,4],nil,:l=>4), np([:A,4],nil,:l=>4).reverse!.shift, n(:R)], :lim=>6 do |pattern|
-  Zgomot.logger.info "TONIC: [A,4], MODE: #{count-1}"
-  ch << pattern.mode!(count)
+score = [pr([:acoustic_bass_drum, :cowbell]), pr(:R), pr([:acoustic_snare, :hand_clap]), pr(:R)]
+
+#.........................................................................................................
+str 'notes', score, :lim=>:inf do |pattern|
+  ch(2) << pattern
 end
 
 #.........................................................................................................

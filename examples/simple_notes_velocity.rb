@@ -7,9 +7,10 @@ before_start do
 end
 
 #.........................................................................................................
-str 'scale', [np([:A,4],nil,:l=>4), np([:A,4],nil,:l=>4).reverse!.shift, n(:R)], :lim=>6 do |pattern|
-  Zgomot.logger.info "TONIC: [A,4], MODE: #{count-1}"
-  ch << pattern.mode!(count)
+str 'notes' do
+  (ch << [n([:C,5]), n(:B), n(:R), n(:G), n(:C,:l=>2), n([:E,5],:l=>2)]).velocity! do |note|
+    0.1*note.time.beat + 0.4
+  end
 end
 
 #.........................................................................................................

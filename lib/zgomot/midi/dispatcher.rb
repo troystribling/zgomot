@@ -54,7 +54,7 @@ module Zgomot::Midi
       def notes_on(notes)
         notes.each do |n| 
           Zgomot.logger.info "NOTE ON: #{n.channel} : #{n.to_s} : #{n.time.to_s} : #{clock.current_time.to_s}"
-          Interface.driver.note_on(n.midi, n.channel, n.velocity)
+          Interface.driver.note_on(n.midi, n.channel, (127*n.velocity).to_i)
         end
         @playing += notes
       end
@@ -64,7 +64,7 @@ module Zgomot::Midi
         turn_off, @playing = playing.partition{|n| (n.play_at+n.length_to_sec) <= time}
         turn_off.each do |n| 
           Zgomot.logger.info "NOTE OFF:#{n.channel} : #{n.to_s} : #{n.time.to_s} : #{clock.current_time.to_s}"
-          Interface.driver.note_off(n.midi, n.channel, n.velocity)
+          Interface.driver.note_off(n.midi, n.channel, (127*n.velocity).to_i)
         end
       end
 
