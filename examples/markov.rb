@@ -6,9 +6,11 @@ before_start do
   Zgomot.logger.level = Logger::DEBUG
 end
 
+junk = 1
+
 #.........................................................................................................
-str 'inversion', cp([:C,3],:ionian,:l=>4).inv!(2), :lim=>1 do |pattern|
-  ch << pattern
+str 'markov', [np([:A,4],nil,:l=>4), np([:A,4],nil,:l=>4).reverse!.shift, n(:R)], :lim=>6 do |pattern|
+  ch << pattern.mode!(count)
 end
 
 #.........................................................................................................

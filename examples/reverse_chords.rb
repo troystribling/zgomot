@@ -7,7 +7,7 @@ before_start do
 end
 
 #.........................................................................................................
-str 'inversion', cp([:C,3],:ionian,:l=>4).inv!(2), :lim=>1 do |pattern|
+str 'chords', [c(:C,:min).arp!(4), c(:C,:min).arp!(4).rev!, c(:E,:min).arp!(4), c(:E,:min).arp!(4).rev!], :lim=>3 do |pattern|
   ch << pattern
 end
 

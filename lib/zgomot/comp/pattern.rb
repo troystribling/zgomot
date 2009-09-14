@@ -34,7 +34,7 @@ module Zgomot::Comp
       #.........................................................................................................
       def pr(percs = acoustic_bass_drum, opts = {})
         l = opts[:l] || 4; v = opts[:v] || 0.6
-        Perc.new(:percs => percs, :length => l, :velocity => (127.0*v).to_i)
+        Perc.new(:percs => percs, :length => l, :velocity => v)
       end
 
     #### self

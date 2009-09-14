@@ -50,14 +50,14 @@ module Zgomot::Comp
     end
         
     #.........................................................................................................
-    attr_reader :tonic, :chord, :clock, :intervals, :arp, :time_scale, :items, :inversion
+    attr_reader :tonic, :chord, :clock, :intervals, :arp, :time_scale, :items, :inversion, :reverse
     attr_accessor :length, :velocity
   
     #.........................................................................................................
     def initialize(args)
       @length, @velocity, @chord = args[:length], args[:velocity], args[:chord]
       (@intervals =  Chord.chord_intervals[chord]) || raise(Zgomot::Error, "#{chord.inspect} is invalid")                      
-      @time_scale, @inversion = 1.0, 0
+      @time_scale, @inversion, @reverse = 1.0, 0, false
       @tonic = case args[:tonic]
                 when Array then args[:tonic]
                 when Symbol then [args[:tonic], 4]
@@ -73,7 +73,7 @@ module Zgomot::Comp
       nts = pitches[1..-1].map do |p|
               octave += 1 if p < last_pitch; last_pitch = p.value; [last_pitch, octave]
             end.unshift(tonic)
-      invert(nts)      
+      @reverse ? invert(nts).reverse : invert(nts)     
     end
 
     #.........................................................................................................
@@ -96,7 +96,12 @@ module Zgomot::Comp
     end
 
     #.........................................................................................................
-    def bpm_scale!(v)
+    def rev!
+      @reverse = true; self
+    end
+
+    #.........................................................................................................
+    def bpm!(v)
       @time_scale = 1.0/v.to_f; self
     end
 

@@ -12,7 +12,7 @@ end
           pr(:low_tom), pr(:hand_clap), pr(:ride_cymbal_1), pr(:cowbell)]
 
 #.........................................................................................................
-str 'notes', score, :lim=>:inf do |pattern|
+str 'percussion', score, :lim=>:inf do |pattern|
   ch(2) << pattern
 end
 
