@@ -26,6 +26,7 @@ module Zgomot
     delegate Zgomot::Midi::Channel, :ch
     delegate Zgomot::Midi::Dispatcher, :clock
     delegate Zgomot::Comp::Pattern, :np, :cp, :c, :n, :pr
+    delegate Zgomot::Comp::Markov, :mark
 
   #### Delegator 
   end

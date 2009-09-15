@@ -6,5 +6,6 @@ require 'zgomot/comp/mode'
 require 'zgomot/comp/perc'
 require 'zgomot/comp/progression'
 require 'zgomot/comp/pitch_class'
+require 'zgomot/comp/markov'
 
 

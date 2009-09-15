@@ -34,7 +34,7 @@ module Zgomot::Midi
     #.........................................................................................................
     def initialize(name, arity, pattern, limit)
       @patterns, @times = [Zgomot::Comp::Pattern.new(pattern)], [Time.new]
-      @limit, @name, @count, @thread, @status = limit || 1, name, 0, nil, :new
+      @limit, @name, @count, @thread, @status = limit || :inf, name, 0, nil, :new
       @play_meth = "play#{arity.eql?(-1) ? 0 : arity}".to_sym
     end
 
