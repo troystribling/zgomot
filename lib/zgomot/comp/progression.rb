@@ -9,7 +9,7 @@ module Zgomot::Comp
   
     #.........................................................................................................
     def initialize(args)
-      @length, @velocity, @item = args[:length], args[:velocity], args[:item]
+      @length, @velocity, @item = [args[:length]].flatten, [args[:velocity]].flatten, args[:item]
       @items = (1..7).to_a
       self.mode!(args[:mode])
       @tonic = case args[:tonic]
