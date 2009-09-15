@@ -46,12 +46,17 @@ module Zgomot::Midi
     #.........................................................................................................
     def <<(pat)
       pat = Zgomot::Comp::Pattern.new(pat) unless pat.kind_of?(Zgomot::Comp::Pattern)
-      pat.seq.each {|n| add_at_time(n)}; self
+      pat.seq.each do |p| 
+        p.time = clock.current_time
+        p.channel = number
+        @pattern << p.clone
+        clock.update(p.length_to_sec)
+      end; self
     end
 
     #.........................................................................................................
     def method_missing(meth, *args, &blk )
-      pattern.send(meth, *args, &blk)
+      pattern.send(meth, *args, &blk); reset_pattern_time; self
     end
 
     #.........................................................................................................
@@ -65,27 +70,21 @@ module Zgomot::Midi
     def time_shift(secs)
       pattern.each{|p| p.offset_time=secs}; self
     end
-
-    #.........................................................................................................
-    def velocity!
-      pattern.each{|p| p.velocity = yield p}; self
-    end
-
-    #.........................................................................................................
-    def length!
-      pattern.each{|p| p.length = yield p}; self
-    end
-
-  private
     
     #.........................................................................................................
-    def add_at_time(item)
-      item.time = clock.current_time
-      item.channel = number
-      @pattern << item.clone
-      clock.update(item.length_to_sec)
+    # pattern
+    #.........................................................................................................
+    def reset_pattern_time
+      @clock = Clock.new
+      pattern.each do |pat| 
+        pat.time = clock.current_time
+        clock.update(pat.length_to_sec)
+      end
     end
-  
+    
+    #.........................................................................................................
+    private :reset_pattern_time
+    
   #### Channel
   end
 
