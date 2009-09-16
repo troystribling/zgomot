@@ -7,13 +7,27 @@ before_start do
 end
 
 #.........................................................................................................
-str 'melody-1', np([:B,3],nil,:l=>4)[1,4,5,5], :lim=>:inf do |pattern|
-  ch(0) << pattern.mode!((count/4) % 7 + 1)
+major_modes = [:ionian, :lydian, :mixolydian] 
+minor_modes = [:dorian, :phrygian, :aeolian]
+
+#.........................................................................................................
+m = mark(:first)
+m.add([0.4, 0.2, 0.2, 0.2]) do |count|
+  np([:A,4],major_modes[count % 3],:l=>4)[7,5,3,1]
+end
+m.add([0.2, 0.4, 0.2, 0.2]) do |count|
+  np([:A,4],minor_modes[count % 3],:l=>4)[7,5,3,1]
+end
+m.add([0.2, 0.2, 0.4, 0.2]) do |count|
+  np([:G,4],major_modes[count % 3],:l=>4)[7,5,3,1]
+end
+m.add([0.2, 0.2, 0.2, 0.4]) do |count|
+  np([:G,4],minor_modes[count % 3],:l=>4)[7,5,3,1]
 end
 
 #.........................................................................................................
-str 'melody-2', np([:B,3],:ionian,:l=>4)[1,4,5,5].bpm!(16.0/15.0), :lim=>:inf  do |pattern|
-  ch(1) << pattern
+str 'markov' do
+  ch(0) << mark(:first).next(count)
 end
 
 #.........................................................................................................
