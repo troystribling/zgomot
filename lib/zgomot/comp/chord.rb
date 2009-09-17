@@ -21,10 +21,14 @@ module Zgomot::Comp
       def notes(prog)
         chords = prog.mode.chords(chord); count = -1
         prog.items.select do |d| 
-          chords[d-1]
+          d.eql?(:R) || chords[d-1]
         end.map do |d|
           count += 1; idx_length, idx_velocity = count % prog.length.length, count % prog.velocity.length
-          Chord.new(:tonic => prog.pitches[d-1], :chord => chords[d-1], :length => prog.length[idx_length], :velocity => prog.velocity[idx_velocity])
+          unless d.eql?(:R)
+            Chord.new(:tonic => prog.pitches[d-1], :chord => chords[d-1], :length => prog.length[idx_length], :velocity => prog.velocity[idx_velocity])
+          else
+            Zgomot::Midi::Note.new(:pitch => :R, :length => prog.length[idx_length], :velocity => prog.velocity[idx_velocity])            
+          end
         end
       end
     
