@@ -47,7 +47,7 @@ module Zgomot::Midi
                     break if not limit.eql?(:inf) and count > limit
                     if self.respond_to?(play_meth, true)  
                       if (chan = self.send(play_meth)).kind_of?(Zgomot::Midi::Channel) 
-                       Dispatcher.enqueue(chan.time_shift(start_time+ch_time))
+                        Dispatcher.enqueue(chan.time_shift(start_time+ch_time))
                       else; break; end
                     else
                       raise(Zgomot::Error, 'str block arity not supported')
