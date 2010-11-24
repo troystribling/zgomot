@@ -39,17 +39,13 @@ For OS X the IAC Driver must be enabled for programs to communicate with the dig
 
 Three parameters are defined in the configuration, <tt>zgomot.yml</tt>, file that specify the timing of a composition.
 
-* <b>time_signature</b>: The beats per measure.
-* <b>beats_per_minute</b>: To map to real time he beats per minute must be defined.
-* <b>resolution</b>: Resolution defines the length of a clock tick and is defined by the duration of the shortest note that can be played. In the first example this is a 64'th note. The maximum resolution is 1/1024 if your computer can do it.
+* <b>time_signature</b>: Beats per measure.
+* <b>beats_per_minute</b>: To map to real time the beats per minute are specified.
+* <b>resolution</b>: Defines the length of a clock tick and is defined by the duration of the shortest note that can be played. In the first example this is a 64'th note. The maximum resolution is 1/1024 if your computer can do it.
 
-== Model 
+== Pitch
 
-The model used to define a composition is very simple, only consisting of 9 objects.
-
-=== Pitch
-
-Pitch is a 2 dimensional array specifying the pitch class and octave, For example [:C, 4] would denote the note C at octave 4. Octave is an integer between -1 and 9 and acceptable values for pitch class with enharmonics, where <em>s</em> denotes a sharp and <em>b</em> a flat, and rest denoted by :R are,
+Pitch is defined by a 2 dimensional array specifying the pitch class and octave, For example [:C, 4] would denote the note C at octave 4. Octave is an integer between -1 and 9 and acceptable values for pitch class with enharmonics, where <em>s</em> denotes a sharp and <em>b</em> a flat, and rest by :R are,
 
     :C,  :Bs; 
     :Cs, :Db
@@ -65,7 +61,7 @@ Pitch is a 2 dimensional array specifying the pitch class and octave, For exampl
     :B, :Cb, 
     :R, 
 
-=== Notes
+== Notes
 
 A note is defined by,
 
@@ -73,26 +69,28 @@ A note is defined by,
     
 Acceptable options are,
 
-* <b>:l</b>: Reciprocal of length or duration of note, Accepted values are 1, 2, 4,..., max. Where max is the inverse resolution defined in <tt>zgomot.yml</tt>. So 1 is a whole not 2 a half note, 4 a quarter note, 8 and eighth note, ... The default value is 4, a quarter note.
-* <b>:v</b>: The velocity of the note is a number between 0 ad 1 defining its loudness. The default value is 0.6.
+* <b>l</b>: Reciprocal length of note, Accepted values are 1, 2, 4,..., max. Where max is the inverse resolution defined in <tt>zgomot.yml</tt>. Mapping to standard durations gives; 1 a whole note, 2 a half note, 4 a quarter note, 8 and eighth note, ... The default value is 4, a quarter note.
+* <b>v</b>: The velocity of the note is a number between 0 ad 1 defining its loudness. Low values correspond to piano and larger values forte. The default is 0.6.
           
-For example a, F sharp half note at octave 5 with velocity 0.5 would be defined by ,
+An F sharp half note at octave 5 with velocity 0.5 would be defined by,
 
           n([:Fs, 5], :l => 2, :v => 0.5)
           
-=== Chords
+== Chords
 
-=== Percussion
+== Percussion
 
-=== Chord Progressions
+== Chord Progressions
 
-=== Note Progressions
+== Note Progressions
 
-=== MIDI Streams
+== Patterns
 
-=== MIDI Channels
+== MIDI Channels
 
-=== Write to MIDI Device
+== MIDI Streams
+
+== Write to MIDI Device
 
 == Markov Matrix
 
