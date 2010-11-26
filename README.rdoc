@@ -31,7 +31,7 @@ Run the program to play the tune,
 
     ruby mytune.rb
          
-A simple object model is defined by zgomot that makes it possible to write iterative transformations on note patterns within <tt>str</str> blocks. In the following details of the object model and supported transformations will be described.
+A simple object model is defined by zgomot that makes it possible to write iterative transformations on note patterns within <tt>str</tt> blocks. In the following details of the object model and supported transformations will be described.
             
 == OS X MIDI Device Driver
 
@@ -168,7 +168,7 @@ Where tonic is the tonic pitch of the key, mode is one of the 7 diatonic modes: 
 
 Accepted options are,
 
-* <tt>:l</tt>: Reciprocal length of note, Accepted values are 1, 2, 4,..., max. Where max is the inverse resolution defined in <tt>zgomot.yml</tt>. Mapping to standard durations gives; 1 a whole note, 2 a half note, 4 a quarter note, 8 and eighth note, ... The default value is 4, a quarter note.
+* <tt>:l</tt>: Reciprocal length of note, Accepted values are <tt>1, 2, 4,..., max</tt>. Where max is the inverse resolution defined in <tt>zgomot.yml</tt>. Mapping to standard durations gives; 1 a whole note, 2 a half note, 4 a quarter note, 8 and eighth note, ... The default value is 4, a quarter note.
 * <tt>:v</tt>: The velocity of the note is a number between 0 ad 1 defining its loudness. Low values correspond to piano and larger values forte. The default is 0.6.
 
 An chord progression in a key of F# dorian at octave 5 with notes of half note length and velocity 0.5 would be defined by,
@@ -179,7 +179,7 @@ An chord progression in a key of F# dorian at octave 5 with notes of half note l
 
 * <tt>tonic!(tonic)</tt>: Change the tonic pitch of the progression.
 * <tt>mode!(v)</tt>: Change the mode of the progression
-* <tt>[](*args)</tt>: By default when a progression is created it only consists of one each of the notes in the key played sequentially using this transformation it is possible to change the the notes played in the progression. For example <tt>cp([:Fs, 5], :dorian)[1,5,5,7]</tt> will play the sequence 1, 5, 5, 7 instead of 1, 2, 3, 4, 5, 6, 7.
+* <tt>[](*args)</tt>: By default when a progression is created it only consists of one each of the notes in the key played sequentially using this transformation it is possible to change the the notes played in the progression. For example <tt>cp([:Fs, 5], :dorian)[1,5,5,7]</tt> will play the sequence <tt>1, 5, 5, 7</tt> instead of <tt>1, 2, 3, 4, 5, 6, 7</tt>.
 * <tt>velocity=(v)</tt>: Change the velocity of all notes in the progression.
 * <tt>length=(v)</tt>: Change the length of all notes in the progression.
 * <tt>bpm!(bpm)</tt>: change the bits per minute at which the chord is played.
@@ -229,7 +229,7 @@ Where number is the MIDI channel number which must be between 0 and 15. The defa
 
 ==== Methods 
 
-    *<tt><<(pattern)<\tt>: Write the specified pattern to the MIDI IO device.
+    *<tt>\<\<(pattern)<\tt>: Write the specified pattern to the MIDI IO device.
     
 Write a note pattern to MIDI channel 1,
 
@@ -243,13 +243,13 @@ A stream is used to define iteration on a pattern.
 
     str(name, pattern, opt, &blk)
     
-Where name is an identifying string defining, pattern is an initial pattern, which may be nil, and blk is used to define operations on pattern and yields pattern.
+Where name is an identifying string defining, pattern is an initial pattern, which may be nil, and blk is used to define operations on pattern and is yielded pattern.
 
 Accepted options are,
 
 * <tt>:lim</tt>: The number if iterations performed by the stream. The default value is infinite.
 
-A program will consist of one or more <tt>str</tt> calls followed by a <tt>play</tt> call. <tt>play</tt> spawns a thread for each <tt>str</tt> executing the defined blocks the specified number of times.  
+A program will consist of one or more <tt>str</tt> calls followed by a <tt>play</tt> call. Blocks passed to <tt>str</tt> perform operations on the yielded pattern and write the results to a MIDI channel. On the call to <tt>play</tt> a thread is spawned for each <tt>str</tt> which calls the defined blocks the specified number of times.  
 
     str 'grovin-1', cp([:C,3],:ionian), opt do |pattern|
         ch(0) << do_stuff_1(pattern)
@@ -261,11 +261,18 @@ A program will consist of one or more <tt>str</tt> calls followed by a <tt>play<
 
     play
         
-== Live Play
+Within a <tt>str</tt> block the following attributes are available,
+        
+* <tt>count</tt>: Current iteration.     
+* <tt>patterns</tt>: Chronological list of patterns.
 
 == Callbacks
 
+* <tt>before_start</tt>: called before application starts.
+
 == Logging
+
+By default logging is performed to STDOUT with level <tt>Logger::WARN</tt>. This can be changed by defining a new <tt>logger</tt> or specifying a new logger level in <tt>before_start</tt>. 
 
 == Examples
 
@@ -273,9 +280,54 @@ Many examples can be found at https://github.com/troystribling/zgomot/tree/maste
 
 === Markov Matrix
 
+The Markov Matrix randomly plays a list of specified patterns with specified probabilities. The size of the matrix is determined by the number of patterns. A transition probabilities between each pattern must be defined.
+
+=== Methods
+    
+* <tt>add(transition_probs, &blk)</tt>:  Add a pattern to the Markov matrix. Arguments are: <tt>transitition_probs</tt> a list that defines the transition probabilities between patterns and <tt>blk</tt> is a block in which the pattern is defined.  
+* <tt>next</tt>: Called within a <tt>str</tt> block to return the next random pattern.
+
+==== Code Sample
+
+A simple Markov Matrix with two patterns.
+
+    m = mark
+    m.add([0.6, 0.4]) do
+      np([:A,4],:dorian,:l=>4)[7,5,3,1,]
+    end
+    m.add([0.4, 0.6]) do
+      np([:A,4],:ionian,:l=>4)[7,5,3,1]
+    end
+
+    str 'markov' do
+      ch << m.next
+    end
+
+    play
+
 === Multiple MIDI Channels
 
-=== Phase Shifting
+A program can write to multiple MIDI channels with multiple <tt>str</tt> calls. The following example writes the same melody to two different MIDI channels at different bit rates producing a phasing effect.
+
+    str 'melody-1', np([:B,3],nil,:l=>4)[1,4,5,5], :lim=>:inf do |pattern|
+      ch(0) << pattern.mode!((count/4) % 7 + 1)
+    end
+
+    str 'melody-2', np([:B,3],:ionian,:l=>4)[1,4,5,5].bpm!(16.0/15.0), :lim=>:inf  do |pattern|
+      ch(1) << pattern
+    end
+
+    play
+
+=== Progression with Length and Velocity Defined for each Note
+
+Different note duration and velocities for each note in a progression can be defined by by using arrays for the length and velocity options.
+
+    str 'prog', cp([:A,4],nil,:l=>[4,4,8,8,4], :v=>[0.6, 0.4, 0.7, 0.6, 0.4])[7,5,3,3,1], :lim=>6 do |pattern|
+      ch << pattern.mode!(count)
+    end
+
+    play
 
 == Copyright
 
