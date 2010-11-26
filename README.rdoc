@@ -251,11 +251,11 @@ Accepted options are,
 
 A program will consist of one or more <tt>str</tt> calls followed by a <tt>play</tt> call. Blocks passed to <tt>str</tt> perform operations on the yielded pattern and write the results to a MIDI channel. On the call to <tt>play</tt> a thread is spawned for each <tt>str</tt> which calls the defined blocks the specified number of times.  
 
-    str 'grovin-1', cp([:C,3],:ionian), opt do |pattern|
+    str 'grovin-1', cp([:C,3],:ionian), :lim => 3 do |pattern|
         ch(0) << do_stuff_1(pattern)
     end
 
-    str 'grovin-2', cp([:A,5],:dorian), opt do |pattern|
+    str 'grovin-2', cp([:A,5],:dorian), , :lim => 3 do |pattern|
         ch(1) << do_stuff_2(pattern)
     end
 
