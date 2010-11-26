@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Troy Stribling"]
-  s.date = %q{2010-11-23}
+  s.date = %q{2010-11-25}
   s.default_executable = %q{zgomot}
   s.email = %q{troy.stribling@gmail.com}
   s.executables = ["zgomot"]
@@ -74,7 +74,8 @@ Gem::Specification.new do |s|
     "lib/zgomot/patches.rb",
     "lib/zgomot/patches/object.rb",
     "lib/zgomot/patches/time.rb",
-    "lib/zlive.rb"
+    "lib/zlive.rb",
+    "zgomot.gemspec"
   ]
   s.homepage = %q{http://github.com/troystribling/zgomot}
   s.require_paths = ["lib"]
