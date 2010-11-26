@@ -208,7 +208,7 @@ An note progression in a key of F# dorian at octave 5 with notes of half note le
 ==== Transforms
 
 * <tt>tonic!(tonic)</tt>: Change the tonic pitch of the progression.
-* <tt>mode!(v)</tt>: Change the mode of the progression
+* <tt>mode!(mode)</tt>: Change the mode of the progression
 * <tt>[](*args)</tt>: By default when a progression is created it only consists of one each of the notes in the key played sequentially using this transformation it is possible to change the the notes played in the progression. For example <tt>np([:Fs, 5], :dorian)[1,5,5,7]</tt> will play the sequence 1, 5, 5, 7 instead of 1, 2, 3, 4, 5, 6, 7.
 * <tt>velocity=(v)</tt>: Change the velocity of all notes in the progression.
 * <tt>length=(v)</tt>: Change the length of all notes in the progression.
