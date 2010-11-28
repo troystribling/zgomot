@@ -1,6 +1,6 @@
 = zgomot
 
-zgomot is a DSL for composing MIDI music compositions. It does not do synthesis so requires digital audio software such as Apple's Garage Band, Logic or Abelton Live to create sound. An program that plays a simple tune only requires a few lines of code.
+zgomot is a DSL for composing MIDI music. It does not do synthesis so to create sound it requires digital audio software such as Apple's Garage Band, Logic or Abelton Live. A program that plays a simple tune only requires a few lines of code.
 
     # mytune.rb
     require 'rubygems'
@@ -31,7 +31,7 @@ Run the program to play the tune,
 
     ruby mytune.rb
          
-A simple object model is defined by zgomot that makes it possible to write iterative transformations on note patterns within <tt>str</tt> blocks. In the following details of the object model and supported transformations will be described.
+A simple object model is defined by zgomot that makes it possible to write iterative transformations on note patterns within <tt>str</tt> blocks, which generate MIDI data streams. In the following details of the object model and supported transformations will be described.
             
 == OS X MIDI Device Driver
 
@@ -39,7 +39,7 @@ For OS X the IAC Driver must be enabled for programs to communicate with the dig
     
 == Configuration
 
-Three parameters are defined in the configuration, <tt>zgomot.yml</tt>, file that specify the timing of a composition.
+Three parameters are defined in the configuration file, <tt>zgomot.yml</tt>, that specify the timing of a composition.
 
 * <b>time_signature</b>: Beats per measure.
 * <b>beats_per_minute</b>: To map to real time the beats per minute are specified.
@@ -47,7 +47,7 @@ Three parameters are defined in the configuration, <tt>zgomot.yml</tt>, file tha
 
 == Pitch
 
-Pitch is defined by a 2 dimensional array specifying the pitch class and octave, For example [:C, 4] would denote the note C at octave 4. Octave is an integer between -1 and 9 and acceptable values for pitch class with enharmonics, where <em>s</em> denotes a sharp and <em>b</em> a flat, and rest by :R are,
+Pitch is defined by a 2 dimensional array specifying the pitch class and octave, For example [:C, 4] would denote the note C at octave 4. Octave is an integer between -1 and 9 and acceptable values for pitch class with enharmonics, where <em>s</em> denotes a sharp, <em>b</em> a flat, and rest by :R are,
 
     :C,  :Bs; 
     :Cs, :Db
@@ -91,11 +91,11 @@ A chord is defined by,
 
     c(root, interval, opts)
     
-Only 3 note chords are supported where root is the chord root pitch and interval is the interval set type. Accepted values of the interval type are; <tt>:maj</tt>, <tt>:min</tt>, <tt>:dim</tt>, <tt>:aug</tt>, <tt>:sus2</tt>, <tt>:sus4</tt>. Representing major, minor, diminished, augmented, suspended second and suspended forth chord interval sets. If not specified the default value of interval is <tt>:maj</tt>.
+Only trichords are supported where root is the chord root pitch and interval is the interval type. Accepted values of the interval type are; <tt>:maj</tt>, <tt>:min</tt>, <tt>:dim</tt>, <tt>:aug</tt>, <tt>:sus2</tt>, <tt>:sus4</tt>. Representing major, minor, diminished, augmented, suspended second and suspended forth chord intervals respectively. If not specified the default value of interval is <tt>:maj</tt>.
 
 Accepted options are,
 
-* <tt>:l</tt>: Reciprocal length of note, Accepted values are 1, 2, 4,..., max. Where max is the inverse resolution defined in <tt>zgomot.yml</tt>. Mapping to standard durations gives; 1 a whole note, 2 a half note, 4 a quarter note, 8 and eighth note, ... The default value is 4, a quarter note.
+* <tt>:l</tt>: Reciprocal length of chord, Accepted values are 1, 2, 4,..., max. Where max is the inverse resolution defined in <tt>zgomot.yml</tt>. Mapping to standard durations gives; 1 a whole note, 2 a half note, 4 a quarter note, 8 and eighth note, ... The default value is 4, a quarter note.
 * <tt>:v</tt>: The velocity of the note is a number between 0 ad 1 defining its loudness. Low values correspond to piano and larger values forte. The default is 0.6.
 
 An F# half note minor chord at octave 5 with velocity 0.5 would be defined by,
@@ -109,7 +109,7 @@ Chords support the following transformations,
 * <tt>bpm!(bpm)</tt>: change the bits per minute at which the chord is played.
 * <tt>octave!(ocatve)</tt>: change the octave of the chord.
 * <tt>arp!(length)</tt>: arpeggiate the chord using the specified length in units of note length. Accepted values are 1, 2, 4, 8, ... resolution, representing arpeggiation by a whole note, half note, quarter note, eighth note up to the specified clock resolution.  
-* <tt>inv!(number)</tt>: Invert he chord. When 0 the chord is unchanged, 1 is the first inversion and 2 is the second. Higher inversions just shift the chord to a higher octave.
+* <tt>inv!(number)</tt>: Invert the chord. When 0 the chord is unchanged, 1 is the first inversion and 2 is the second. Higher inversions just shift the chord to a higher octave.
 * <tt>rev!</tt>: Reverse the order in which the notes are played. Only noticeable if the chord is also arpeggiated.
 
 == Percussion
@@ -160,7 +160,7 @@ Percussion supports the following transformations,
 
 Chord Progressions or Roman Numeral Notation permit the definition of a melody that is independent of key. Using Chord progressions it is possible to iteratively shift the key of a specified sequence of chords.
 
-A chord progression consisting of the 7 notes of a specified key in a diatonic scale or mode played sequentially will be defined by,
+A chord progression consisting of the 7 notes of a specified key in a diatonic mode played sequentially will be defined by,
 
     cp(tonic, mode, opts)  
 
@@ -168,7 +168,7 @@ Where tonic is the tonic pitch of the key, mode is one of the 7 diatonic modes: 
 
 Accepted options are,
 
-* <tt>:l</tt>: Reciprocal length of note, Accepted values are <tt>1, 2, 4,..., max</tt>. Where max is the inverse resolution defined in <tt>zgomot.yml</tt>. Mapping to standard durations gives; 1 a whole note, 2 a half note, 4 a quarter note, 8 and eighth note, ... The default value is 4, a quarter note.
+* <tt>:l</tt>: Reciprocal length of chord, Accepted values are <tt>1, 2, 4,..., max</tt>. Where max is the inverse resolution defined in <tt>zgomot.yml</tt>. Mapping to standard durations gives; 1 a whole note, 2 a half note, 4 a quarter note, 8 and eighth note, ... The default value is 4, a quarter note.
 * <tt>:v</tt>: The velocity of the note is a number between 0 ad 1 defining its loudness. Low values correspond to piano and larger values forte. The default is 0.6.
 
 An chord progression in a key of F# dorian at octave 5 with notes of half note length and velocity 0.5 would be defined by,
@@ -179,7 +179,7 @@ An chord progression in a key of F# dorian at octave 5 with notes of half note l
 
 * <tt>tonic!(tonic)</tt>: Change the tonic pitch of the progression.
 * <tt>mode!(mode)</tt>: Change the mode of the progression
-* <tt>[](*args)</tt>: By default when a progression is created it only consists of one each of the notes in the key played sequentially using this transformation it is possible to change the the notes played in the progression. For example <tt>cp([:Fs, 5], :dorian)[1,5,5,7]</tt> will play the sequence <tt>1, 5, 5, 7</tt> instead of <tt>1, 2, 3, 4, 5, 6, 7</tt>.
+* <tt>[](*args)</tt>: By default when a progression is created it only consists of one each of the notes in the key played sequentially. Using this transformation it is possible to change the the notes played in the progression. For example <tt>cp([:Fs, 5], :dorian)[1,5,5,7]</tt> will play the sequence <tt>1, 5, 5, 7</tt> instead of <tt>1, 2, 3, 4, 5, 6, 7</tt>.
 * <tt>velocity=(v)</tt>: Change the velocity of all notes in the progression.
 * <tt>length=(v)</tt>: Change the length of all notes in the progression.
 * <tt>bpm!(bpm)</tt>: change the bits per minute at which the chord is played.
@@ -217,7 +217,7 @@ An note progression in a key of F# dorian at octave 5 with notes of half note le
 
 == Patterns
 
-Patterns are heterogeneous arrays of notes, chords, Chord Progressions and Note Progressions. Operations applied to the pattern will be delegated to the elements of the pattern array. Patterns also support all methods supported by Ruby the <tt>Array</tt> class.
+Patterns are heterogeneous arrays of notes, chords, Chord Progressions and Note Progressions. Operations applied to the pattern will be delegated to the appropriate elements of the pattern array. Patterns also support all methods supported by Ruby the <tt>Array</tt> class.
 
 == MIDI Channels
 
@@ -229,7 +229,7 @@ Where number is the MIDI channel number which must be between 0 and 15. The defa
 
 ==== Methods 
 
-    *<tt>\<\<(pattern)<\tt>: Write the specified pattern to the MIDI IO device.
+*<tt><<(pattern)<\tt>: Write the specified pattern to the MIDI IO device.
     
 Write a note pattern to MIDI channel 1,
 
@@ -239,7 +239,7 @@ Channels are created within stream blocks which are discussed in the next sectio
 
 == Streams
 
-A stream is used to define iteration on a pattern. 
+A stream is used to define iteration on a pattern and outputs a stream of MIDI data. 
 
     str(name, pattern, opt, &blk)
     
@@ -247,7 +247,7 @@ Where name is an identifying string defining, pattern is an initial pattern, whi
 
 Accepted options are,
 
-* <tt>:lim</tt>: The number if iterations performed by the stream. The default value is infinite.
+* <tt>:lim</tt>: The number of iterations performed by the stream. The default value is infinite.
 
 A program will consist of one or more <tt>str</tt> calls followed by a <tt>play</tt> call. Blocks passed to <tt>str</tt> perform operations on the yielded pattern and write the results to a MIDI channel. On the call to <tt>play</tt> a thread is spawned for each <tt>str</tt> which calls the defined blocks the specified number of times.  
 
@@ -280,7 +280,7 @@ Many examples can be found at https://github.com/troystribling/zgomot/tree/maste
 
 === Markov Matrix
 
-The Markov Matrix randomly plays a list of specified patterns with specified probabilities. The size of the matrix is determined by the number of patterns. A transition probabilities between each pattern must be defined.
+The Markov Matrix randomly plays a list of specified patterns with specified probabilities. The size of the matrix is determined by the number of patterns. For each pattern a list transition probabilities must be defined for all other patterns.
 
 === Methods
     
