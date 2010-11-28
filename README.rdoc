@@ -227,9 +227,7 @@ The MIDI Channel is used to specify MIDI device IO. A channel is created with th
 
 Where number is the MIDI channel number which must be between 0 and 15. The default value is 0.
 
-==== Methods 
-
-*<tt><<(pattern)</tt>: Write the specified pattern to the MIDI IO device.
+The << operator is used to write patterns to the MIDI IO device.
     
 Write a note pattern to MIDI channel 1,
 
