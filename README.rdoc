@@ -229,7 +229,7 @@ Where number is the MIDI channel number which must be between 0 and 15. The defa
 
 ==== Methods 
 
-*<tt><<(pattern)<\tt>: Write the specified pattern to the MIDI IO device.
+*<tt><<(pattern)</tt>: Write the specified pattern to the MIDI IO device.
     
 Write a note pattern to MIDI channel 1,
 
