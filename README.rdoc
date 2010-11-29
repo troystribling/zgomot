@@ -91,7 +91,7 @@ A chord is defined by,
 
     c(root, interval, opts)
     
-Only trichords are supported where root is the chord root pitch and interval is the interval type. Accepted values of the interval type are; <tt>:maj</tt>, <tt>:min</tt>, <tt>:dim</tt>, <tt>:aug</tt>, <tt>:sus2</tt>, <tt>:sus4</tt>. Representing major, minor, diminished, augmented, suspended second and suspended forth chord intervals respectively. If not specified the default value of interval is <tt>:maj</tt>.
+Only trichords are supported. Here root is the chord root pitch and interval is the interval type. Accepted values of the interval type are: <tt>:maj</tt>, <tt>:min</tt>, <tt>:dim</tt>, <tt>:aug</tt>, <tt>:sus2</tt>, <tt>:sus4</tt>. Representing major, minor, diminished, augmented, suspended second and suspended forth chord intervals respectively. If not specified the default value of interval is <tt>:maj</tt>.
 
 Accepted options are,
 
