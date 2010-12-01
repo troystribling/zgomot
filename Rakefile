@@ -15,7 +15,6 @@ require 'jeweler'
     gem.homepage = "http://github.com/troystribling/zgomot"
     gem.authors = ["Troy Stribling"]
     gem.files.include %w(lib/jeweler/templates/.gitignore VERSION)
-    gem.add_dependency('rake',        '>= 0.8.3')
     gem.add_dependency('midiator',    '>= 0.3.3')
   end
 rescue LoadError
