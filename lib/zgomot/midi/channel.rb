@@ -49,7 +49,7 @@ module Zgomot::Midi
       pat.seq.each do |p| 
         p.time = clock.current_time
         p.channel = number
-        @pattern << p.clone
+        @pattern << Marshal.load(Marshal.dump(p))
         clock.update(p.length_to_sec)
       end; self
     end
