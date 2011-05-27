@@ -2,6 +2,7 @@ $:.unshift(File.dirname(__FILE__))
 
 require 'optparse'
 require 'logger'
+require 'thread'
 require 'monitor'
 
 require 'midiator'
