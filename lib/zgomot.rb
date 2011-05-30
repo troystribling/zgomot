@@ -3,9 +3,9 @@ $:.unshift(File.dirname(__FILE__))
 require 'optparse'
 require 'logger'
 require 'thread'
+require 'yaml'
 require 'monitor'
-
-require 'midiator'
+require 'ffi'
 
 require 'zgomot/config'
 require 'zgomot/boot'
@@ -13,3 +13,4 @@ require 'zgomot/patches'
 require 'zgomot/comp'
 require 'zgomot/midi'
 require 'zgomot/main'
+require 'zgomot/drivers'

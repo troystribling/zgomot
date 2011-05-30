@@ -15,7 +15,6 @@ require 'jeweler'
     gem.homepage = "http://github.com/troystribling/zgomot"
     gem.authors = ["Troy Stribling"]
     gem.files.include %w(lib/jeweler/templates/.gitignore VERSION)
-    gem.add_dependency('midiator',    '>= 0.3.3')
   end
 rescue LoadError
   abort "jeweler is not available. In order to run test, you must: sudo gem install technicalpickles-jeweler --source=http://gems.github.com"

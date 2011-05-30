@@ -13,7 +13,7 @@ module Zgomot
         ####..............
         Zgomot.logger = Logger.new(STDOUT)
         Zgomot.logger.level = Logger::WARN 
-
+        
         ####..............
         call_if_implemented(:call_before_start)
 
