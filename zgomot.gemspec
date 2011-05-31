@@ -5,25 +5,26 @@
 
 Gem::Specification.new do |s|
   s.name = %q{zgomot}
-  s.version = "0.1.1"
+  s.version = "0.1.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
-  s.authors = ["Troy Stribling"]
-  s.date = %q{2011-04-03}
-  s.default_executable = %q{zgomot}
+  s.authors = [%q{Troy Stribling}]
+  s.date = %q{2011-05-31}
   s.email = %q{troy.stribling@gmail.com}
-  s.executables = ["zgomot"]
+  s.executables = [%q{zgomot}]
   s.extra_rdoc_files = [
     "LICENSE",
     "README.rdoc"
   ]
   s.files = [
     ".document",
+    ".rvmrc",
     "LICENSE",
     "README.rdoc",
     "Rakefile",
     "VERSION",
     "bin/zgomot",
+    "default.gems",
     "examples/arp_chords.rb",
     "examples/full_scale_notes.rb",
     "examples/inv_chords.rb",
@@ -63,62 +64,39 @@ Gem::Specification.new do |s|
     "lib/zgomot/comp/progression.rb",
     "lib/zgomot/comp/scale.rb",
     "lib/zgomot/config.rb",
+    "lib/zgomot/drivers.rb",
+    "lib/zgomot/drivers/core_midi.rb",
+    "lib/zgomot/drivers/driver.rb",
+    "lib/zgomot/drivers/mgr.rb",
     "lib/zgomot/main.rb",
     "lib/zgomot/midi.rb",
     "lib/zgomot/midi/channel.rb",
     "lib/zgomot/midi/clock.rb",
     "lib/zgomot/midi/dispatcher.rb",
-    "lib/zgomot/midi/interface.rb",
     "lib/zgomot/midi/note.rb",
     "lib/zgomot/midi/stream.rb",
     "lib/zgomot/patches.rb",
     "lib/zgomot/patches/object.rb",
+    "lib/zgomot/patches/string.rb",
     "lib/zgomot/patches/time.rb",
     "lib/zlive.rb",
     "zgomot.gemspec"
   ]
   s.homepage = %q{http://github.com/troystribling/zgomot}
-  s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.3.7}
+  s.require_paths = [%q{lib}]
+  s.rubygems_version = %q{1.8.4}
   s.summary = %q{zgomot is a simple DSL for writting MIDI music.}
-  s.test_files = [
-    "examples/arp_chords.rb",
-    "examples/full_scale_notes.rb",
-    "examples/inv_chords.rb",
-    "examples/modes_notes.rb",
-    "examples/notes.rb",
-    "examples/percs.rb",
-    "examples/percs_multi.rb",
-    "examples/phase_notes.rb",
-    "examples/prog_chords.rb",
-    "examples/prog_chords_multi_vel_length.rb",
-    "examples/prog_chords_rest.rb",
-    "examples/prog_notes.rb",
-    "examples/prog_notes_multi_vel_length.rb",
-    "examples/prog_notes_rest.rb",
-    "examples/progressive_modes.rb",
-    "examples/reverse_chords.rb",
-    "examples/scale_chords.rb",
-    "examples/scale_notes.rb",
-    "examples/scales_notes.rb",
-    "examples/simple_chords.rb",
-    "examples/simple_markov.rb",
-    "examples/simple_notes.rb",
-    "examples/simple_notes_length.rb",
-    "examples/simple_notes_velocity.rb"
-  ]
 
   if s.respond_to? :specification_version then
-    current_version = Gem::Specification::CURRENT_SPECIFICATION_VERSION
     s.specification_version = 3
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
-      s.add_runtime_dependency(%q<midiator>, [">= 0.3.3"])
+      s.add_runtime_dependency(%q<ffi>, ["= 1.0.9"])
     else
-      s.add_dependency(%q<midiator>, [">= 0.3.3"])
+      s.add_dependency(%q<ffi>, ["= 1.0.9"])
     end
   else
-    s.add_dependency(%q<midiator>, [">= 0.3.3"])
+    s.add_dependency(%q<ffi>, ["= 1.0.9"])
   end
 end
 
