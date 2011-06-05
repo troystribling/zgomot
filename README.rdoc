@@ -1,6 +1,6 @@
 = zgomot
 
-zgomot is a DSL for composing MIDI music. It does not do synthesis so to create sound it requires digital audio software such as Apple's Garage Band, Logic or Abelton Live. A program that plays a simple tune only requires a few lines of code.
+zgomot is a DSL for composing MIDI music. It does not do synthesis so to create sound it requires digital audio software such as Apple's GarageBand, Logic or Ableton Live. A program that plays a simple tune only requires a few lines of code.
 
     # mytune.rb
     require 'rubygems'
