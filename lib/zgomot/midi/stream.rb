@@ -15,26 +15,27 @@ module Zgomot::Midi
 
       #.........................................................................................................
       def str(name, pattern=nil, opts={}, &blk)
-        strm = new(name, blk.arity, pattern, opts[:lim])
+        strm = new(name, blk.arity, pattern, opts)
         strm.define_meta_class_method(:play, &blk) 
         @streams << strm
       end
 
       #.........................................................................................................
       def play 
-        streams.each{|s| s.dispatch(::Time.now.truncate_to(Clock.tick_sec) + Zgomot::PLAY_DELAY) if s.status.eql?(:new)}
+        streams.each{|s| s.dispatch(::Time.now.truncate_to(Clock.tick_sec) + Zgomot::PLAY_DELAY + s.delay) if s.status.eql?(:new)}
       end
       
     #### self
     end
     
     #####-------------------------------------------------------------------------------------------------------
-    attr_reader :patterns, :times, :status, :count, :thread, :limit, :name, :play_meth
+    attr_reader :patterns, :times, :status, :count, :thread, :limit, :name, :play_meth, :delay
     
     #.........................................................................................................
-    def initialize(name, arity, pattern, limit)
+    def initialize(name, arity, pattern, opts)
       @patterns, @times = [Zgomot::Comp::Pattern.new(pattern)], [Time.new]
-      @limit, @name, @count, @thread, @status = limit || :inf, name, 0, nil, :new
+      @delay = (opts[:del].to_f * 60.0/ Zgomot.config[:beats_per_minute].to_f).to_i || 0
+      @limit, @name, @count, @thread, @status = opts[:lim] || :inf, name, 0, nil, :new
       @play_meth = "play#{arity.eql?(-1) ? 0 : arity}".to_sym
     end
 

@@ -254,6 +254,7 @@ Where name is an identifying string defining, pattern is an initial pattern, whi
 Accepted options are,
 
 * <tt>:lim</tt>: The number of iterations performed by the stream. The default value is infinite.
+* <tt>:del</tt>: The number beats delayed before the stream begins to play. The default value is 0.
 
 A program will consist of one or more <tt>str</tt> calls followed by a <tt>play</tt> call. Blocks passed to <tt>str</tt> perform operations on the yielded pattern and write the results to a MIDI channel. On the call to <tt>play</tt> a thread is spawned for each <tt>str</tt> which calls the defined blocks the specified number of times.  
 
