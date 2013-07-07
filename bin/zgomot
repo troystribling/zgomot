@@ -1,2 +1,0 @@
-#!/usr/bin/ruby
-exec "irb -I #{File.dirname($0)}/../lib/ -r zlive"

@@ -1,7 +1,0 @@
-# default.gems generated gem export file. Note that any env variable settings will be missing. Append these after using a ';' field separator
-bundler -v1.0.14
-ffi -v1.0.9
-git -v1.2.5
-jeweler -v1.6.0
-rake -v0.9.0
-rubygems-update -v1.8.4
