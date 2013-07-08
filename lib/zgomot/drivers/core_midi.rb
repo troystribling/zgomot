@@ -17,7 +17,7 @@ class Zgomot::Drivers
       typedef :pointer, :MIDIEntityRef
       typedef :pointer, :MIDIObjectRef
       typedef :pointer, :MIDIEndpointRef
-      typedef :uint32, :MIDITimeStamp
+      typedef :uint32,  :MIDITimeStamp
       typedef :pointer, :MIDIPortRef
       typedef :int32,   :OSStatus
 
@@ -41,9 +41,9 @@ class Zgomot::Drivers
       attach_function :MIDIGetDestination, [:ItemCount], :MIDIEndpointRef
       attach_function :MIDIGetDevice, [:ItemCount], :MIDIDeviceRef
       attach_function :MIDIOutputPortCreate, [:MIDIClientRef, :CFStringRef, :MIDIPortRef], :OSStatus
-      #attach_function :MIDIInputPortCreate, [:MIDIClientRef, :CFStringRef, :MIDIReadProc, :pointer, :MIDIPortRef], :int
+      attach_function :MIDIInputPortCreate, [:MIDIClientRef, :CFStringRef, :MIDIReadProc, :pointer, :MIDIPortRef], :OSStatus
       attach_function :MIDIObjectGetStringProperty, [:MIDIObjectRef, :CFStringRef, :CFStringRef], :OSStatus
-      attach_function :MIDIPacketListInit, [:pointer], :pointer
+      attach_function :MIDIPacketListInit, [:pointer], MIDIPacket.by_ref
       attach_function :MIDIPacketListAdd, [:pointer, :int, :pointer, :int, :int, :pointer], :pointer
       attach_function :MIDISend, [:MIDIPortRef, :MIDIEndpointRef, :pointer], :OSStatus
       attach_function :MIDIReceived, [:MIDIEndpointRef, :pointer], :OSStatus
@@ -63,6 +63,7 @@ class Zgomot::Drivers
       get_entity
       create_client
       connect_output_endpoint
+      connect_input_endpoint
       get_destination
     end
 
@@ -113,21 +114,33 @@ class Zgomot::Drivers
     end
 
     def connect_output_endpoint
-      port_name = Interface::CFString.CFStringCreateWithCString(nil, "Port", 0)
+      port_name = Interface::CFString.CFStringCreateWithCString(nil, "Port-Output", 0)
       outport_ptr = FFI::MemoryPointer.new(:pointer)
       Interface.MIDIOutputPortCreate(@client, port_name, outport_ptr)
       @output_endpoint = outport_ptr.read_pointer
     end
 
     def connect_input_endpoint
-      #port_name = Interface::CFString.CFStringCreateWithCString(nil, "Port", 0)
-      #outport_ptr = FFI::MemoryPointer.new(:pointer)
-      #Interface.MIDIOutputPortCreate(@client, port_name, outport_ptr)
-      #@input_endpoint = outport_ptr.read_pointer
+      port_name = Interface::CFString.CFStringCreateWithCString(nil, "Port-Input", 0)
+      inport_ptr = FFI::MemoryPointer.new(:pointer)
+      Interface.MIDIInputPortCreate(@client, port_name, get_input_callback, nil, inport_ptr)
+      @input_endpoint = inport_ptr.read_pointer
     end
 
     def get_destination
       @destination = Interface.MIDIGetDestination(0)
+    end
+
+    def get_input_callback
+      Proc.new do |new_packets, refCon_ptr, connRefCon_ptr |
+        time = Time.now.to_f
+        packet = new_packets[:packet][0]
+        len = packet[:length]
+        puts "PACKET LENGTH: #{len}"
+        if len > 0
+          bytes = packet[:data].to_a[0, len]
+        end
+      end
     end
 
   end
