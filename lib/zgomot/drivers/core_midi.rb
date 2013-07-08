@@ -16,18 +16,37 @@ class Zgomot::Drivers
       typedef :pointer, :MIDIDeviceRef
       typedef :pointer, :MIDIEntityRef
       typedef :pointer, :MIDIObjectRef
+      typedef :pointer, :MIDIEndpointRef
+      typedef :uint32, :MIDITimeStamp
+      typedef :pointer, :MIDIPortRef
       typedef :int32,   :OSStatus
 
-      attach_function :MIDIClientCreate, [:pointer, :pointer, :pointer, :pointer], :int
-      attach_function :MIDIClientDispose, [:pointer], :int
+      class MIDIPacket < FFI::Struct
+        layout :timestamp,  :MIDITimeStamp,
+               :nothing,    :uint32,
+               :length,     :uint16,
+               :data,       [:uint8, 256]
+      end
+
+      class MIDIPacketList < FFI::Struct
+        layout :numPackets,   :uint32,
+               :packet,       [MIDIPacket.by_value, 1]
+      end
+
+      callback :MIDIReadProc, [MIDIPacketList.by_ref, :pointer, :pointer], :pointer
+
+      attach_function :MIDIClientCreate, [:pointer, :pointer, :pointer, :pointer], :OSStatus
+      attach_function :MIDIClientDispose, [:MIDIClientRef], :OSStatus
       attach_function :MIDIDeviceGetEntity, [:MIDIDeviceRef, :ItemCount], :MIDIEntityRef
-      attach_function :MIDIGetDestination, [:int], :pointer
+      attach_function :MIDIGetDestination, [:ItemCount], :MIDIEndpointRef
       attach_function :MIDIGetDevice, [:ItemCount], :MIDIDeviceRef
-      attach_function :MIDIOutputPortCreate, [:MIDIClientRef, :CFStringRef, :pointer], :int
-      attach_function :MIDIObjectGetStringProperty, [:MIDIObjectRef, :CFStringRef, :pointer], :OSStatus
+      attach_function :MIDIOutputPortCreate, [:MIDIClientRef, :CFStringRef, :MIDIPortRef], :OSStatus
+      #attach_function :MIDIInputPortCreate, [:MIDIClientRef, :CFStringRef, :MIDIReadProc, :pointer, :MIDIPortRef], :int
+      attach_function :MIDIObjectGetStringProperty, [:MIDIObjectRef, :CFStringRef, :CFStringRef], :OSStatus
       attach_function :MIDIPacketListInit, [:pointer], :pointer
       attach_function :MIDIPacketListAdd, [:pointer, :int, :pointer, :int, :int, :pointer], :pointer
-      attach_function :MIDISend, [:pointer, :pointer, :pointer], :int
+      attach_function :MIDISend, [:MIDIPortRef, :MIDIEndpointRef, :pointer], :OSStatus
+      attach_function :MIDIReceived, [:MIDIEndpointRef, :pointer], :OSStatus
 
       module CFString
         extend FFI::Library
@@ -43,7 +62,7 @@ class Zgomot::Drivers
       find_iac_device
       get_entity
       create_client
-      connect_endpoint
+      connect_output_endpoint
       get_destination
     end
 
@@ -59,7 +78,7 @@ class Zgomot::Drivers
       packet_list = FFI::MemoryPointer.new(256)
       packet_ptr = Interface.MIDIPacketListInit(packet_list)
       packet_ptr = Interface.MIDIPacketListAdd(packet_list, 256, packet_ptr, 0, size, bytes)
-      Interface.MIDISend(@endpoint, @destination, packet_list)
+      Interface.MIDISend(@output_endpoint, @destination, packet_list)
     end
 
     def find_iac_device
@@ -87,17 +106,24 @@ class Zgomot::Drivers
     end
 
     def create_client
-      client_name = Interface::CFString.CFStringCreateWithCString(nil, "Client #{@id}: #{@name}", 0)
+      client_name = Interface::CFString.CFStringCreateWithCString(nil, "Client", 0)
       client_ptr = FFI::MemoryPointer.new(:pointer)
       Interface.MIDIClientCreate(client_name, nil, nil, client_ptr)
       @client = client_ptr.read_pointer
     end
 
-    def connect_endpoint
-      port_name = Interface::CFString.CFStringCreateWithCString(nil, "Port #{@id}: #{@name}", 0)
+    def connect_output_endpoint
+      port_name = Interface::CFString.CFStringCreateWithCString(nil, "Port", 0)
       outport_ptr = FFI::MemoryPointer.new(:pointer)
       Interface.MIDIOutputPortCreate(@client, port_name, outport_ptr)
-      @endpoint = outport_ptr.read_pointer
+      @output_endpoint = outport_ptr.read_pointer
+    end
+
+    def connect_input_endpoint
+      #port_name = Interface::CFString.CFStringCreateWithCString(nil, "Port", 0)
+      #outport_ptr = FFI::MemoryPointer.new(:pointer)
+      #Interface.MIDIOutputPortCreate(@client, port_name, outport_ptr)
+      #@input_endpoint = outport_ptr.read_pointer
     end
 
     def get_destination
