@@ -2,7 +2,7 @@ class Zgomot::Drivers
 
   class CoreMidi < Driver
 
-    attr_reader :input
+    attr_reader :destinations, :sources
 
     # API Wrapper
     module Interface
@@ -36,9 +36,13 @@ class Zgomot::Drivers
       callback :MIDIReadProc, [MIDIPacketList.by_ref, :pointer, :pointer], :pointer
 
       attach_function :MIDIClientCreate, [:pointer, :pointer, :pointer, :pointer], :OSStatus
+      attach_function :MIDIGetNumberOfDevices, [], :ItemCount
+      attach_function :MIDIGetNumberOfDestinations, [], :ItemCount
+      attach_function :MIDIGetNumberOfSources, [], :ItemCount
       attach_function :MIDIClientDispose, [:MIDIClientRef], :OSStatus
       attach_function :MIDIDeviceGetEntity, [:MIDIDeviceRef, :ItemCount], :MIDIEntityRef
       attach_function :MIDIGetDestination, [:ItemCount], :MIDIEndpointRef
+      attach_function :MIDIGetSource, [:ItemCount], :MIDIEndpointRef
       attach_function :MIDIGetDevice, [:ItemCount], :MIDIDeviceRef
       attach_function :MIDIOutputPortCreate, [:MIDIClientRef, :CFStringRef, :MIDIPortRef], :OSStatus
       attach_function :MIDIInputPortCreate, [:MIDIClientRef, :CFStringRef, :MIDIReadProc, :pointer, :MIDIPortRef], :OSStatus
@@ -59,12 +63,11 @@ class Zgomot::Drivers
 
     # Driver
     def initialize
-      find_iac_device
-      get_entity
+      load_destinations
+      load_sources
+      find_iac_destination_index
       create_client
       connect_output_endpoint
-      connect_input_endpoint
-      get_destination
     end
 
     def close
@@ -79,27 +82,37 @@ class Zgomot::Drivers
       packet_list = FFI::MemoryPointer.new(256)
       packet_ptr = Interface.MIDIPacketListInit(packet_list)
       packet_ptr = Interface.MIDIPacketListAdd(packet_list, 256, packet_ptr, 0, size, bytes)
-      Interface.MIDISend(@output_endpoint, @destination, packet_list)
+      Interface.MIDISend(@output_endpoint, get_destination_for_index(@iac_index), packet_list)
     end
 
-    def find_iac_device
-      i, entity_counter, @device = 0, 0, nil
-      while !(device_pointer = Interface.MIDIGetDevice(i)).null?
-        device_model = get_property(:model, device_pointer)
-        if device_model.eql?('IAC Driver')
-          @device = device_pointer
-          break
-        end
+    def load_destinations
+      Interface.MIDIGetNumberOfDestinations().times do |i|
+        destination_ptr = get_destination_for_index(i)
+        (@destinations ||= []) << get_property(:model, destination_ptr)
       end
-      raise(Zgomot::Error, "IAC Driver not found") unless @device
     end
 
-    def get_entity
-      @entity = Interface.MIDIDeviceGetEntity(@device, 0)
-      raise(Zgomot::Error, "Driver initialization failed") unless @entity
+    def load_sources
+      Interface.MIDIGetNumberOfSources().times do |i|
+        source_ptr = get_source_for_index(i)
+        (@sources ||= []) << get_property(:model, source_ptr)
+      end
     end
 
-    def get_property(name, from = @device)
+    def find_destination_index_for_name(name)
+      (0..(@destinations.length-1)).find{|i| @destinations[i] == name}
+    end
+
+    def find_source_index_for_name(name)
+      (0..(@sources.length-1)).find{|i| @sources[i] == name}
+    end
+
+    def find_iac_destination_index
+      @iac_index = find_destination_index_for_name('IAC Driver')
+      raise(Zgomot::Error, "IAC Driver not found") if @iac_index.nil?
+    end
+
+    def get_property(name, from)
       prop = Interface::CFString.CFStringCreateWithCString(nil, name.to_s, 0)
       val = Interface::CFString.CFStringCreateWithCString(nil, name.to_s, 0)
       Interface::MIDIObjectGetStringProperty(from, prop, val)
@@ -127,13 +140,18 @@ class Zgomot::Drivers
       @input_endpoint = inport_ptr.read_pointer
     end
 
-    def get_destination
-      @destination = Interface.MIDIGetDestination(0)
+    def get_destination_for_index(index)
+      Interface.MIDIGetDestination(index)
+    end
+
+    def get_source_for_index(index)
+      Interface.MIDIGetSource(index)
     end
 
     def get_input_callback
-      Proc.new do |new_packets, refCon_ptr, connRefCon_ptr |
+      Proc.new do |new_packets, refCon, connRefCon|
         time = Time.now.to_f
+        puts "MIDI MESSAGE RECEIVED"
         packet = new_packets[:packet][0]
         len = packet[:length]
         puts "PACKET LENGTH: #{len}"

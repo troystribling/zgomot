@@ -25,6 +25,13 @@ class Zgomot::Drivers
       def method_missing(method, *args)
         return @driver.send(method, *args)
       end
+      # interface
+      def dest
+        @driver.destinations
+      end
+      def src
+        @driver.sources
+      end
     end
     load_driver
   end

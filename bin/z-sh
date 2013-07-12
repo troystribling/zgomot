@@ -1,0 +1,2 @@
+#!/usr/bin/ruby
+exec "pry -I #{File.dirname($0)}/../lib/ -r zgomot_sh"

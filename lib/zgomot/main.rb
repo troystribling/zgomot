@@ -17,6 +17,7 @@ module Zgomot
     delegate Zgomot::Midi::Dispatcher, :clock
     delegate Zgomot::Comp::Pattern, :np, :cp, :c, :n, :pr
     delegate Zgomot::Comp::Markov, :mark
+    delegate Zgomot::Drivers::Mgr, :src, :dest
   end
 end
 
