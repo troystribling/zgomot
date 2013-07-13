@@ -1,6 +1,9 @@
 class Zgomot::Drivers
   class Mgr
     class << self
+      extend Forwardable
+      def_delegators :@driver, :sources, :destinations, :input, :output,
+                               :add_input, :remove_input
       def load_driver
         driver_name = self.driver_name
         driver_path = "zgomot/drivers/#{driver_name}"
@@ -24,22 +27,6 @@ class Zgomot::Drivers
       end
       def method_missing(method, *args)
         return @driver.send(method, *args)
-      end
-      # interface
-      def destinations
-        @driver.destinations
-      end
-      def sources
-        @driver.sources
-      end
-      def add_input(name)
-        @driver.add_input(name)
-      end
-      def remove_input(name)
-        @driver.remove_input(name)
-      end
-      def inputs
-        @driver.inputs
       end
     end
     load_driver

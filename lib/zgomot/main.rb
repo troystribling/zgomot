@@ -17,7 +17,8 @@ module Zgomot
     delegate Zgomot::Midi::Dispatcher, :clock
     delegate Zgomot::Comp::Pattern, :np, :cp, :c, :n, :pr
     delegate Zgomot::Comp::Markov, :mark
-    delegate Zgomot::Drivers::Mgr, :sources, :destinations, :inputs, :add_input, :remove_input
+    delegate Zgomot::Drivers::Mgr, :sources, :destinations, :input, :output,
+             :add_input, :remove_input
   end
 end
 

@@ -1,6 +1,7 @@
 $:.unshift(File.dirname(__FILE__))
 
 require 'optparse'
+require 'forwardable'
 require 'logger'
 require 'thread'
 require 'yaml'
