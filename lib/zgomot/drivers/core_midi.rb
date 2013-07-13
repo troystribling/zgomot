@@ -2,7 +2,7 @@ class Zgomot::Drivers
 
   class CoreMidi < Driver
 
-    attr_reader :destinations, :sources
+    attr_reader :destinations, :sources, :inputs
 
     # API Wrapper
     module Interface
@@ -68,8 +68,8 @@ class Zgomot::Drivers
       load_destinations
       load_sources
       find_iac_destination_index
-      create_client
-      connect_output_endpoint
+      create_client('IAC Driver')
+      connect_output_iac_endpoint
     end
 
     def close
@@ -123,38 +123,40 @@ class Zgomot::Drivers
       Interface::CFString.CFStringGetCStringPtr(val.read_pointer, 0).read_string
     end
 
-    def create_client
+    def create_client(name)
       client_name = Interface::CFString.CFStringCreateWithCString(nil, "Client", 0)
       client_ptr = FFI::MemoryPointer.new(:pointer)
       Interface.MIDIClientCreate(client_name, nil, nil, client_ptr)
-      @client = client_ptr.read_pointer
+      (@clients ||= []) << client_ptr.read_pointer
     end
 
-    def connect_output_endpoint
+    def connect_output_iac_endpoint
       port_name = Interface::CFString.CFStringCreateWithCString(nil, "Port-Output", 0)
       outport_ptr = FFI::MemoryPointer.new(:pointer)
-      Interface::MIDIOutputPortCreate(@client, port_name, outport_ptr)
+      Interface::MIDIOutputPortCreate(@clients[0], port_name, outport_ptr)
       @output_endpoint = outport_ptr.read_pointer
     end
 
     def connect_input_endpoint
       port_name = Interface::CFString.CFStringCreateWithCString(nil, "Port-Input", 0)
       inport_ptr = FFI::MemoryPointer.new(:pointer)
-      Interface::MIDIInputPortCreate(@client, port_name, get_input_callback, nil, inport_ptr)
+      Interface::MIDIInputPortCreate(@clients[1], port_name, get_input_callback, nil, inport_ptr)
       @input_endpoint = inport_ptr.read_pointer
     end
 
     def get_destination_for_index(index)
-      Interface.MIDIGetDestination(index)
+      Interface::MIDIGetDestination(index)
     end
 
     def get_source_for_index(index)
-      Interface.MIDIGetSource(index)
+      Interface::MIDIGetSource(index)
     end
 
     def add_input(name)
       src_index = find_source_index_for_name(name)
       src = get_source_for_index(src_index)
+      create_client(name)
+      connect_input_endpoint
       Interface::MIDIPortConnectSource(@input_endpoint, src, nil)
       (@inputs ||= []) << name
     end

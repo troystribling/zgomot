@@ -26,11 +26,20 @@ class Zgomot::Drivers
         return @driver.send(method, *args)
       end
       # interface
-      def dest
+      def destinations
         @driver.destinations
       end
-      def src
+      def sources
         @driver.sources
+      end
+      def add_input(name)
+        @driver.add_input(name)
+      end
+      def remove_input(name)
+        @driver.remove_input(name)
+      end
+      def inputs
+        @driver.inputs
       end
     end
     load_driver
