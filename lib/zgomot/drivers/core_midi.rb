@@ -51,6 +51,8 @@ class Zgomot::Drivers
       attach_function :MIDIPacketListAdd, [:pointer, :int, :pointer, :int, :int, :pointer], :pointer
       attach_function :MIDISend, [:MIDIPortRef, :MIDIEndpointRef, :pointer], :OSStatus
       attach_function :MIDIReceived, [:MIDIEndpointRef, :pointer], :OSStatus
+      attach_function :MIDIPortConnectSource, [:MIDIPortRef, :MIDIEndpointRef, :pointer], :OSStatus
+      attach_function :MIDIPortDisconnectSource, [:MIDIPortRef, :MIDIEndpointRef], :OSStatus
 
       module CFString
         extend FFI::Library
@@ -100,11 +102,13 @@ class Zgomot::Drivers
     end
 
     def find_destination_index_for_name(name)
-      (0..(@destinations.length-1)).find{|i| @destinations[i] == name}
+      dest_index = (0..(@destinations.length-1)).find{|i| @destinations[i] == name}
+      dest_index.nil? ? raise(Zgomot::Error, "Destination '#{name}' not found") : dest_index
     end
 
     def find_source_index_for_name(name)
-      (0..(@sources.length-1)).find{|i| @sources[i] == name}
+      src_index = (0..(@sources.length-1)).find{|i| @sources[i] == name}
+      src_index.nil? ? raise(Zgomot::Error, "Source '#{name}' not found") : src_index
     end
 
     def find_iac_destination_index
@@ -129,14 +133,14 @@ class Zgomot::Drivers
     def connect_output_endpoint
       port_name = Interface::CFString.CFStringCreateWithCString(nil, "Port-Output", 0)
       outport_ptr = FFI::MemoryPointer.new(:pointer)
-      Interface.MIDIOutputPortCreate(@client, port_name, outport_ptr)
+      Interface::MIDIOutputPortCreate(@client, port_name, outport_ptr)
       @output_endpoint = outport_ptr.read_pointer
     end
 
     def connect_input_endpoint
       port_name = Interface::CFString.CFStringCreateWithCString(nil, "Port-Input", 0)
       inport_ptr = FFI::MemoryPointer.new(:pointer)
-      Interface.MIDIInputPortCreate(@client, port_name, get_input_callback, nil, inport_ptr)
+      Interface::MIDIInputPortCreate(@client, port_name, get_input_callback, nil, inport_ptr)
       @input_endpoint = inport_ptr.read_pointer
     end
 
@@ -146,6 +150,20 @@ class Zgomot::Drivers
 
     def get_source_for_index(index)
       Interface.MIDIGetSource(index)
+    end
+
+    def add_input(name)
+      src_index = find_source_index_for_name(name)
+      src = get_source_for_index(src_index)
+      Interface::MIDIPortConnectSource(@input_endpoint, src, nil)
+      (@inputs ||= []) << name
+    end
+
+    def remove_input(name)
+      src_index = find_source_index_for_name(name)
+      src = get_source_for_index(src_index)
+      Interface::MIDIPortDisconnectSource(@input_endpoint, src)
+      @inputs.delete(name)
     end
 
     def get_input_callback
