@@ -2,7 +2,7 @@
 
 bundler -v1.0.14
 coderay -v1.0.9
-ffi -v1.0.9
+ffi -v1.9.0
 git -v1.2.5
 jeweler -v1.6.0
 method_source -v0.8.1

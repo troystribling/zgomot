@@ -67,7 +67,7 @@ class Zgomot::Drivers
     def initialize
       load_destinations
       load_sources
-      find_iac_destination_index
+      find_iac_destination
       @input_client = create_client('Input-Client')
       @output_client = create_client('Output-Client')
       create_output_port
@@ -86,20 +86,20 @@ class Zgomot::Drivers
       packet_list = FFI::MemoryPointer.new(256)
       packet_ptr = Interface.MIDIPacketListInit(packet_list)
       packet_ptr = Interface.MIDIPacketListAdd(packet_list, 256, packet_ptr, 0, size, bytes)
-      Interface.MIDISend(@output_port, get_destination_for_index(@iac_index), packet_list)
+      Interface.MIDISend(@output_port, @destination, packet_list)
     end
 
     def add_input(name)
       remove_input(name) if @input
       src_index = find_source_index_for_name(name)
-      src = get_source_for_index(src_index)
+      src = Interface.MIDIGetSource(src_index)
       Interface::MIDIPortConnectSource(@input_port, src, nil)
       @input = name
     end
 
     def remove_input(name)
       src_index = find_source_index_for_name(name)
-      src = get_source_for_index(src_index)
+      src = Interface.MIDIGetSource(src_index)
       Interface::MIDIPortDisconnectSource(@input_endpoint, src)
       @input = nil
     end
@@ -107,17 +107,17 @@ class Zgomot::Drivers
     private
 
       def load_destinations
-        Interface.MIDIGetNumberOfDestinations().times do |i|
-          destination_ptr = get_destination_for_index(i)
-          (@destinations ||= []) << get_property(:model, destination_ptr)
-        end
+        @destinations = (0..(Interface.MIDIGetNumberOfDestinations()-1)).reduce([]) do |dest, i|
+                          destination_ptr = Interface.MIDIGetDestination(i)
+                          dest << get_property(:model, destination_ptr)
+                        end
       end
 
       def load_sources
-        Interface.MIDIGetNumberOfSources().times do |i|
-          source_ptr = get_source_for_index(i)
-          (@sources ||= []) << get_property(:model, source_ptr)
-        end
+        @sources = (0..(Interface.MIDIGetNumberOfSources()-1)).reduce([]) do |src, i|
+                     source_ptr = Interface.MIDIGetSource(i)
+                     src << get_property(:model, source_ptr)
+                   end
       end
 
       def find_destination_index_for_name(name)
@@ -130,10 +130,10 @@ class Zgomot::Drivers
         src_index.nil? ? raise(Zgomot::Error, "Source '#{name}' not found") : src_index
       end
 
-      def find_iac_destination_index
-        @iac_index = find_destination_index_for_name('IAC Driver')
-        @output = @destinations[@iac_index]
-        raise(Zgomot::Error, "IAC Driver not found") if @iac_index.nil?
+      def find_iac_destination
+        iac_index = find_destination_index_for_name('IAC Driver')
+        @destination = Interface.MIDIGetDestination(iac_index)
+        @output = @destinations[iac_index]
       end
 
       def get_property(name, from)
@@ -161,16 +161,8 @@ class Zgomot::Drivers
         port_name = Interface::CFString.CFStringCreateWithCString(nil, "Input-Port", 0)
         inport_ptr = FFI::MemoryPointer.new(:pointer)
         @input_callback = get_input_callback
-        Interface::MIDIInputPortCreate(@input_client, port_name, @input_callback, nil, inport_ptr)
+        Interface.MIDIInputPortCreate(@input_client, port_name, @input_callback, nil, inport_ptr)
         @input_port = inport_ptr.read_pointer
-      end
-
-      def get_destination_for_index(index)
-        Interface::MIDIGetDestination(index)
-      end
-
-      def get_source_for_index(index)
-        Interface::MIDIGetSource(index)
       end
 
       def get_input_callback
