@@ -166,8 +166,17 @@ class Zgomot::Drivers
       end
 
       def get_input_callback
-        Proc.new do |new_packets, refCon, connRefCon|
-          puts "MIDI MESSAGE RECEIVED"
+        ->(new_packets, refCon, connRefCon) do
+          packet = new_packets[:packet][0]
+          len = packet[:length]
+          if len > 0
+            bytes = packet[:data].to_a[0, len]
+            message_type = bytes.first
+            if message_type >= CC and message_type <= (CC | 0xf)
+              channel = message_type - CC
+              puts "MIDI CC RECEIVED: #{channel}, ID: #{bytes[1]}, value: #{bytes[2]}"
+            end
+          end
         end
       end
 
