@@ -174,7 +174,7 @@ class Zgomot::Drivers
             message_type = bytes.first
             if message_type >= CC and message_type <= (CC | 0xf)
               channel = message_type - CC
-              puts "MIDI CC RECEIVED: #{channel}, ID: #{bytes[1]}, value: #{bytes[2]}"
+              Zgomot::Midi::CC.apply(bytes[1], bytes[2], channel)
             end
           end
         end

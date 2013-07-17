@@ -15,7 +15,7 @@ module Zgomot
     delegate Zgomot::Midi::Stream, :str, :play, :streams
     delegate Zgomot::Midi::Channel, :ch
     delegate Zgomot::Midi::Dispatcher, :clock
-    delegate Zgomot::Midi::CC, :cc, :define_cc
+    delegate Zgomot::Midi::CC, :cc, :add_cc, :learn_cc
     delegate Zgomot::Comp::Pattern, :np, :cp, :c, :n, :pr
     delegate Zgomot::Comp::Markov, :mark
     delegate Zgomot::Drivers::Mgr, :sources, :destinations, :input, :output,
