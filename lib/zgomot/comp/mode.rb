@@ -23,7 +23,6 @@ module Zgomot::Comp
                  when nil then 1
                  else raise(Zgomot::Error, "#{mode.inspect} is invalid mode")
                end
-      raise(Zgomot::Error, "'#{mode}' is invalid mode") if @mode.nil?
       @scale = Scale.new(self.class.intervals, @mode)
     end
 
