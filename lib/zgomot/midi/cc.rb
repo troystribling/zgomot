@@ -10,8 +10,8 @@ module Zgomot::Midi
         channel = args[:channel].nil? ? 1 : args[:channel]
         min = args[:min].nil? ? 0.0 : args[:min]
         max = args[:max].nil? ? 1.0 : args[:max]
-        init = args[:init].nil? ? 0.0 : args[:init]
         type = args[:type] || :cont
+        init = args[:init].nil? ? (type == :cont ? 0.0 : false) : args[:init]
         @ccs[cc] = name
         (@vars[name] ||= {})[channel] = {:min   => min,
                                          :max   => max,
@@ -33,9 +33,14 @@ module Zgomot::Midi
         name = @ccs[cc]
         unless name.nil?
           Zgomot.logger.info "UPDATED CC #{cc}:#{name}:#{value}:#{channel}"
-          min = @vars[name][channel][:min]
-          max = @vars[name][channel][:max]
-          @vars[name][channel][:value] = min + (max - min)*value.to_f/127.0
+          params = @vars[name][channel]
+          min = params[:min]
+          max = params[:max]
+          if params[:type] == :cont
+            params[:value] = min + (max - min)*value.to_f/127.0
+          else
+            params[:value] = value == 127 ? true : false
+          end
         end
       end
 
