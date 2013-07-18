@@ -30,7 +30,7 @@ module Zgomot::Comp
     def initialize(seq)
       @seq = [seq].flatten
     end
-    def method_missing(meth, *args, &blk )
+    def method_missing(meth, *args, &blk)
       @seq = seq.map do |p|
                p.respond_to?(meth) ? p.send(meth, *args, &blk) : p
              end

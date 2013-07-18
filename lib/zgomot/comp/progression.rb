@@ -20,18 +20,22 @@ module Zgomot::Comp
       end.unshift(tonic)
     end
     def new_respond_to?(meth, include_private=false)
-      old_respond_to?(meth) || (not notes.select{|n| n.respond_to?(meth)}.empty?)
+      old_respond_to?(meth) or
+      notes.any?{|n| n.respond_to?(meth)} or
+      (items.respond_to?(meth) and [:reverse!, :shift, :pop, :push, :unshift].include?(meth))
     end
     alias_method :old_respond_to?, :respond_to?
     alias_method :respond_to?, :new_respond_to?
     def method_missing(meth, *args, &blk)
-      if not notes.select{|n| n.respond_to?(meth)}.empty?
+      if notes.any?{|n| n.respond_to?(meth)}
         @notes = notes.map do |n|
                    n.respond_to?(meth) ? n.send(meth, *args, &blk) : n
                  end
-      else
+      elsif items.respond_to?(meth)
         @notes = nil
         items.send(meth, *args, &blk)
+      else
+        raise(NoMethodError, "undefined method '#{meth}' called for #{self.class}")
       end
       self
     end
@@ -60,6 +64,7 @@ module Zgomot::Comp
 
     #.........................................................................................................
     # midi interface
+    #.........................................................................................................
     def length_to_sec
       notes.inject(0.0){|s,n| s += n.length_to_sec}
     end
@@ -79,9 +84,6 @@ module Zgomot::Comp
     end
     def offset_time=(t)
       notes.each{|n| n.offset_time = t}
-    end
-    def to_ary
-      notes
     end
     def notes
       @notes ||= item.notes(self)
