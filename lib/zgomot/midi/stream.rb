@@ -11,8 +11,21 @@ module Zgomot::Midi
         strm.define_meta_class_method(:play, &blk)
         @streams << strm
       end
-      def play
-        streams.each{|s| s.dispatch(::Time.now.truncate_to(Clock.tick_sec) + Zgomot::PLAY_DELAY + s.delay) if s.status.eql?(:new)}
+      def play(name=nil)
+        start_time = ::Time.now.truncate_to(Clock.tick_sec) + Zgomot::PLAY_DELAY
+        if name.nil?
+          streams.each{|s| s.dispatch(start_time + s.delay) if s.status == :new}
+        else
+          stream = streams.find{|s| s.name == name}
+          stream.dispatch(start_time + s.delay) if stream and stream.status != :playing
+        end
+      end
+      def ls(name=nil)
+        if name.nil?
+        else
+        end
+      end
+      def pause(name=nil)
       end
     end
 
@@ -27,7 +40,7 @@ module Zgomot::Midi
     def dispatch(start_time)
       ch_time, @status = 0.0, :playing
       @thread = Thread.new do
-                  loop do
+                  while(status == :playing) do
                     @count += 1
                     break if not limit.eql?(:inf) and count > limit
                     if self.respond_to?(play_meth, true)

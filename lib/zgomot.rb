@@ -7,6 +7,7 @@ require 'thread'
 require 'yaml'
 require 'monitor'
 require 'ffi'
+require 'rainbow'
 
 require 'zgomot/config'
 require 'zgomot/boot'
