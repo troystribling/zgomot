@@ -24,6 +24,9 @@ module Zgomot::Midi
       def learn_cc(name, cc, args)
       end
 
+      def lcc
+      end
+
       def cc(name, channel = 1)
         raise(Zgomot::Error, " CC '#{name}' for channel '#{channel}' not found") if @vars[name].nil? or @vars[name][channel].nil?
         @vars[name][channel][:value]

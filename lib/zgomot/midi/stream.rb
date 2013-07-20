@@ -3,6 +3,7 @@ module Zgomot::Midi
   class Stream
 
     @streams = []
+    STREAM_OUTPUT_FORMAT = "%-30s %-20s %-10s %-10s %-10s"
 
     class << self
       attr_reader :streams
@@ -18,6 +19,26 @@ module Zgomot::Midi
         else
           apply_to_stream(name){|stream| stream.dispatch(start_time + s.delay)} if stream.status != :playing
         end
+        true
+      end
+      alias_method :start, :play
+      def pause(name=nil)
+        if name.nil?
+          streams.each{|stream| stream.update_status(:paused)}
+        else
+          apply_to_stream(name){|stream| stream.update_status(:paused)}
+        end
+      end
+      def info(name=nil)
+        if name.nil?
+          streams.map{|stream| stream.info}
+        else
+          apply_to_stream(name){|stream| stream.info}
+        end
+      end
+      def lstr(name=nil)
+        puts STREAM_OUTPUT_FORMAT % %w(Name Status Count Limit Delay)
+        info.map{|stream| puts stream}
       end
       def apply_to_stream(name)
         stream = streams.find{|s| s.name == name}
@@ -26,16 +47,6 @@ module Zgomot::Midi
         else
           Zgomot.logger.error "STREAM '#{name}' NOT FOUND"
         end
-      end
-      def pause(name)
-        apply_to_stream(name){|stream| stream.update_status(:paused)}
-      end
-      def info(name=nil)
-        if name.nil?
-        else
-        end
-      end
-      def lstr(name=nil)
       end
     end
 
@@ -47,6 +58,9 @@ module Zgomot::Midi
       @limit, @name, @count, @thread, @status = opts[:lim] || :inf, name, 0, nil, :new
       @play_meth = "play#{arity.eql?(-1) ? 0 : arity}".to_sym
       @status_mutex = Mutex.new
+    end
+    def info
+      STREAM_OUTPUT_FORMAT % [name, status, count.to_s, limit.to_s, delay.to_s]
     end
     def update_status(new_status)
       @status_mutex.synchronize do
