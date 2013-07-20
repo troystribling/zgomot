@@ -16,16 +16,26 @@ module Zgomot::Midi
         if name.nil?
           streams.each{|s| s.dispatch(start_time + s.delay) if s.status == :new}
         else
-          stream = streams.find{|s| s.name == name}
-          stream.dispatch(start_time + s.delay) if stream and stream.status != :playing
+          apply_to_stream(name){|stream| stream.dispatch(start_time + s.delay)} if stream.status != :playing
         end
       end
-      def ls(name=nil)
+      def apply_to_stream(name)
+        stream = streams.find{|s| s.name == name}
+        if stream
+          yield stream
+        else
+          Zgomot.logger.error "STREAM '#{name}' NOT FOUND"
+        end
+      end
+      def pause(name)
+        apply_to_stream(name){|stream| stream.update_status(:paused)}
+      end
+      def info(name=nil)
         if name.nil?
         else
         end
       end
-      def pause(name=nil)
+      def lstr(name=nil)
       end
     end
 
@@ -36,11 +46,23 @@ module Zgomot::Midi
       @delay = (opts[:del].to_f * 60.0/ Zgomot.config[:beats_per_minute].to_f).to_i || 0
       @limit, @name, @count, @thread, @status = opts[:lim] || :inf, name, 0, nil, :new
       @play_meth = "play#{arity.eql?(-1) ? 0 : arity}".to_sym
+      @status_mutex = Mutex.new
+    end
+    def update_status(new_status)
+      @status_mutex.synchronize do
+        @status = new_status
+      end
+    end
+    def status_eql?(test_status)
+      @status_mutex.synchronize do
+        @status == test_status
+      end
     end
     def dispatch(start_time)
-      ch_time, @status = 0.0, :playing
+      ch_time = 0.0
+      update_status(:playing)
       @thread = Thread.new do
-                  while(status == :playing) do
+                  while(status_eql?(:playing)) do
                     @count += 1
                     break if not limit.eql?(:inf) and count > limit
                     if self.respond_to?(play_meth, true)
@@ -57,7 +79,7 @@ module Zgomot::Midi
                     sleep(0.80*(start_time+ch_time-::Time.now.truncate_to(Clock.tick_sec)))
                   end
         Zgomot.logger.info "STREAM FINISHED:#{name}"
-        @status = :finished
+        update_status(:finished)
       end
     end
 
