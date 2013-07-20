@@ -12,15 +12,16 @@ module Zgomot
       end
     end
     delegate Zgomot::Boot, :before_start
-    delegate Zgomot::Midi::Stream, :str, :start, :streams, :lstr, :pause
+    delegate Zgomot::Midi::Stream, :str, :start, :play, :pause
     delegate Zgomot::Midi::Channel, :ch
     delegate Zgomot::Midi::Dispatcher, :clock
-    delegate Zgomot::Midi::CC, :cc, :add_cc, :learn_cc, :lcc
+    delegate Zgomot::Midi::CC, :cc, :add_cc, :learn_cc
     delegate Zgomot::Comp::Pattern, :np, :cp, :c, :n, :pr
     delegate Zgomot::Comp::Markov, :mark
     delegate Zgomot::Drivers::Mgr, :sources, :destinations, :input, :output,
              :add_input, :remove_input
     delegate Zgomot::UI::Window, :dash
+    delegate Zgomot::UI::Output, :lstr, :lcc
   end
 end
 

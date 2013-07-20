@@ -6,13 +6,15 @@ module Zgomot::Midi
 
     class << self
 
+      attr_reader :ccs, :vars
+
       def add_cc(name, cc, args)
         channel = args[:channel].nil? ? 1 : args[:channel]
         min = args[:min].nil? ? 0.0 : args[:min]
         max = args[:max].nil? ? 1.0 : args[:max]
         type = args[:type] || :cont
         init = args[:init].nil? ? (type == :cont ? 0.0 : false) : args[:init]
-        @ccs[cc] = name
+        @ccs[cc] = name.to_sym
         (@vars[name] ||= {})[channel] = {:min   => min,
                                          :max   => max,
                                          :value => init,
@@ -22,9 +24,6 @@ module Zgomot::Midi
       end
 
       def learn_cc(name, cc, args)
-      end
-
-      def lcc
       end
 
       def cc(name, channel = 1)

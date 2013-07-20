@@ -3,7 +3,6 @@ module Zgomot::Midi
   class Stream
 
     @streams = []
-    STREAM_OUTPUT_FORMAT = "%-30s %-20s %-10s %-10s %-10s"
 
     class << self
       attr_reader :streams
@@ -15,37 +14,32 @@ module Zgomot::Midi
       def play(name=nil)
         start_time = ::Time.now.truncate_to(Clock.tick_sec) + Zgomot::PLAY_DELAY
         if name.nil?
-          streams.each{|s| s.dispatch(start_time + s.delay) if s.status == :new}
+          streams.reduce([]) do |a, s|
+            if s.status_eql?(:paused)
+              s.dispatch(start_time + s.delay)
+              puts s.name
+              a << s.name
+            end; a
+          end
         else
-          apply_to_stream(name){|stream| stream.dispatch(start_time + s.delay)} if stream.status != :playing
+          apply_to_stream(name){|stream|
+            stream.status_eql?(:paused) ? (stream.dispatch(start_time + stream.delay); name) : nil}
         end
-        true
       end
       alias_method :start, :play
       def pause(name=nil)
         if name.nil?
-          streams.each{|stream| stream.update_status(:paused)}
+          streams.each{|stream| stream.update_status(:paused)}; true
         else
-          apply_to_stream(name){|stream| stream.update_status(:paused)}
+          apply_to_stream(name){|stream| stream.update_status(:paused)}; name
         end
-      end
-      def info(name=nil)
-        if name.nil?
-          streams.map{|stream| stream.info}
-        else
-          apply_to_stream(name){|stream| stream.info}
-        end
-      end
-      def lstr(name=nil)
-        puts STREAM_OUTPUT_FORMAT % %w(Name Status Count Limit Delay)
-        info.map{|stream| puts stream}
       end
       def apply_to_stream(name)
         stream = streams.find{|s| s.name == name}
         if stream
           yield stream
         else
-          Zgomot.logger.error "STREAM '#{name}' NOT FOUND"
+          Zgomot.logger.error "STREAM '#{name}' NOT FOUND"; nil
         end
       end
     end
@@ -55,12 +49,9 @@ module Zgomot::Midi
     def initialize(name, arity, pattern, opts)
       @patterns, @times = [Zgomot::Comp::Pattern.new(pattern)], [Time.new]
       @delay = (opts[:del].to_f * 60.0/ Zgomot.config[:beats_per_minute].to_f).to_i || 0
-      @limit, @name, @count, @thread, @status = opts[:lim] || :inf, name, 0, nil, :new
+      @limit, @name, @count, @thread, @status = opts[:lim] || :inf, name, 0, nil, :paused
       @play_meth = "play#{arity.eql?(-1) ? 0 : arity}".to_sym
       @status_mutex = Mutex.new
-    end
-    def info
-      STREAM_OUTPUT_FORMAT % [name, status, count.to_s, limit.to_s, delay.to_s]
     end
     def update_status(new_status)
       @status_mutex.synchronize do
@@ -93,7 +84,7 @@ module Zgomot::Midi
                     sleep(0.80*(start_time+ch_time-::Time.now.truncate_to(Clock.tick_sec)))
                   end
         Zgomot.logger.info "STREAM FINISHED:#{name}"
-        update_status(:finished)
+        update_status(:paused)
       end
     end
 
