@@ -4,9 +4,9 @@ module Zgomot::UI
     @cc_mgr = Zgomot::Midi::CC
     class << self
       attr_reader :stream_mgr, :cc_mgr
-      HEADER_COLOR = '#777777'
-      STREAM_OUTPUT_FORMAT_WIDTHS = [30, 20, 10, 10, 10]
-      STREAM_HEADER = %w(Name Status Count Limit Delay)
+      HEADER_COLOR = '#666666'
+      STREAM_OUTPUT_FORMAT_WIDTHS = [30, 10, 10, 10, 10, 10]
+      STREAM_HEADER = %w(Name Status Chan Count Limit Delay)
       STREAM_STATUS_PLAY_COLOR = '#19D119'
       STREAM_STATUS_PAUSE_COLOR = '#EAC117'
       CC_OUTPUT_FORMAT_WIDTHS = [30, 10, 8, 8, 8, 8, 8]
@@ -29,7 +29,7 @@ module Zgomot::UI
           widths.map{|width| "%-#{width+color_offset}s"}.join(" ")
         end
         def stream_info(stream)
-          stream_output = [stream.name, stream.status, stream.count, stream.limit, stream.delay]
+          stream_output = [stream.name, stream.status, stream.ch, stream.count, stream.limit, stream.delay]
           if stream.status_eql?(:playing)
             format_for_color(STREAM_OUTPUT_FORMAT_WIDTHS, STREAM_STATUS_PLAY_COLOR) % color(stream_output, STREAM_STATUS_PLAY_COLOR)
           else

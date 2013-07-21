@@ -12,6 +12,10 @@ module Zgomot::Midi
 
       attr_reader :resolution, :queue, :thread, :clock, :tick, :qmutex, :qdispatch, :playing, :last_time
 
+      def clk
+        clock.to_s
+      end
+
       def flush
         @queue.clear
       end
