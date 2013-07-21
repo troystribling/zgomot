@@ -17,7 +17,6 @@ module Zgomot::Midi
           streams.reduce([]) do |a, s|
             if s.status_eql?(:paused)
               s.dispatch(start_time + s.delay)
-              puts s.name
               a << s.name
             end; a
           end
@@ -40,7 +39,7 @@ module Zgomot::Midi
         end
       end
       def apply_to_stream(name)
-        stream = streams.find{|s| s.name == name}
+        stream = streams.find{|s| s.name == name.to_s}
         if stream
           yield stream
         else
@@ -49,12 +48,12 @@ module Zgomot::Midi
       end
     end
 
-    attr_reader :patterns, :times, :status, :count, :thread, :limit, :name, :play_meth, :delay, :ch
+    attr_reader :patterns, :times, :status, :count, :thread, :limit, :name, :play_meth, :delay, :ch_number
 
     def initialize(name, arity, pattern, opts)
       @patterns, @times = [Zgomot::Comp::Pattern.new(pattern)], [Time.new]
       @delay = (opts[:del].to_f * 60.0/ Zgomot.config[:beats_per_minute].to_f).to_i || 0
-      @limit, @ch, @name, @count, @thread, @status = opts[:lim] || :inf,  opts[:ch] || 1, name, 0, nil, :paused
+      @limit, @ch_number, @name, @count, @thread, @status = opts[:lim] || :inf,  opts[:ch] || 1, name, 0, nil, :paused
       @play_meth = "play#{arity.eql?(-1) ? 0 : arity}".to_sym
       @status_mutex = Mutex.new
     end
