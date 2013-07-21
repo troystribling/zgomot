@@ -48,12 +48,14 @@ module Zgomot::Midi
       end
     end
 
-    attr_reader :patterns, :times, :status, :count, :thread, :limit, :name, :play_meth, :delay, :ch_number
+    attr_reader :patterns, :status, :count, :thread, :limit, :name, :play_meth,
+                :delay, :cc, :ch
 
     def initialize(name, arity, pattern, opts)
-      @patterns, @times = [Zgomot::Comp::Pattern.new(pattern)], [Time.new]
+      @patterns = [Zgomot::Comp::Pattern.new(pattern)]
       @delay = (opts[:del].to_f * 60.0/ Zgomot.config[:beats_per_minute].to_f).to_i || 0
-      @limit, @ch_number, @name, @count, @thread, @status = opts[:lim] || :inf,  opts[:ch] || 1, name, 0, nil, :paused
+      @limit, @name, @count, @thread, @status = opts[:lim] || :inf, name, 0, nil, :paused
+      @ch = Zgomot::Midi::Channel.ch(opts[:ch] || 0)
       @play_meth = "play#{arity.eql?(-1) ? 0 : arity}".to_sym
       @status_mutex = Mutex.new
     end
@@ -73,19 +75,19 @@ module Zgomot::Midi
       @thread = Thread.new do
                   while(status_eql?(:playing)) do
                     @count += 1
+                    loop_time = ::Time.now
                     break if not limit.eql?(:inf) and count > limit
                     if self.respond_to?(play_meth, true)
-                      if (chan = self.send(play_meth)).kind_of?(Zgomot::Midi::Channel)
-                        Dispatcher.enqueue(chan.time_shift(start_time+ch_time))
+                      if pattern = self.send(play_meth)
+                        ch << pattern
+                        Dispatcher.enqueue(ch.time_shift(start_time))
                       else; break; end
                     else
                       raise(Zgomot::Error, 'str block arity not supported')
                     end
                     Zgomot.logger.info "STREAM:#{count}:#{name}"
-                    patterns << Zgomot::Comp::Pattern.new(chan.pattern)
-                    ch_time += chan.length_to_sec
-                    times << Time.new(ch_time)
-                    sleep(0.80*(start_time+ch_time-::Time.now.truncate_to(Clock.tick_sec)))
+                    patterns << Zgomot::Comp::Pattern.new(ch.pattern)
+                    sleep(ch.length_to_sec) if count > 1
                   end
         Zgomot.logger.info "STREAM FINISHED:#{name}"
         update_status(:paused)

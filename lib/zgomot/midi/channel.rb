@@ -8,8 +8,8 @@ module Zgomot::Midi
 
       attr_reader :channels
 
-      def ch(num=0, opts={})
-        (channels << new(is_valid(num), opts)).last
+      def ch(num=0)
+        (channels << new(is_valid(num))).last
       end
 
       def is_valid(num)
@@ -24,21 +24,25 @@ module Zgomot::Midi
 
     end
 
-    attr_reader :number, :clock, :pattern
+    attr_reader :number, :clock, :pattern, :length_to_sec
 
-    def initialize(num, opts={})
+    def initialize(num)
       @number = num
       @clock = Clock.new
       @pattern = []
     end
 
     def <<(pat)
+      @pattern.clear
+      @length_to_sec = 0.0
       pat = Zgomot::Comp::Pattern.new(pat) unless pat.kind_of?(Zgomot::Comp::Pattern)
       pat.seq.each do |p|
         p.time = clock.current_time
+        p_sec = p.length_to_sec
         p.channel = number
+        @length_to_sec += p_sec
+        clock.update(p_sec)
         @pattern << Marshal.load(Marshal.dump(p))
-        clock.update(p.length_to_sec)
       end; self
     end
 
@@ -46,12 +50,8 @@ module Zgomot::Midi
       pattern.send(meth, *args, &blk); reset_pattern_time; self
     end
 
-    def length_to_sec
-      clock.current_time.to_f
-    end
-
     def time_shift(secs)
-      pattern.each{|p| p.offset_time=secs}; self
+      pattern.each{|p| p.offset_time= secs}; self
     end
 
     def reset_pattern_time
