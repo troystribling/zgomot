@@ -6,7 +6,7 @@ before_start do
 end
 
 str 'prog', cp([:B,3],:ionian,:l=>4)[1,4,5,5], :lim=>6 do |pattern|
-  ch << pattern
+  pattern
 end
 
 play

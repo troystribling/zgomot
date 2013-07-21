@@ -6,7 +6,7 @@ before_start do
 end
 
 str 'prog', np([:A,4],nil,:l=>4)[7,:R,3,1], :lim=>6 do |pattern|
-  ch << pattern.mode!(count)
+  pattern.mode!(count)
 end
 
 play

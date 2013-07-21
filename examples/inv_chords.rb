@@ -6,7 +6,7 @@ before_start do
 end
 
 str 'inversion', cp([:C,3],:ionian,:l=>4).inv!(2), :lim=>1 do |pattern|
-  ch << pattern
+  pattern
 end
 
 play

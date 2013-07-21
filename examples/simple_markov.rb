@@ -14,7 +14,7 @@ m.add([0.4, 0.6]) do
 end
 
 str 'markov' do
-  ch << m.next
+  m.next
 end
 
 play

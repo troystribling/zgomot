@@ -6,7 +6,7 @@ before_start do
 end
 
 str 'chords', [ c(:C), c(:E,:min), c(:D,:min), c(:B,:dim), c(:G,:maj)], :lim=>3 do |pattern|
-  ch << pattern
+  pattern
 end
 
 play

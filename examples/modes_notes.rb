@@ -5,9 +5,9 @@ before_start do
   Zgomot.logger.level = Logger::DEBUG
 end
 
-str 'modes', [np([:A,4],nil,:l=>32), np([:A,4],nil,:l=>32).reverse!.shift, n(:R)], :lim=>7 do |pattern|
+str 'modes', [np([:A,4],nil,:l=>8), np([:A,4],nil,:l=>8).reverse!.shift, n(:R)], :lim=>7 do |pattern|
   Zgomot.logger.info "TONIC: [A,4], MODE: #{count-1}"
-  ch << pattern.mode!(count)
+  pattern.mode!(count)
 end
 
 play

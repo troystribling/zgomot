@@ -5,8 +5,8 @@ before_start do
   Zgomot.logger.level = Logger::DEBUG
 end
 
-str 'full_scale', np(nil,5,4), :lim=>6 do |pattern|
-  ch << pattern.tonic!(:A, count)
+str 'full_scale', np(nil,5), :lim=>6 do |pattern|
+   pattern.tonic!([:A, count])
 end
 
 play

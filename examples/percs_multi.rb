@@ -8,7 +8,7 @@ end
 score = [pr([:acoustic_bass_drum, :cowbell]), pr(:R), pr([:acoustic_snare, :hand_clap]), pr(:R)]
 
 str 'percussion', score, :lim=>:inf do |pattern|
-  ch(2) << pattern
+  pattern
 end
 
 play

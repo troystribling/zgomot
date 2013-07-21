@@ -6,7 +6,7 @@ before_start do
 end
 
 str 'scale', cp([:C,4],:ionian,:l=>4), :lim=>1 do |pattern|
-  ch << pattern
+  pattern
 end
 
 play
