@@ -16,7 +16,6 @@ if sources.include?("nanoKONTROL")
       pattern.mode!(cc(:mode).to_i)
     end
   end
+  play
 end
-
-play
 

@@ -1,4 +1,10 @@
 # example stream to be imported into zgomot shell
+require 'rubygems'
+require "#{File.dirname(__FILE__)}/../lib/zgomot"
+
+before_start do
+  Zgomot.logger.level = Logger::DEBUG
+end
 
 add_input("nanoKONTROL") if sources.include?("nanoKONTROL")
 add_cc(:mode, 17, :type => :cont, :min => 0, :max => 6, :init => 0)
@@ -13,7 +19,9 @@ str 'input', np([:A,4],2,:l=>4)[7,5,3,1], :ch=>0 do |pattern|
   end
 end
 
-str 'chords', cp([:B,3],:ionian,:l=>4)[1,4,5,5], :lim=>6, :ch=>2 do |pattern|
+str 'chords', cp([:B,3],:ionian,:l=>4)[1,4,5,5], :lim=>6, :ch=>1 do |pattern|
   pattern
 end
+
+play
 
