@@ -27,7 +27,9 @@ module Zgomot::Comp
     alias_method :old_respond_to?, :respond_to?
     alias_method :respond_to?, :new_respond_to?
     def method_missing(meth, *args, &blk)
-      if notes.any?{|n| n.respond_to?(meth)}
+      if item.respond_to?(meth)
+        item.send(meth, *args, &blk)
+      elsif notes.any?{|n| n.respond_to?(meth)}
         @notes = notes.map do |n|
                    n.respond_to?(meth) ? n.send(meth, *args, &blk) : n
                  end
@@ -60,6 +62,9 @@ module Zgomot::Comp
     end
     def length=(v)
       notes.each{|n| n.length = v}
+    end
+    def note(number)
+      notes.map{|n| n.note(number)}
     end
 
     #.........................................................................................................

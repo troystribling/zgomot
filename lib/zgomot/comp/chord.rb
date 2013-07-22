@@ -59,49 +59,41 @@ module Zgomot::Comp
             end.unshift(tonic)
       @reverse ? invert(nts).reverse : invert(nts)
     end
-
+    def note(number)
+      Zgomot::Midi::Note.new(:pitch => pitches[number], :length => length, :velocity => velocity)
+    end
     def notes
       @notes ||= pitches.map do |p|
                    Zgomot::Midi::Note.new(:pitch => p, :length => length, :velocity => velocity)
                  end
     end
-
     def arp!(v)
       @notes = nil; @arp = v; self
     end
-
     def inv!(v)
       @notes = nil; @inversion = v; self
     end
-
     def rev!
       @reverse = true; self
     end
-
     def bpm!(v)
       @time_scale = 1.0/v.to_f; self
     end
-
     def octave!(v)
       @notes = nil; @octave = v; self
     end
-
     def length_to_sec
       time_scale*Zgomot::Midi::Clock.whole_note_sec*(1.0/length + (arp.to_f.eql?(0.0) ? 0.0 : intervals.length.to_f/arp.to_f))
     end
-
     def to_midi
       notes.map{|n| n.to_midi}
     end
-
     def channel=(chan)
       notes.each{|n| n.channel = chan}
     end
-
     def offset_time=(time)
       notes.each{|n| n.offset_time = time}
     end
-
     def time=(time)
       @clock = Zgomot::Midi::Clock.new
       clock.update(time)
@@ -110,17 +102,14 @@ module Zgomot::Comp
         clock.update(Zgomot::Midi::Clock.whole_note_sec/arp.to_f) if arp.to_f > 0.0
       end
     end
-
     def sum(a)
       a.inject(0) {|s,n| s+n}
     end
-
     def invert(p)
       inversion.times do |i|
         n = p.shift; p.push([n.first, (n.last.eql?(9) ? n.last : n.last+1)])
       end; p
     end
-
     private :sum, :invert
 
   end
