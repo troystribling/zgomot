@@ -49,7 +49,7 @@ module Zgomot::Midi
     end
 
     attr_reader :patterns, :status, :count, :thread, :limit, :name, :play_meth,
-                :delay, :cc, :ch
+                :delay, :ch
 
     def initialize(name, arity, pattern, opts)
       @patterns = [Zgomot::Comp::Pattern.new(pattern)]
