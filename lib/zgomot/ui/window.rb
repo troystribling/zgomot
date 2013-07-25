@@ -5,7 +5,11 @@ module Zgomot::UI
       def dash
         Curses.noecho
         Curses.init_screen
+        Curses.start_color
+        Curses.curs_set(0)
         win = Curses::Window.new(0, WIDTH, 0, 0)
+        str_win = Globals.new(win)
+        win.refresh
         loop do
           case win.getch
           #when Curses::Key::UP then ttt.move(0,-1)
@@ -20,28 +24,30 @@ module Zgomot::UI
   end
   class Globals
     HEIGHT = 10
-    class << self
-      def window
-      end
+    attr_reader :window
+    def initialize(parent_window)
+      @window = parent_window.subwin(HEIGHT, WIDTH, 0, 0)
+      window << 'TESTING'
+      window.refresh
     end
   end
   class Str
-    HEIGHT = (Curses.lines - Globals::HEIGHT)/2
+    HEIGHT = 16
+    attr_reader :window
     TOP = Globals::HEIGHT
-    class << self
-      def window
-      end
+    def initialize(parent_window)
+      @window = parent_window.subwin(HEIGHT, WIDTH, 0, 0)
     end
   end
   class CC
-    HEIGHT = (Curses.lines - Globals::HEIGHT)/2
+    HEIGHT = Curses.lines - Globals::HEIGHT - Str::HEIGHT
     TOP = Str::HEIGHT + Globals::HEIGHT
-    class << self
-      def window
-      end
+    def initialize(parent_window)
     end
   end
   class Text
+    def initialize(window, value, width)
+    end
   end
 end
 
