@@ -2,11 +2,20 @@ module Zgomot::UI
   WIDTH = 80
   class Window
     class << self
-      def dash
+      def init_curses
         Curses.noecho
         Curses.init_screen
         Curses.start_color
+        Curses.init_pair(Curses::COLOR_GREEN,Curses::COLOR_GREEN,Curses::COLOR_BLACK)
+        Curses.init_pair(Curses::COLOR_WHITE,Curses::COLOR_WHITE,Curses::COLOR_BLACK)
+        Curses.init_pair(Curses::COLOR_YELLOW,Curses::COLOR_YELLOW,Curses::COLOR_BLACK)
+        Curses.init_pair(Curses::COLOR_CYAN,Curses::COLOR_CYAN,Curses::COLOR_BLACK)
+        Curses.init_pair(Curses::COLOR_RED,Curses::COLOR_RED,Curses::COLOR_BLACK)
+        Curses.init_pair(Curses::COLOR_MAGENTA,Curses::COLOR_MAGENTA,Curses::COLOR_BLACK)
         Curses.curs_set(0)
+      end
+      def dash
+        init_curses
         win = Curses::Window.new(0, WIDTH, 0, 0)
         str_win = Globals.new(win)
         win.refresh
@@ -26,8 +35,9 @@ module Zgomot::UI
     HEIGHT = 10
     attr_reader :window
     def initialize(parent_window)
-      @window = parent_window.subwin(HEIGHT, WIDTH, 0, 0)
-      window << 'TESTING'
+      @window = parent_window.subwin(HEIGHT, WIDTH, 0, 0) 
+      Text.new(window, 'TESTING', Curses::COLOR_GREEN, 20, 0, 0)
+      Text.new(window, 'TESTING2', Curses::COLOR_CYAN, 20, 1, 0)
       window.refresh
     end
   end
@@ -46,7 +56,12 @@ module Zgomot::UI
     end
   end
   class Text
-    def initialize(window, value, width)
+    attr_accessor :window
+    def initialize(parent_window, value, color, width, top, left)
+      @window = parent_window.subwin(1, width, top, left)
+      window.attron(Curses.color_pair(color)|Curses::A_NORMAL) {
+        window << value
+      }
     end
   end
 end
