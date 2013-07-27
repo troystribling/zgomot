@@ -1,3 +1,5 @@
+Zgomot.config = {:beats_per_minute=>120, :time_signature=>"4/4", :resolution=>"1/32"}
+
 add_input("nanoKONTROL") if sources.include?("nanoKONTROL")
 add_cc(:mode, 17, :type => :cont, :min => 0, :max => 6, :init => 0)
 add_cc(:reverse, 13, :type => :switch)

@@ -12,7 +12,7 @@ module Zgomot::UI
   end
   class Window
     class << self
-      attr_reader :thread
+      attr_reader :thread, :globals_window
       def init_curses
         Curses.noecho
         Curses.init_screen
@@ -28,8 +28,8 @@ module Zgomot::UI
       def start_updates
         @thread = Thread.new do
                     loop do
-                      @globals_window.update
-                      sleep(0.5)
+                      globals_window.update
+                      sleep(Zgomot::Midi::Clock.beat_sec)
                     end
                   end
       end
@@ -54,21 +54,33 @@ module Zgomot::UI
     end
   end
   class GlobalsWindow
-    HEIGHT = 4
-    attr_reader :window, :title, :input, :output, :clock
+    OUTPUT = Zgomot::Drivers::Mgr.output
+    INPUT = Zgomot::Drivers::Mgr.input || 'None'
+    BEATS_PER_MINUTE = Zgomot.config[:beats_per_minute]
+    TIME_SIGNATURE = Zgomot.config[:time_signature]
+    RESOLUTION = Zgomot.config[:resolution]
+    SECONDS_PER_BEAT = Zgomot::Midi::Clock.beat_sec
+    HEIGHT = 6
+    ITEM_WIDTH = 35
+    TIME_WIDTH = 15
+    attr_reader :window, :title, :input, :output, :time, :betas_per_minute, :time_signature, :resolution, :seconds_per_beat
     def initialize(parent_window)
       @window = parent_window.subwin(HEIGHT, WIDTH, 0, 0)
       @title = Title.new(window, 'zgomot', COLOR_WHITE, 0, COLOR_MAGENTA)
-      @input = TextWithValue.new(window, 'Input', Zgomot::Drivers::Mgr.input || 'None', COLOR_WHITE, 26, 3, 0)
-      @output = TextWithValue.new(window, 'Output', Zgomot::Drivers::Mgr.output, COLOR_WHITE, 26, 3, 26)
-      @clock = Text.new(window, clock_to_s, COLOR_WHITE, 10, 3, WIDTH-10)
+      @input = TextWithValue.new(window, 'Input', INPUT, COLOR_WHITE, ITEM_WIDTH, 3, 0)
+      @output = TextWithValue.new(window, 'Output', OUTPUT, COLOR_WHITE, ITEM_WIDTH, 4, 0)
+      @time_signature = TextWithValue.new(window, 'Time Signature', TIME_SIGNATURE, COLOR_WHITE, ITEM_WIDTH, 5, 0)
+      @betas_per_minute = TextWithValue.new(window, 'Beats/Minute', BEATS_PER_MINUTE, COLOR_WHITE, ITEM_WIDTH, 3, ITEM_WIDTH)
+      @seconds_per_beat = TextWithValue.new(window, 'Seconds/Beat', SECONDS_PER_BEAT, COLOR_WHITE, ITEM_WIDTH, 4, ITEM_WIDTH)
+      @resolution = TextWithValue.new(window, 'Resolution', RESOLUTION, COLOR_WHITE, ITEM_WIDTH, 5, ITEM_WIDTH)
+      @time = Text.new(window, time_to_s, COLOR_GREEN, TIME_WIDTH, 3, WIDTH - TIME_WIDTH)
       window.refresh
     end
-    def clock_to_s
-      "%10s" % /(\d*:\d*)/.match(Zgomot::Midi::Dispatcher.clk).captures.first
+    def time_to_s
+      "%#{TIME_WIDTH}s" % /(\d*:\d*)/.match(Zgomot::Midi::Dispatcher.clk).captures.first
     end
     def update
-      clock.text = clock_to_s
+      time.text = time_to_s
     end
   end
   class StrWindow
@@ -100,18 +112,18 @@ module Zgomot::UI
   end
    class TextWithValue
     attr_reader :text, :value, :window, :color
-    def initialize(parent_window, text, value, color, width, top, left)
+    def initialize(parent_window, text, value, color, width, top, left, value_color=nil)
       @color = color
+      @value_color = value_color || color
       @window = parent_window.subwin(1, width, top, left)
       Zgomot::UI.set_color(window, color) {
         @window << "#{text}: #{value}"
       }
     end
     def value=(value)
-      @window.clear
-      Zgomot::UI.set_color(window, color) {
-        @window << "#{text}: #{value}"
-      }
+      window.clear
+      Zgomot::UI.set_color(window, color) {@window << "#{text}: #{value}"}
+      window.refresh
     end
   end
   class TextRow
@@ -128,6 +140,7 @@ module Zgomot::UI
       @windows.each do |w|
         w.clear
         w.attron(Curses.color_pair(color)|Curses::A_NORMAL) {w << v.shift}
+        w.refresh
       end
     end
   end
