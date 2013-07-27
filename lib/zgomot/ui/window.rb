@@ -12,6 +12,7 @@ module Zgomot::UI
   end
   class Window
     class << self
+      attr_reader :thread
       def init_curses
         Curses.noecho
         Curses.init_screen
@@ -24,11 +25,20 @@ module Zgomot::UI
         Curses.init_pair(COLOR_RED,COLOR_RED,COLOR_BLACK)
         Curses.init_pair(COLOR_MAGENTA,COLOR_MAGENTA,COLOR_BLACK)
       end
+      def start_updates
+        @thread = Thread.new do
+                    loop do
+                      @globals_window.update
+                      sleep(0.5)
+                    end
+                  end
+      end
       def dash
         init_curses
         win = Curses::Window.new(0, WIDTH, 0, 0)
-        str_win = GlobalsWindow.new(win)
+        @globals_window = GlobalsWindow.new(win)
         win.refresh
+        start_updates
         loop do
           case win.getch
           #when Curses::Key::UP then ttt.move(0,-1)
@@ -36,6 +46,7 @@ module Zgomot::UI
           when ?q
             win.close
             Curses.close_screen
+            @thread.kill
             break
           end
         end
@@ -48,10 +59,16 @@ module Zgomot::UI
     def initialize(parent_window)
       @window = parent_window.subwin(HEIGHT, WIDTH, 0, 0)
       @title = Title.new(window, 'zgomot', COLOR_WHITE, 0, COLOR_MAGENTA)
-      @input = TextWithValue.new(window, 'Input', 'VALUE', COLOR_WHITE, 26, 3, 0)
-      @output = TextWithValue.new(window, 'Output', 'VALUE', COLOR_WHITE, 26, 3, 26)
-      @clock = Text.new(window, '00.0', COLOR_WHITE, 10, 3, WIDTH-10)
+      @input = TextWithValue.new(window, 'Input', Zgomot::Drivers::Mgr.input || 'None', COLOR_WHITE, 26, 3, 0)
+      @output = TextWithValue.new(window, 'Output', Zgomot::Drivers::Mgr.output, COLOR_WHITE, 26, 3, 26)
+      @clock = Text.new(window, clock_to_s, COLOR_WHITE, 10, 3, WIDTH-10)
       window.refresh
+    end
+    def clock_to_s
+      "%10s" % /(\d*:\d*)/.match(Zgomot::Midi::Dispatcher.clk).captures.first
+    end
+    def update
+      clock.text = clock_to_s
     end
   end
   class StrWindow
@@ -76,8 +93,9 @@ module Zgomot::UI
       Zgomot::UI.set_color(window, color) {window << text}
     end
     def text=(text)
-      @window.clear
+      window.clear
       Zgomot::UI.set_color(window, color) {window << text}
+      window.refresh
     end
   end
    class TextWithValue
