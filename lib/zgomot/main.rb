@@ -19,7 +19,7 @@ module Zgomot
     delegate Zgomot::Comp::Markov, :mark
     delegate Zgomot::Drivers::Mgr, :sources, :destinations, :input, :output,
              :add_input, :remove_input
-    delegate Zgomot::UI::Window, :dash
+    delegate Zgomot::UI::MainWindow, :dash
     delegate Zgomot::UI::Output, :lstr, :lcc
   end
 end

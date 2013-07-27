@@ -22,15 +22,20 @@ module Zgomot::Midi
                                          :cc    => cc}
         Zgomot.logger.info "ADDED CC #{cc}:#{name}:#{init}:#{channel}"
       end
-
       def learn_cc(name, cc, args)
       end
-
       def cc(name, channel = 1)
         raise(Zgomot::Error, " CC '#{name}' for channel '#{channel}' not found") if @vars[name].nil? or @vars[name][channel].nil?
         @vars[name][channel][:value]
       end
-
+      def info(name, channel, config)
+        val, max, min = if config[:type] == :cont
+                          ["%3.2f" % config[:value], "%3.2f" % config[:max], "%3.2f" % config[:min]]
+                        else
+                          [config[:value].to_s, '-', '-']
+                        end
+        [name, val, config[:cc].to_s, channel.to_s, config[:type].to_s, max, min]
+      end
       def apply(cc, value, channel)
         name = @ccs[cc]
         unless name.nil?

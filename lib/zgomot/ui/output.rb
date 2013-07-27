@@ -14,11 +14,11 @@ module Zgomot::UI
       CC_COLOR = '#EAC117'
       def lstr(name=nil)
         puts format_for_color(STREAM_OUTPUT_FORMAT_WIDTHS, HEADER_COLOR) % color(STREAM_HEADER, HEADER_COLOR)
-        streams(name).each{|stream| puts stream}; nil
+        format_streams(name).each{|stream| puts stream}; nil
       end
       def lcc(name=nil)
         puts format_for_color(CC_OUTPUT_FORMAT_WIDTHS, HEADER_COLOR) % color(CC_HEADER, HEADER_COLOR)
-        ccs(name).each{|cc| puts cc}; nil
+        format_ccs(name).each{|cc| puts cc}; nil
       end
       private
         def color(string, color)
@@ -28,38 +28,33 @@ module Zgomot::UI
           color_offset = "".color(color).length
           widths.map{|width| "%-#{width+color_offset}s"}.join(" ")
         end
-        def stream_info(stream)
-          stream_output = [stream.name, stream.status, stream.ch.number, stream.count, stream.limit, stream.delay]
+        def format_stream_info(stream)
+          stream_output = stream.info(stream)
           if stream.status_eql?(:playing)
             format_for_color(STREAM_OUTPUT_FORMAT_WIDTHS, STREAM_STATUS_PLAY_COLOR) % color(stream_output, STREAM_STATUS_PLAY_COLOR)
           else
             format_for_color(STREAM_OUTPUT_FORMAT_WIDTHS, STREAM_STATUS_PAUSE_COLOR) % color(stream_output, STREAM_STATUS_PAUSE_COLOR)
           end
         end
-        def streams(name=nil)
+        def format_streams(name=nil)
           if name.nil?
-            stream_mgr.streams.map{|stream| stream_info(stream)}
+            stream_mgr.streams.map{|stream| format_stream_info(stream)}
           else
             [stream_mgr.apply_to_stream(name.to_s){|stream| stream_info(stream)}]
           end
         end
-        def cc_config(name, channel, config)
-          val, max, min = if config[:type] == :cont
-                            ["%3.2f" % config[:value], "%3.2f" % config[:max], "%3.2f" % config[:min]]
-                          else
-                            [config[:value].to_s, '-', '-']
-                          end
-          cc_output = [name, val, config[:cc].to_s, channel.to_s, config[:type].to_s, max, min]
+        def format_cc_config(name, channel, config)
+          cc_output = cc_mgr.info(name, channel, config)
           format_for_color(CC_OUTPUT_FORMAT_WIDTHS, CC_COLOR) % color(cc_output, CC_COLOR)
         end
-        def cc_info(name, info)
-          info.map{|(ch, config)| cc_config(name, ch, config)}
+        def format_cc_info(name, info)
+          info.map{|(ch, config)| format_cc_config(name, ch, config)}
         end
-        def ccs(name=nil)
+        def format_ccs(name=nil)
           if name.nil?
-            cc_mgr.vars.map{|(cc_name, info)| cc_info(cc_name, info)}.flatten
+            cc_mgr.vars.map{|(cc_name, info)| format_cc_info(cc_name, info)}.flatten
           else
-            cc_info(name.to_sym, cc_mgr.vars[name])
+            format_cc_info(name.to_sym, cc_mgr.vars[name])
           end
         end
     end

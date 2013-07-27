@@ -69,6 +69,9 @@ module Zgomot::Midi
         @status == test_status
       end
     end
+    def info(stream)
+      [name, status, ch.number, count, limit, delay].map(&:to_s)
+    end
     def dispatch(start_time)
       ch_time = 0.0
       update_status(:playing)
