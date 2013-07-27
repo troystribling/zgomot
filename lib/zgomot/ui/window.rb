@@ -111,20 +111,28 @@ module Zgomot::UI
     end
   end
    class TextWithValue
-    attr_reader :text, :value, :window, :color
+    attr_reader :text, :value, :window, :color, :value_color
     def initialize(parent_window, text, value, color, width, top, left, value_color=nil)
-      @color = color
+      @color, @text, @value = color, text, value
       @value_color = value_color || color
       @window = parent_window.subwin(1, width, top, left)
-      Zgomot::UI.set_color(window, color) {
-        @window << "#{text}: #{value}"
-      }
+      display
     end
     def value=(value)
+      @value = value
       window.clear
-      Zgomot::UI.set_color(window, color) {@window << "#{text}: #{value}"}
+      display
       window.refresh
     end
+    private
+      def display
+        Zgomot::UI.set_color(window, color) {
+          @window << "#{text}: "
+        }
+        Zgomot::UI.set_color(window, value_color) {
+          @window << "#{value}"
+        }
+      end
   end
   class TextRow
     attr_reader :windows, :color
