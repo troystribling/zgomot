@@ -7,6 +7,9 @@ module Zgomot::UI
   COLOR_CYAN = Curses::COLOR_CYAN
   COLOR_RED = Curses::COLOR_RED
   COLOR_MAGENTA = Curses::COLOR_MAGENTA
+  def self.set_color(window, color, &blk)
+    window.attron(Curses.color_pair(color)|Curses::A_NORMAL, &blk)
+  end
   class Window
     class << self
       def init_curses
@@ -24,7 +27,7 @@ module Zgomot::UI
       def dash
         init_curses
         win = Curses::Window.new(0, WIDTH, 0, 0)
-        str_win = Globals.new(win)
+        str_win = GlobalsWindow.new(win)
         win.refresh
         loop do
           case win.getch
@@ -39,67 +42,87 @@ module Zgomot::UI
       end
     end
   end
-  class Globals
-    HEIGHT = 10
-    attr_reader :window
+  class GlobalsWindow
+    HEIGHT = 4
+    attr_reader :window, :title, :input, :output, :clock
     def initialize(parent_window)
-      @window = parent_window.subwin(HEIGHT, WIDTH, 0, 0) 
-      TextWithValue.new(window, 'TESTING', 'VALUE', COLOR_GREEN, 20, 0, 0)
+      @window = parent_window.subwin(HEIGHT, WIDTH, 0, 0)
+      @title = Title.new(window, 'zgomot', COLOR_WHITE, 0, COLOR_MAGENTA)
+      @input = TextWithValue.new(window, 'Input', 'VALUE', COLOR_WHITE, 26, 3, 0)
+      @output = TextWithValue.new(window, 'Output', 'VALUE', COLOR_WHITE, 26, 3, 26)
+      @clock = Text.new(window, '00.0', COLOR_WHITE, 10, 3, WIDTH-10)
       window.refresh
     end
   end
-  class Str
+  class StrWindow
     HEIGHT = 16
     attr_reader :window
-    TOP = Globals::HEIGHT
+    TOP = GlobalsWindow::HEIGHT
     def initialize(parent_window)
       @window = parent_window.subwin(HEIGHT, WIDTH, 0, 0)
     end
   end
-  class CC
-    HEIGHT = Curses.lines - Globals::HEIGHT - Str::HEIGHT
-    TOP = Str::HEIGHT + Globals::HEIGHT
+  class CCWindow
+    HEIGHT = Curses.lines - GlobalsWindow::HEIGHT - StrWindow::HEIGHT
+    TOP = StrWindow::HEIGHT + GlobalsWindow::HEIGHT
     def initialize(parent_window)
     end
   end
-  class TextWithValue
+  class Text
+    attr_reader :text, :window, :color
+    def initialize(parent_window, text, color, width, top, left)
+      @color = color
+      @window = parent_window.subwin(1, width, top, left)
+      Zgomot::UI.set_color(window, color) {window << text}
+    end
+    def text=(text)
+      @window.clear
+      Zgomot::UI.set_color(window, color) {window << text}
+    end
+  end
+   class TextWithValue
     attr_reader :text, :value, :window, :color
     def initialize(parent_window, text, value, color, width, top, left)
       @color = color
       @window = parent_window.subwin(1, width, top, left)
-      @window.attron(Curses.color_pair(color)|Curses::A_NORMAL) {
+      Zgomot::UI.set_color(window, color) {
         @window << "#{text}: #{value}"
       }
     end
-    private
-      def value=(value)
-        @window.clear
-        @window.attron(Curses.color_pair(color)|Curses::A_NORMAL) {
-          @window << "#{text}: #{value}"
-        }
-      end
+    def value=(value)
+      @window.clear
+      Zgomot::UI.set_color(window, color) {
+        @window << "#{text}: #{value}"
+      }
+    end
   end
   class TextRow
     attr_reader :windows, :color
     def initialize(parent_window, values, color, top)
       @color = color
-      @windows = values.reduce([]) do|ws, v|
-                   w = parent_window.subwin(1, WIDTH, top, 0)
-                   w.attron(Curses.color_pair(color)|Curses::A_NORMAL) {w << v}
-                   ws << w
+      @windows = values.reduce([]) do|wins, (v, w)|
+                   win = parent_window.subwin(1, w, top, 0)
+                   set_color(win. color){win << v}
+                   wins << win
                  end
     end
-    private
-      def row=(values)
-        @windows.each do |w|
-          w.clear
-          w.attron(Curses.color_pair(color)|Curses::A_NORMAL) {w << v.shift}
-        end
+    def row=(values)
+      @windows.each do |w|
+        w.clear
+        w.attron(Curses.color_pair(color)|Curses::A_NORMAL) {w << v.shift}
       end
+    end
   end
   class Title
-    def initialize(parent_window, title)
-
+    attr_reader :window, :title, :color
+    def initialize(parent_window, text, color, top, text_color = nil)
+      text_color ||= color
+      @color = color
+      @window = parent_window.subwin(3, WIDTH, 0, top)
+      Zgomot::UI.set_color(window, color){window.box(?|, ?-)}
+      title_len = text.length
+      @title = window.subwin(1, title_len, 1, (WIDTH - title_len)/2)
+      Zgomot::UI.set_color(title, text_color){title << text}
     end
   end
 end
