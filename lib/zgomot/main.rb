@@ -12,6 +12,7 @@ module Zgomot
       end
     end
     delegate Zgomot::Boot, :before_start
+    delegate Zgomot::Midi::Clock, :set_config
     delegate Zgomot::Midi::Stream, :str, :run, :play, :pause, :tog
     delegate Zgomot::Midi::Dispatcher, :clk
     delegate Zgomot::Midi::CC, :cc, :add_cc, :learn_cc
@@ -20,7 +21,7 @@ module Zgomot
     delegate Zgomot::Drivers::Mgr, :sources, :destinations, :input, :output,
              :add_input, :remove_input
     delegate Zgomot::UI::MainWindow, :dash
-    delegate Zgomot::UI::Output, :lstr, :lcc
+    delegate Zgomot::UI::Output, :lstr, :lcc, :lconfig
   end
 end
 

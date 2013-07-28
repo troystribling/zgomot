@@ -73,17 +73,17 @@ module Zgomot::UI
     def initialize(parent_window, top)
       output = Zgomot::Drivers::Mgr.output
       input = Zgomot::Drivers::Mgr.input || 'None'
-      beats_per_minute = Zgomot.config[:beats_per_minute]
-      time_signature = Zgomot.config[:time_signature]
-      resolution = Zgomot.config[:resolution]
+      beats_per_minute = Zgomot::Midi::Clock.beats_per_minute.to_i
+      time_signature = Zgomot::Midi::Clock.time_signature
+      resolution = "1/#{Zgomot::Midi::Clock.resolution.to_i}"
       seconds_per_beat = Zgomot::Midi::Clock.beat_sec
       TitleWindow.new(parent_window, 'zgomot', COLOR_WHITE, 0, COLOR_MAGENTA)
-      TextWithValueWindow.new(parent_window, 'Input', input, COLOR_WHITE, ITEM_WIDTH, 3, 0)
-      TextWithValueWindow.new(parent_window, 'Output', output, COLOR_WHITE, ITEM_WIDTH, 4, 0)
-      TextWithValueWindow.new(parent_window, 'Time Signature', time_signature, COLOR_WHITE, ITEM_WIDTH, 5, 0)
-      TextWithValueWindow.new(parent_window, 'Beats/Minute', beats_per_minute, COLOR_WHITE, ITEM_WIDTH, 3, ITEM_WIDTH)
-      TextWithValueWindow.new(parent_window, 'Seconds/Beat', seconds_per_beat, COLOR_WHITE, ITEM_WIDTH, 4, ITEM_WIDTH)
-      TextWithValueWindow.new(parent_window, 'Resolution', resolution, COLOR_WHITE, ITEM_WIDTH, 5, ITEM_WIDTH)
+      TextWithValueWindow.new(parent_window, 'Input', input, COLOR_WHITE, ITEM_WIDTH, 3, 0, COLOR_YELLOW)
+      TextWithValueWindow.new(parent_window, 'Output', output, COLOR_WHITE, ITEM_WIDTH, 4, 0, COLOR_YELLOW)
+      TextWithValueWindow.new(parent_window, 'Time Signature', time_signature, COLOR_WHITE, ITEM_WIDTH, 5, 0, COLOR_YELLOW)
+      TextWithValueWindow.new(parent_window, 'Beats/Minute', beats_per_minute, COLOR_WHITE, ITEM_WIDTH, 3, ITEM_WIDTH, COLOR_YELLOW)
+      TextWithValueWindow.new(parent_window, 'Seconds/Beat', seconds_per_beat, COLOR_WHITE, ITEM_WIDTH, 4, ITEM_WIDTH, COLOR_YELLOW)
+      TextWithValueWindow.new(parent_window, 'Resolution', resolution, COLOR_WHITE, ITEM_WIDTH, 5, ITEM_WIDTH, COLOR_YELLOW)
       @time = TextWindow.new(parent_window, time_to_s, COLOR_GREEN, TIME_WIDTH, 3, WIDTH - TIME_WIDTH)
     end
     def time_to_s

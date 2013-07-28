@@ -36,15 +36,16 @@ module Zgomot::Midi
   class Clock
     class << self
       attr_accessor :beat_note, :beats_per_measure, :beats_per_minute, :resolution,
-                    :beat_sec, :whole_note_sec, :measure_sec, :tick_sec
+                    :beat_sec, :whole_note_sec, :measure_sec, :tick_sec, :time_signature
       def set_config(config)
-        @beats_per_measure, @beat_note = config[:time_signature].split('/').map{|v| v.to_f}
-        @beats_per_minute = config[:beats_per_minute].to_f
-        @resolution = config[:resolution].split('/').last.to_f
+        @time_signature = config[:time_signature] || '4/4'
+        @beats_per_minute = (config[:beats_per_minute] || '120').to_f
+        @resolution = (config[:resolution] || '1/32').split('/').last.to_f
+        @beats_per_measure, @beat_note = @time_signature.split('/').map{|v| v.to_f}
         @beat_sec= 60.0/@beats_per_minute
         @whole_note_sec = @beat_sec*@beat_note
         @measure_sec = @beat_sec*@beats_per_measure
-        @tick_sec = @whole_note_sec/(@resolution)
+        @tick_sec = @whole_note_sec/(@resolution);nil
       end
     end
     set_config(Zgomot.config)
