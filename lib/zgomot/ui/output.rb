@@ -39,11 +39,8 @@ module Zgomot::UI
         end
         def format_stream_info(stream)
           stream_output = stream.info
-          if stream.status_eql?(:playing)
-            format_for_color(STREAM_OUTPUT_FORMAT_WIDTHS, STREAM_STATUS_PLAY_COLOR) % color(stream_output, STREAM_STATUS_PLAY_COLOR)
-          else
-            format_for_color(STREAM_OUTPUT_FORMAT_WIDTHS, STREAM_STATUS_PAUSE_COLOR) % color(stream_output, STREAM_STATUS_PAUSE_COLOR)
-          end
+          value_color = stream.status_eql?(:playing) ? STREAM_STATUS_PLAY_COLOR : STREAM_STATUS_PAUSE_COLOR
+          format_for_color(STREAM_OUTPUT_FORMAT_WIDTHS, value_color) % color(stream_output, value_color)
         end
         def format_streams(name=nil)
           if name.nil?
