@@ -52,18 +52,17 @@ module Zgomot::UI
             [stream_mgr.apply_to_stream(name.to_s){|stream| stream_info(stream)}]
           end
         end
-        def format_cc_config(name, channel, config)
-          cc_output = cc_mgr.info(name, channel, config)
-          format_for_color(CC_OUTPUT_FORMAT_WIDTHS, CC_COLOR) % color(cc_output, CC_COLOR)
+        def format_cc_config(config)
+          format_for_color(CC_OUTPUT_FORMAT_WIDTHS, CC_COLOR) % color(config, CC_COLOR)
         end
-        def format_cc_info(name, info)
-          info.map{|(ch, config)| format_cc_config(name, ch, config)}
+        def format_cc_info(name)
+          cc_mgr.info(name).map{|config| format_cc_config(config)}
         end
         def format_ccs(name=nil)
           if name.nil?
-            cc_mgr.vars.map{|(cc_name, info)| format_cc_info(cc_name, info)}.flatten
+            cc_mgr.cc_names.reduce([]){|ccs, cc_name| ccs + format_cc_info(cc_name)}
           else
-            format_cc_info(name.to_sym, cc_mgr.vars[name])
+            format_cc_info(name.to_sym)
           end
         end
     end

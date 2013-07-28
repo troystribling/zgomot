@@ -1,12 +1,12 @@
 module Zgomot::Midi
   class CC
 
-    @vars = {}
+    @params = {}
     @ccs = {}
 
     class << self
 
-      attr_reader :ccs, :vars
+      attr_reader :ccs, :params
 
       def add_cc(name, cc, args)
         channel = args[:channel].nil? ? 1 : args[:channel]
@@ -15,7 +15,7 @@ module Zgomot::Midi
         type = args[:type] || :cont
         init = args[:init].nil? ? (type == :cont ? 0.0 : false) : args[:init]
         @ccs[cc] = name.to_sym
-        (@vars[name] ||= {})[channel] = {:min   => min,
+        (@params[name] ||= {})[channel] = {:min   => min,
                                          :max   => max,
                                          :value => init,
                                          :type  => type,
@@ -25,10 +25,10 @@ module Zgomot::Midi
       def learn_cc(name, cc, args)
       end
       def cc(name, channel = 1)
-        raise(Zgomot::Error, " CC '#{name}' for channel '#{channel}' not found") if @vars[name].nil? or @vars[name][channel].nil?
-        @vars[name][channel][:value]
+        raise(Zgomot::Error, " CC '#{name}' for channel '#{channel}' not found") if @params[name].nil? or @params[name][channel].nil?
+        @params[name][channel][:value]
       end
-      def info(name, channel, config)
+      def channel_info(name, channel, config)
         val, max, min = if config[:type] == :cont
                           ["%3.2f" % config[:value], "%3.2f" % config[:max], "%3.2f" % config[:min]]
                         else
@@ -36,11 +36,17 @@ module Zgomot::Midi
                         end
         [name, val, config[:cc].to_s, channel.to_s, config[:type].to_s, max, min]
       end
+      def cc_names
+        params.keys
+      end
+      def info(name)
+        params[name].map{|(ch, config)| channel_info(name, ch, config)}
+      end
       def apply(cc, value, channel)
         name = @ccs[cc]
         unless name.nil?
           Zgomot.logger.info "UPDATED CC #{cc}:#{name}:#{value}:#{channel}"
-          params = @vars[name][channel]
+          params = @params[name][channel]
           min = params[:min]
           max = params[:max]
           if params[:type] == :cont

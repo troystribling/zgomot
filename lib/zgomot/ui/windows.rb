@@ -66,6 +66,7 @@ module Zgomot::UI
       end
     end
   end
+
   class GlobalsWindow
     ITEM_WIDTH = 32
     TIME_WIDTH = 15
@@ -93,39 +94,54 @@ module Zgomot::UI
       time.text = time_to_s
     end
   end
+
   class StrWindow
     attr_accessor :window, :rows, :streams, :widths
     def initialize(parent_window, top)
       @widths = Zgomot::UI::Output::STREAM_OUTPUT_FORMAT_WIDTHS
-      @rows = []
       TitleWindow.new(parent_window, 'Streams', COLOR_WHITE, top, COLOR_CYAN)
       TableRowWindow.new(parent_window, Zgomot::UI::Output::STREAM_HEADER, widths, COLOR_WHITE, top+3, COLOR_CYAN)
-      add_streams(parent_window, top+4)
+      add_streams(parent_window, top + 3)
     end
     def update
     end
     private
       def add_streams(window, top)
         @streams = Zgomot::Midi::Stream.streams
-        streams.each do |stream|
-          @rows << TableRowWindow.new(window, stream.info,  widths, COLOR_WHITE, top, COLOR_YELLOW)
-          top += 1
-        end
+        @rows = streams.map do |stream|
+                  TableRowWindow.new(window, stream.info,  widths, COLOR_WHITE, top += 1, COLOR_YELLOW)
+                end
         (STREAMS_HEIGHT - streams.length - 4).times do
-          TableRowWindow.new(window, nil,  widths, COLOR_WHITE, top, COLOR_YELLOW)
-          top += 1
+          TableRowWindow.new(window, nil,  widths, COLOR_WHITE, top += 1, COLOR_YELLOW)
         end
       end
   end
+
   class CCWindow
+    attr_accessor :height, :widths, :rows
     def initialize(parent_window, height, top)
-      widths = Zgomot::UI::Output::CC_OUTPUT_FORMAT_WIDTHS
+      @height = height
+      @widths = Zgomot::UI::Output::CC_OUTPUT_FORMAT_WIDTHS
       TitleWindow.new(parent_window, 'Input CCs', COLOR_WHITE, top, COLOR_CYAN)
       TableRowWindow.new(parent_window, Zgomot::UI::Output::CC_HEADER, widths, COLOR_WHITE, top+3, COLOR_CYAN)
+      add_ccs(parent_window, top + 3)
     end
     def update
     end
+    private
+      def add_ccs(window, top)
+        cc_mgr = Zgomot::Midi::CC
+        ccs = cc_mgr.cc_names.reduce([]){|ccs, cc_name| ccs + cc_mgr.info(cc_name)}
+        puts ccs.inspect
+        @rows = ccs.map do |cc|
+                  TableRowWindow.new(window, cc, widths, COLOR_WHITE, top += 1, COLOR_YELLOW)
+                end
+        (height - ccs.length - 4).times do
+          TableRowWindow.new(window, nil,  widths, COLOR_WHITE, top += 1, COLOR_YELLOW)
+        end
+      end
   end
+
   class TextWindow
     include Utils
     attr_reader :text, :window, :color
@@ -138,6 +154,7 @@ module Zgomot::UI
       refresh(window){set_color(window, color) {window << text}}
     end
   end
+
   class TextWithValueWindow
     include Utils
     attr_reader :text, :value, :window, :color, :value_color
@@ -157,6 +174,7 @@ module Zgomot::UI
         set_color(window, value_color) {window << "#{value}"}
       end
   end
+
   class TableRowWindow
     include Utils
     attr_reader :window, :rows, :color, :value_color, :values
@@ -176,6 +194,7 @@ module Zgomot::UI
       end
     end
   end
+
   class TableCellWindow
     include Utils
     attr_reader :value, :window, :color, :value_color, :left
@@ -196,6 +215,7 @@ module Zgomot::UI
         set_color(window, color) {window << '|'}
       end
   end
+
   class TitleWindow
     include Utils
     attr_reader :window, :title, :color
