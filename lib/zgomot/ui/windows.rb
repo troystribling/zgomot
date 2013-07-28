@@ -1,7 +1,7 @@
 module Zgomot::UI
   WIDTH = 80
   GLOBALS_HEIGHT = 6
-  STREAMS_HEIGHT = 21
+  STREAMS_HEIGHT = 20
   CCS_TOP = GLOBALS_HEIGHT + STREAMS_HEIGHT
   COLOR_GREEN = Curses::COLOR_GREEN
   COLOR_BLUE = Curses::COLOR_BLUE
@@ -94,13 +94,28 @@ module Zgomot::UI
     end
   end
   class StrWindow
+    attr_accessor :window, :rows, :streams, :widths
     def initialize(parent_window, top)
-      widths = Zgomot::UI::Output::STREAM_OUTPUT_FORMAT_WIDTHS
+      @widths = Zgomot::UI::Output::STREAM_OUTPUT_FORMAT_WIDTHS
+      @rows = []
       TitleWindow.new(parent_window, 'Streams', COLOR_WHITE, top, COLOR_CYAN)
-      header = TableRowWindow.new(parent_window, Zgomot::UI::Output::STREAM_HEADER, widths, COLOR_WHITE, top+3, COLOR_CYAN)
+      TableRowWindow.new(parent_window, Zgomot::UI::Output::STREAM_HEADER, widths, COLOR_WHITE, top+3, COLOR_CYAN)
+      add_streams(parent_window, top+4)
     end
     def update
     end
+    private
+      def add_streams(window, top)
+        @streams = Zgomot::Midi::Stream.streams
+        streams.each do |stream|
+          @rows << TableRowWindow.new(window, stream.info,  widths, COLOR_WHITE, top, COLOR_YELLOW)
+          top += 1
+        end
+        (STREAMS_HEIGHT - streams.length - 4).times do
+          TableRowWindow.new(window, nil,  widths, COLOR_WHITE, top, COLOR_YELLOW)
+          top += 1
+        end
+      end
   end
   class CCWindow
     def initialize(parent_window, height, top)
@@ -134,14 +149,12 @@ module Zgomot::UI
     end
     def value=(value)
       @value = value
-      window.clear
-      display
-      window.refresh
+      refresh(window){display}
     end
     private
       def display
-        set_color(window, color) {@window << "#{text}: "}
-        set_color(window, value_color) {@window << "#{value}"}
+        set_color(window, color) {window << "#{text}: "}
+        set_color(window, value_color) {window << "#{value}"}
       end
   end
   class TableRowWindow
@@ -149,18 +162,17 @@ module Zgomot::UI
     attr_reader :window, :rows, :color, :value_color, :values
     def initialize(parent_window, values, widths, color, top, value_color=nil)
       @color, @values, left = color, values, 0
-      @rows = (0..values.length-1).reduce([]) do|rs, i|
+      @rows = (0..widths.length-1).reduce([]) do|rs, i|
                 width = widths[i]
-                win = TableCellWindow.new(parent_window, "%-#{width}s" % values[i], color, width, top, left, value_color)
+                value = values.nil? ? '' : values[i]
+                win = TableCellWindow.new(parent_window, "%-#{width}s" % value, color, width, top, left, value_color)
                 left += width
                 rs << win
               end
     end
     def row=(values)
       (0..rows.length-1).each do |i|
-        rows[i].clear
-        rows[i].value = values[i]
-        rows[i].refresh
+        refresh(rows[i]){rows[i].value = values[i]}
       end
     end
   end
@@ -173,10 +185,9 @@ module Zgomot::UI
       @window = parent_window.subwin(1, width, top, left)
       display
     end
-    def value=(text)
-      window.clear
-      display
-      window.refresh
+    def value=(value)
+      @value = value
+      refresh(window){display}
     end
     private
       def display

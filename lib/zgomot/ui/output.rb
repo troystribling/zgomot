@@ -29,7 +29,7 @@ module Zgomot::UI
           widths.map{|width| "%-#{width+color_offset}s"}.join(" ")
         end
         def format_stream_info(stream)
-          stream_output = stream.info(stream)
+          stream_output = stream.info
           if stream.status_eql?(:playing)
             format_for_color(STREAM_OUTPUT_FORMAT_WIDTHS, STREAM_STATUS_PLAY_COLOR) % color(stream_output, STREAM_STATUS_PLAY_COLOR)
           else
