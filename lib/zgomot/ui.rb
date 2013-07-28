@@ -1,3 +1,3 @@
-require 'zgomot/ui/windows'
 require 'zgomot/ui/output'
+require 'zgomot/ui/windows'
 

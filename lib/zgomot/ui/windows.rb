@@ -4,6 +4,7 @@ module Zgomot::UI
   STREAMS_HEIGHT = 21
   CCS_TOP = GLOBALS_HEIGHT + STREAMS_HEIGHT
   COLOR_GREEN = Curses::COLOR_GREEN
+  COLOR_BLUE = Curses::COLOR_BLUE
   COLOR_BLACK = Curses::COLOR_BLACK
   COLOR_WHITE = Curses::COLOR_WHITE
   COLOR_YELLOW = Curses::COLOR_YELLOW
@@ -13,6 +14,11 @@ module Zgomot::UI
   module Utils
     def set_color(window, color, &blk)
       window.attron(Curses.color_pair(color)|Curses::A_NORMAL, &blk)
+    end
+    def refresh(window)
+      window.clear
+      yield
+      window.refresh
     end
   end
   class MainWindow
@@ -89,14 +95,18 @@ module Zgomot::UI
   end
   class StrWindow
     def initialize(parent_window, top)
-      TitleWindow.new(parent_window, 'Streams', COLOR_WHITE, top, COLOR_MAGENTA)
+      widths = Zgomot::UI::Output::STREAM_OUTPUT_FORMAT_WIDTHS
+      TitleWindow.new(parent_window, 'Streams', COLOR_WHITE, top, COLOR_CYAN)
+      header = TableRowWindow.new(parent_window, Zgomot::UI::Output::STREAM_HEADER, widths, COLOR_WHITE, top+3, COLOR_CYAN)
     end
     def update
     end
   end
   class CCWindow
     def initialize(parent_window, height, top)
-      TitleWindow.new(parent_window, 'Input CCs', COLOR_WHITE, top, COLOR_MAGENTA)
+      widths = Zgomot::UI::Output::CC_OUTPUT_FORMAT_WIDTHS
+      TitleWindow.new(parent_window, 'Input CCs', COLOR_WHITE, top, COLOR_CYAN)
+      TableRowWindow.new(parent_window, Zgomot::UI::Output::CC_HEADER, widths, COLOR_WHITE, top+3, COLOR_CYAN)
     end
     def update
     end
@@ -110,9 +120,7 @@ module Zgomot::UI
       set_color(window, color) {window << text}
     end
     def text=(text)
-      window.clear
-      set_color(window, color) {window << text}
-      window.refresh
+      refresh(window){set_color(window, color) {window << text}}
     end
   end
   class TextWithValueWindow
@@ -141,22 +149,41 @@ module Zgomot::UI
     attr_reader :window, :rows, :color, :value_color, :values
     def initialize(parent_window, values, widths, color, top, value_color=nil)
       @color, @values, left = color, values, 0
-      @window = parent_window.subwin(1, WIDTH, top, 0)
-      @rows = values.reduce([]) do|rs, v|
-                width = widths.shift
-                win = TextWindow.new(window, "|%-#{width-2}s|" % v, color, width, top, left, value_color)
+      @rows = (0..values.length-1).reduce([]) do|rs, i|
+                width = widths[i]
+                win = TableCellWindow.new(parent_window, "%-#{width}s" % values[i], color, width, top, left, value_color)
                 left += width
-                top += 1
                 rs << win
-             end
+              end
     end
     def row=(values)
-      rows.each do |w|
-        w.clear
-        w.value = v.shift
-        w.refresh
+      (0..rows.length-1).each do |i|
+        rows[i].clear
+        rows[i].value = values[i]
+        rows[i].refresh
       end
     end
+  end
+  class TableCellWindow
+    include Utils
+    attr_reader :value, :window, :color, :value_color, :left
+    def initialize(parent_window, value, color, width, top, left, value_color = nil)
+      @color, @value, @left = color, value, left
+      @value_color = value_color || color
+      @window = parent_window.subwin(1, width, top, left)
+      display
+    end
+    def value=(text)
+      window.clear
+      display
+      window.refresh
+    end
+    private
+      def display
+        set_color(window, color) {window << '|'} if left == 0
+        set_color(window, value_color) {window << value}
+        set_color(window, color) {window << '|'}
+      end
   end
   class TitleWindow
     include Utils

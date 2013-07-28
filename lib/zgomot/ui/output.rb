@@ -2,16 +2,16 @@ module Zgomot::UI
   class Output
     @stream_mgr = Zgomot::Midi::Stream
     @cc_mgr = Zgomot::Midi::CC
+    HEADER_COLOR = '#666666'
+    STREAM_OUTPUT_FORMAT_WIDTHS = [30, 10, 10, 10, 10, 10]
+    STREAM_HEADER = %w(Name Status Chan Count Limit Delay)
+    STREAM_STATUS_PLAY_COLOR = '#19D119'
+    STREAM_STATUS_PAUSE_COLOR = '#EAC117'
+    CC_OUTPUT_FORMAT_WIDTHS = [30, 10, 8, 8, 8, 8, 8]
+    CC_HEADER = %w(Name Value CC Chan Type Max Min)
+    CC_COLOR = '#EAC117'
     class << self
       attr_reader :stream_mgr, :cc_mgr
-      HEADER_COLOR = '#666666'
-      STREAM_OUTPUT_FORMAT_WIDTHS = [30, 10, 10, 10, 10, 10]
-      STREAM_HEADER = %w(Name Status Chan Count Limit Delay)
-      STREAM_STATUS_PLAY_COLOR = '#19D119'
-      STREAM_STATUS_PAUSE_COLOR = '#EAC117'
-      CC_OUTPUT_FORMAT_WIDTHS = [30, 10, 8, 8, 8, 8, 8]
-      CC_HEADER = %w(Name Value CC Chan Type Max Min)
-      CC_COLOR = '#EAC117'
       def lstr(name=nil)
         puts format_for_color(STREAM_OUTPUT_FORMAT_WIDTHS, HEADER_COLOR) % color(STREAM_HEADER, HEADER_COLOR)
         format_streams(name).each{|stream| puts stream}; nil
