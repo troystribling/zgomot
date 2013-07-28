@@ -34,17 +34,20 @@ module Zgomot::Midi
   end
 
   class Clock
-    @beats_per_measure, @beat_note = Zgomot.config[:time_signature].split('/').map{|v| v.to_f}
-    @beats_per_minute = Zgomot.config[:beats_per_minute].to_f
-    @resolution = Zgomot.config[:resolution].split('/').last.to_f
-    @beat_sec= 60.0/@beats_per_minute
-    @whole_note_sec = @beat_sec*@beat_note
-    @measure_sec = @beat_sec*@beats_per_measure
-    @tick_sec = @whole_note_sec/(@resolution)
     class << self
       attr_accessor :beat_note, :beats_per_measure, :beats_per_minute, :resolution,
                     :beat_sec, :whole_note_sec, :measure_sec, :tick_sec
+      def set_config(config)
+        @beats_per_measure, @beat_note = config[:time_signature].split('/').map{|v| v.to_f}
+        @beats_per_minute = config[:beats_per_minute].to_f
+        @resolution = config[:resolution].split('/').last.to_f
+        @beat_sec= 60.0/@beats_per_minute
+        @whole_note_sec = @beat_sec*@beat_note
+        @measure_sec = @beat_sec*@beats_per_measure
+        @tick_sec = @whole_note_sec/(@resolution)
+      end
     end
+    set_config(Zgomot.config)
     attr_reader :current_time
     def initialize
       @current_time = Time.new
