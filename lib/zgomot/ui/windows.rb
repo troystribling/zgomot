@@ -95,7 +95,7 @@ module Zgomot::UI
   end
 
   class StrWindow
-    attr_accessor :window, :rows, :streams, :widths
+    attr_accessor :window, :rows, :widths
     def initialize(parent_window, top)
       @widths = Zgomot::UI::Output::STREAM_OUTPUT_FORMAT_WIDTHS
       TitleWindow.new(parent_window, 'Streams', COLOR_GREY, top, COLOR_BLUE)
@@ -103,13 +103,14 @@ module Zgomot::UI
       add_streams(parent_window, top + 3)
     end
     def update
+      streams = Zgomot::Midi::Stream.streams
       (0..streams.length-1).each do |i|
         rows[i].update(streams[i].info, stream_color(streams[i]))
       end
     end
     private
       def add_streams(window, top)
-        @streams = Zgomot::Midi::Stream.streams
+        streams = Zgomot::Midi::Stream.streams
         @rows = streams.map do |stream|
                   TableRowWindow.new(window, stream.info,  widths, COLOR_GREY, top += 1, stream_color(stream))
                 end
@@ -123,7 +124,7 @@ module Zgomot::UI
   end
 
   class CCWindow
-    attr_accessor :height, :widths, :rows, :ccs
+    attr_accessor :height, :widths, :rows
     def initialize(parent_window, height, top)
       @height = height
       @widths = Zgomot::UI::Output::CC_OUTPUT_FORMAT_WIDTHS
@@ -132,12 +133,12 @@ module Zgomot::UI
       add_ccs(parent_window, top + 3)
     end
     def update
-      @ccs = get_ccs
+      ccs = get_ccs
       (0..ccs.length-1).each{|i| rows[i].update(ccs[i])}
     end
     private
       def add_ccs(window, top)
-        @ccs = get_ccs
+        ccs = get_ccs
         @rows = ccs.map do |cc|
                   TableRowWindow.new(window, cc, widths, COLOR_GREY, top += 1, COLOR_GOLD)
                 end
