@@ -23,7 +23,7 @@ module Zgomot::UI
   end
   class MainWindow
     class << self
-      attr_reader :thread, :globals_window, :cc_window, :str_window
+      attr_reader :globals_window, :cc_window, :str_window
       def init_curses
         Curses.noecho
         Curses.init_screen
@@ -40,15 +40,10 @@ module Zgomot::UI
         Curses.init_pair(COLOR_PINK,COLOR_PINK,COLOR_BLACK)
         Curses.init_pair(COLOR_BLUE,COLOR_BLUE,COLOR_BLACK)
       end
-      def start_updates
-        @thread = Thread.new do
-                    loop do
-                      globals_window.update
-                      cc_window.update
-                      str_window.update
-                      sleep(Zgomot::Midi::Clock.beat_sec)
-                    end
-                  end
+      def update
+        globals_window.update
+        cc_window.update
+        str_window.update
       end
       def dash
         init_curses
@@ -57,16 +52,14 @@ module Zgomot::UI
         @cc_window = CCWindow.new(main_window, Curses.lines - CCS_TOP, CCS_TOP)
         @str_window = StrWindow.new(main_window, GLOBALS_HEIGHT)
         main_window.refresh
-        start_updates
         loop do
           case main_window.getch
-          #when Curses::Key::UP then ttt.move(0,-1)
-          #when Curses::Key::DOWN then ttt.move(0,1)
           when ?q
             main_window.close
             Curses.close_screen
-            @thread.kill
             break
+          when ?u
+            update
           end
         end
       end
@@ -139,15 +132,8 @@ module Zgomot::UI
       add_ccs(parent_window, top + 3)
     end
     def update
-      new_ccs = get_ccs
-      updated_ccs = (0..ccs.length-1).select{|i| new_ccs[i] != ccs[i]}
-      changing_ccs = (0..ccs.length-1).select{|i| rows[i].value_color == COLOR_ACTIVE}
-      just_inactive = changing_ccs - updated_ccs
-      updated_ccs.each do |i|
-        ccs[i] = new_css[i]
-        rows[i].update(ccs[i], COLOR_ACTIVE)
-      end
-      just_inactive.each{|i| rows[i].update(ccs[i], COLOR_IDLE)}
+      @ccs = get_ccs
+      (0..ccs.length-1).each{|i| rows[i].update(ccs[i])}
     end
     private
       def add_ccs(window, top)
@@ -202,9 +188,9 @@ module Zgomot::UI
 
   class TableRowWindow
     include Utils
-    attr_reader :window, :columns, :color, :value_color, :values
+    attr_reader :window, :columns, :color, :value_color, :values, :widths
     def initialize(parent_window, values, widths, color, top, value_color=nil)
-      @color, @values, left = color, values, 0
+      @color, @values, @widths, left = color, values, widths, 0
       @columns = (0..widths.length-1).reduce([]) do|rs, i|
                     width = widths[i]
                     value = values.nil? ? '' : values[i]
@@ -215,7 +201,7 @@ module Zgomot::UI
     end
     def update(values, new_color=nil)
       (0..columns.length-1).each do |i|
-        columns[i].update(values[i], new_color)
+        columns[i].update("%-#{widths[i]}s" % values[i], new_color)
       end
     end
   end
