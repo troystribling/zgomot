@@ -12,21 +12,20 @@ module Zgomot::UI
   COLOR_ACTIVE = COLOR_GREEN
   COLOR_BLACK = Curses::COLOR_BLACK
   module Utils
-    def set_color(window, color, &blk)
-      window.attron(Curses.color_pair(color)|Curses::A_NORMAL, &blk)
+    def set_color(color, &blk)
+      Curses.attron(Curses.color_pair(color)|Curses::A_NORMAL, &blk)
     end
-    def refresh(window)
-      window.clear
-      yield
-      window.refresh
+    def write(y, x, str)
+      Curses.setpos(y, x)
+      Curses.addstr(str)
     end
   end
   class MainWindow
     class << self
-      attr_reader :globals_window, :cc_window, :str_window
+      attr_reader :globals_window, :cc_window, :str_window, :main_window
       def init_curses
-        Curses.noecho
         Curses.init_screen
+        Curses.noecho
         Curses.start_color
         Curses.curs_set(0)
         Curses.init_color(COLOR_GREY, 700, 700, 700)
@@ -41,21 +40,20 @@ module Zgomot::UI
         Curses.init_pair(COLOR_BLUE,COLOR_BLUE,COLOR_BLACK)
       end
       def update
-        globals_window.update
-        cc_window.update
-        str_window.update
+        globals_window.display
+        #cc_window.update
+        #str_window.update
+        Curses.refresh
       end
       def dash
         init_curses
-        main_window = Curses::Window.new(0, 0, 0, 0)
-        @globals_window = GlobalsWindow.new(main_window, 0)
-        @cc_window = CCWindow.new(main_window, Curses.lines - CCS_TOP, CCS_TOP)
-        @str_window = StrWindow.new(main_window, GLOBALS_HEIGHT)
-        main_window.refresh
+        @globals_window = GlobalsWindow.new(0)
+        #@cc_window = CCWindow.new(Curses.lines - CCS_TOP, CCS_TOP)
+        #@str_window = StrWindow.new( GLOBALS_HEIGHT)
+        Curses.refresh
         loop do
-          case main_window.getch
+          case Curses.getch
           when ?q
-            main_window.close
             Curses.close_screen
             break
           when ?u
@@ -69,28 +67,28 @@ module Zgomot::UI
   class GlobalsWindow
     ITEM_WIDTH = 32
     TIME_WIDTH = 15
-    attr_reader :time
-    def initialize(parent_window, top)
+    attr_reader :time, :title_window
+    def initialize(top)
       output = Zgomot::Drivers::Mgr.output
       input = Zgomot::Drivers::Mgr.input || 'None'
       beats_per_minute = Zgomot::Midi::Clock.beats_per_minute.to_i
       time_signature = Zgomot::Midi::Clock.time_signature
       resolution = "1/#{Zgomot::Midi::Clock.resolution.to_i}"
       seconds_per_beat = Zgomot::Midi::Clock.beat_sec
-      TitleWindow.new(parent_window, 'zgomot', COLOR_GREY, 0, COLOR_PINK)
-      TextWithValueWindow.new(parent_window, 'Input', input, COLOR_GREY, ITEM_WIDTH, 3, 0, COLOR_IDLE)
-      TextWithValueWindow.new(parent_window, 'Output', output, COLOR_GREY, ITEM_WIDTH, 4, 0, COLOR_IDLE)
-      TextWithValueWindow.new(parent_window, 'Time Signature', time_signature, COLOR_GREY, ITEM_WIDTH, 5, 0, COLOR_IDLE)
-      TextWithValueWindow.new(parent_window, 'Beats/Minute', beats_per_minute, COLOR_GREY, ITEM_WIDTH, 3, ITEM_WIDTH, COLOR_IDLE)
-      TextWithValueWindow.new(parent_window, 'Seconds/Beat', seconds_per_beat, COLOR_GREY, ITEM_WIDTH, 4, ITEM_WIDTH, COLOR_IDLE)
-      TextWithValueWindow.new(parent_window, 'Resolution', resolution, COLOR_GREY, ITEM_WIDTH, 5, ITEM_WIDTH, COLOR_IDLE)
-      @time = TextWindow.new(parent_window, time_to_s, COLOR_ACTIVE, TIME_WIDTH, 3, WIDTH - TIME_WIDTH)
+      @title_window = TitleWindow.new('zgomot', COLOR_GREY, 0, COLOR_PINK)
+      #TextWithValueWindow.new(parent_window, 'Input', input, COLOR_GREY, ITEM_WIDTH, 3, 0, COLOR_IDLE)
+      #TextWithValueWindow.new(parent_window, 'Output', output, COLOR_GREY, ITEM_WIDTH, 4, 0, COLOR_IDLE)
+      #TextWithValueWindow.new(parent_window, 'Time Signature', time_signature, COLOR_GREY, ITEM_WIDTH, 5, 0, COLOR_IDLE)
+      #TextWithValueWindow.new(parent_window, 'Beats/Minute', beats_per_minute, COLOR_GREY, ITEM_WIDTH, 3, ITEM_WIDTH, COLOR_IDLE)
+      #TextWithValueWindow.new(parent_window, 'Seconds/Beat', seconds_per_beat, COLOR_GREY, ITEM_WIDTH, 4, ITEM_WIDTH, COLOR_IDLE)
+      #TextWithValueWindow.new(parent_window, 'Resolution', resolution, COLOR_GREY, ITEM_WIDTH, 5, ITEM_WIDTH, COLOR_IDLE)
+      #@time = TextWindow.new(parent_window, time_to_s, COLOR_ACTIVE, TIME_WIDTH, 3, WIDTH - TIME_WIDTH)
     end
     def time_to_s
       "%#{TIME_WIDTH}s" % /(\d*:\d*)/.match(Zgomot::Midi::Dispatcher.clk).captures.first
     end
-    def update
-      time.update(time_to_s)
+    def display
+      title_window.display
     end
   end
 
@@ -168,22 +166,21 @@ module Zgomot::UI
 
   class TextWithValueWindow
     include Utils
-    attr_reader :text, :value, :window, :color, :value_color
-    def initialize(parent_window, text, value, color, width, top, left, value_color=nil)
-      @color, @text, @value = color, text, value
+    attr_reader :text, :value, :top, :color, :value_color
+    def initialize(parent_window, text, value, color, top, left, value_color=nil)
+      @color, @text, @value, @top, @left = color, text, value, top, left
       @value_color = value_color || color
-      @window = parent_window.subwin(1, width, top, left)
       display
-    end
-    def update(value, new_color = nil)
-      @value_color = new_color || value_color
-      @value = value
-      refresh(window){display}
     end
     private
       def display
-        set_color(window, color) {window << "#{text}: "}
-        set_color(window, value_color) {window << "#{value}"}
+        text_len = text.length+2
+        set_color(window, color) {
+          write(left, top, "#{text}: ")
+        }
+        set_color(window, value_color) {
+          write(left+text_len, top, value)
+        }
       end
   end
 
@@ -209,11 +206,10 @@ module Zgomot::UI
 
   class TableCellWindow
     include Utils
-    attr_reader :value, :window, :color, :value_color, :left
-    def initialize(parent_window, value, color, width, top, left, value_color = nil)
-      @color, @value, @left = color, value, left
+    attr_reader :value, :color, :value_color, :left, :top
+    def initialize(value, color, top, left, value_color = nil)
+      @color, @value, @left, @top = color, value, left, top
       @value_color = value_color || color
-      @window = parent_window.subwin(1, width, top, left)
       display
     end
     def update(value, new_color = nil)
@@ -231,16 +227,24 @@ module Zgomot::UI
 
   class TitleWindow
     include Utils
-    attr_reader :window, :title, :color
-    def initialize(parent_window, text, color, top, text_color = nil)
-      text_color ||= color
-      @color = color
-      @window = parent_window.subwin(3, WIDTH, top, 0)
-      set_color(window, color){window.box(?|, ?-)}
-      title_len = text.length
-      @title = window.subwin(1, title_len, top + 1, (WIDTH - title_len)/2)
-      set_color(title, text_color){title << text}
+    attr_reader :windows, :text, :top, :color, :text_color
+    def initialize(text, color, top, text_color = nil)
+      @text_color = text_color || color
+      @text, @color, @top = text, color, top
+      display
+    end
+    def display
+      set_color(color) {
+        write(top, 0, '-' * WIDTH)
+        write(top + 1, 0, '|')
+        write(top + 1, WIDTH-1, '|')
+        write(top + 2, 0, '-' * WIDTH)
+      }
+      set_color(text_color) {
+        write(top + 1, 1, text.center(WIDTH-2))
+      }
     end
   end
+
 end
 
