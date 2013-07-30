@@ -67,28 +67,36 @@ module Zgomot::UI
   class GlobalsWindow
     ITEM_WIDTH = 32
     TIME_WIDTH = 15
-    attr_reader :time, :title_window
+    attr_reader :time_window, :title_window, :input_window, :output_window, :time_signature_window,
+      :beats_per_minute_window, :seconds_per_beat_window, :resolution_window
     def initialize(top)
       output = Zgomot::Drivers::Mgr.output
       input = Zgomot::Drivers::Mgr.input || 'None'
-      beats_per_minute = Zgomot::Midi::Clock.beats_per_minute.to_i
+      beats_per_minute = Zgomot::Midi::Clock.beats_per_minute.to_i.to_s
       time_signature = Zgomot::Midi::Clock.time_signature
       resolution = "1/#{Zgomot::Midi::Clock.resolution.to_i}"
-      seconds_per_beat = Zgomot::Midi::Clock.beat_sec
+      seconds_per_beat = Zgomot::Midi::Clock.beat_sec.to_s
       @title_window = TitleWindow.new('zgomot', COLOR_GREY, 0, COLOR_PINK)
-      #TextWithValueWindow.new(parent_window, 'Input', input, COLOR_GREY, ITEM_WIDTH, 3, 0, COLOR_IDLE)
-      #TextWithValueWindow.new(parent_window, 'Output', output, COLOR_GREY, ITEM_WIDTH, 4, 0, COLOR_IDLE)
-      #TextWithValueWindow.new(parent_window, 'Time Signature', time_signature, COLOR_GREY, ITEM_WIDTH, 5, 0, COLOR_IDLE)
-      #TextWithValueWindow.new(parent_window, 'Beats/Minute', beats_per_minute, COLOR_GREY, ITEM_WIDTH, 3, ITEM_WIDTH, COLOR_IDLE)
-      #TextWithValueWindow.new(parent_window, 'Seconds/Beat', seconds_per_beat, COLOR_GREY, ITEM_WIDTH, 4, ITEM_WIDTH, COLOR_IDLE)
-      #TextWithValueWindow.new(parent_window, 'Resolution', resolution, COLOR_GREY, ITEM_WIDTH, 5, ITEM_WIDTH, COLOR_IDLE)
-      #@time = TextWindow.new(parent_window, time_to_s, COLOR_ACTIVE, TIME_WIDTH, 3, WIDTH - TIME_WIDTH)
+      @input_window = TextWithValueWindow.new('Input', input, COLOR_GREY, 3, 0, COLOR_IDLE)
+      @output_window = TextWithValueWindow.new('Output', output, COLOR_GREY, 4, 0, COLOR_IDLE)
+      @time_signature_window = TextWithValueWindow.new('Time Signature', time_signature, COLOR_GREY, 5, 0, COLOR_IDLE)
+      @beats_per_minute_window = TextWithValueWindow.new('Beats/Minute', beats_per_minute, COLOR_GREY, 3, ITEM_WIDTH, COLOR_IDLE)
+      @seconds_per_beat_window = TextWithValueWindow.new('Seconds/Beat', seconds_per_beat, COLOR_GREY, 4, ITEM_WIDTH, COLOR_IDLE)
+      @resolution_window = TextWithValueWindow.new('Resolution', resolution, COLOR_GREY, 5, ITEM_WIDTH, COLOR_IDLE)
+      @time_window = TextWindow.new(time_to_s, COLOR_ACTIVE, 3, WIDTH - TIME_WIDTH)
     end
     def time_to_s
       "%#{TIME_WIDTH}s" % /(\d*:\d*)/.match(Zgomot::Midi::Dispatcher.clk).captures.first
     end
     def display
       title_window.display
+      time_window.display(time_to_s)
+      input_window.display
+      output_window.display
+      time_signature_window.display
+      beats_per_minute_window.display
+      seconds_per_beat_window.display
+      resolution_window.display
     end
   end
 
@@ -152,36 +160,37 @@ module Zgomot::UI
 
   class TextWindow
     include Utils
-    attr_reader :text, :window, :color
-    def initialize(parent_window, text, color, width, top, left)
-      @color = color
-      @window = parent_window.subwin(1, width, top, left)
-      set_color(window, color) {window << text}
+    attr_reader :text, :top, :color, :left
+    def initialize(text, color, top, left)
+      @color, @top, @left, @text = color, top, left, text
+      display(text)
     end
-    def update(text, new_color=nil)
-      @color = new_color || color
-      refresh(window){set_color(window, color) {window << text}}
+    def display(new_text=nil)
+      @text = new_text || text
+      set_color(color) {
+        write(top, left, text)
+      }
     end
   end
 
   class TextWithValueWindow
     include Utils
-    attr_reader :text, :value, :top, :color, :value_color
-    def initialize(parent_window, text, value, color, top, left, value_color=nil)
-      @color, @text, @value, @top, @left = color, text, value, top, left
+    attr_reader :text, :top, :color, :value_color, :left, :value
+    def initialize(text, value, color, top, left, value_color=nil)
+      @color, @text, @top, @left, @value = color, text, top, left, value
       @value_color = value_color || color
-      display
+      display(value)
     end
-    private
-      def display
-        text_len = text.length+2
-        set_color(window, color) {
-          write(left, top, "#{text}: ")
-        }
-        set_color(window, value_color) {
-          write(left+text_len, top, value)
-        }
-      end
+    def display(new_value=nil)
+      @value = new_value || value
+      text_len = text.length + 2
+      set_color(color) {
+        write(top, left, "#{text}: ")
+      }
+      set_color(value_color) {
+        write(top, left+text_len, value)
+      }
+    end
   end
 
   class TableRowWindow
