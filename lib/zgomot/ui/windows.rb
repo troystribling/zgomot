@@ -40,24 +40,29 @@ module Zgomot::UI
         Curses.init_pair(COLOR_BLUE,COLOR_BLUE,COLOR_BLACK)
       end
       def update
-        globals_window.display
-        #cc_window.update
-        #str_window.update
-        Curses.refresh
+        @thread = Thread.new do
+                    loop do
+                      globals_window.display
+                      cc_window.display
+                      str_window.display
+                      Curses.refresh
+                      sleep(Zgomot::Midi::Clock.beat_sec)
+                    end
+                  end
       end
       def dash
         init_curses
         @globals_window = GlobalsWindow.new(0)
-        #@cc_window = CCWindow.new(Curses.lines - CCS_TOP, CCS_TOP)
-        #@str_window = StrWindow.new( GLOBALS_HEIGHT)
+        @cc_window = CCWindow.new(Curses.lines - CCS_TOP, CCS_TOP)
+        @str_window = StrWindow.new(GLOBALS_HEIGHT)
+        update
         Curses.refresh
         loop do
           case Curses.getch
           when ?q
+            @thread.kill
             Curses.close_screen
             break
-          when ?u
-            update
           end
         end
       end
@@ -102,26 +107,26 @@ module Zgomot::UI
 
   class StrWindow
     attr_accessor :window, :rows, :widths
-    def initialize(parent_window, top)
+    def initialize(top)
       @widths = Zgomot::UI::Output::STREAM_OUTPUT_FORMAT_WIDTHS
-      TitleWindow.new(parent_window, 'Streams', COLOR_GREY, top, COLOR_BLUE)
-      TableRowWindow.new(parent_window, Zgomot::UI::Output::STREAM_HEADER, widths, COLOR_GREY, top + 3)
-      add_streams(parent_window, top + 3)
+      TitleWindow.new('Streams', COLOR_GREY, top, COLOR_BLUE)
+      TableRowWindow.new(Zgomot::UI::Output::STREAM_HEADER, widths, COLOR_GREY, top + 3, COLOR_GREY)
+      add_streams(top + 3)
     end
-    def update
+    def display
       streams = Zgomot::Midi::Stream.streams
       (0..streams.length-1).each do |i|
-        rows[i].update(streams[i].info, stream_color(streams[i]))
+        rows[i].display(streams[i].info, stream_color(streams[i]))
       end
     end
     private
-      def add_streams(window, top)
+      def add_streams(top)
         streams = Zgomot::Midi::Stream.streams
         @rows = streams.map do |stream|
-                  TableRowWindow.new(window, stream.info,  widths, COLOR_GREY, top += 1, stream_color(stream))
+                  TableRowWindow.new(stream.info, widths, COLOR_GREY, top += 1, stream_color(stream))
                 end
         (STREAMS_HEIGHT - streams.length - 4).times do
-          TableRowWindow.new(window, nil,  widths, COLOR_GREY, top += 1, COLOR_GOLD)
+          TableRowWindow.new(nil,  widths, COLOR_GREY, top += 1, COLOR_GOLD)
         end
       end
       def stream_color(stream)
@@ -131,25 +136,25 @@ module Zgomot::UI
 
   class CCWindow
     attr_accessor :height, :widths, :rows
-    def initialize(parent_window, height, top)
+    def initialize(height, top)
       @height = height
       @widths = Zgomot::UI::Output::CC_OUTPUT_FORMAT_WIDTHS
-      TitleWindow.new(parent_window, 'Input CCs', COLOR_GREY, top, COLOR_BLUE)
-      TableRowWindow.new(parent_window, Zgomot::UI::Output::CC_HEADER, widths, COLOR_GREY, top + 3)
-      add_ccs(parent_window, top + 3)
+      TitleWindow.new('Input CCs', COLOR_GREY, top, COLOR_BLUE)
+      TableRowWindow.new(Zgomot::UI::Output::CC_HEADER, widths, COLOR_GREY, top + 3, COLOR_GREY)
+      add_ccs(top + 3)
     end
-    def update
+    def display
       ccs = get_ccs
-      (0..ccs.length-1).each{|i| rows[i].update(ccs[i])}
+      (0..ccs.length-1).each{|i| rows[i].display(ccs[i], COLOR_GOLD)}
     end
     private
-      def add_ccs(window, top)
+      def add_ccs(top)
         ccs = get_ccs
         @rows = ccs.map do |cc|
-                  TableRowWindow.new(window, cc, widths, COLOR_GREY, top += 1, COLOR_GOLD)
+                  TableRowWindow.new(cc, widths, COLOR_GREY, top += 1, COLOR_GOLD)
                 end
         (height - ccs.length - 4).times do
-          TableRowWindow.new(window, nil,  widths, COLOR_GREY, top += 1, COLOR_GOLD)
+          TableRowWindow.new(nil,  widths, COLOR_GREY, top += 1, COLOR_GOLD)
         end
       end
       def get_ccs
@@ -196,42 +201,43 @@ module Zgomot::UI
   class TableRowWindow
     include Utils
     attr_reader :window, :columns, :color, :value_color, :values, :widths
-    def initialize(parent_window, values, widths, color, top, value_color=nil)
-      @color, @values, @widths, left = color, values, widths, 0
+    def initialize(values, widths, color, top, value_color)
+      left = 0
       @columns = (0..widths.length-1).reduce([]) do|rs, i|
                     width = widths[i]
                     value = values.nil? ? '' : values[i]
-                    win = TableCellWindow.new(parent_window, "%-#{width}s" % value, color, width, top, left, value_color)
+                    win = TableCellWindow.new(value, color, width, top, left, value_color)
                     left += width
                     rs << win
                 end
     end
-    def update(values, new_color=nil)
+    def display(values, value_color)
       (0..columns.length-1).each do |i|
-        columns[i].update("%-#{widths[i]}s" % values[i], new_color)
+        columns[i].display(values[i], value_color)
       end
     end
   end
 
   class TableCellWindow
     include Utils
-    attr_reader :value, :color, :value_color, :left, :top
-    def initialize(value, color, top, left, value_color = nil)
-      @color, @value, @left, @top = color, value, left, top
-      @value_color = value_color || color
-      display
+    attr_reader :value, :color, :left, :top, :width
+    def initialize(value, color, width, top, left, value_color)
+      @color, @value, @left, @top, @width = color, value, left, top, width
+      display(value, value_color)
     end
-    def update(value, new_color = nil)
-      @value_color = new_color || value_color
-      @value = value
-      refresh(window){display}
+    def display(value, value_color)
+      offset = 0
+      set_color(color) {
+        if left == 0
+          write(top, left, '|')
+          offset += 1
+        end
+        write(top, left+width-1-offset, '|')
+      }
+      set_color(value_color) {
+        write(top, left+offset, "%-#{width-offset-1}s" % value)
+      }
     end
-    private
-      def display
-        set_color(window, color) {window << '|'} if left == 0
-        set_color(window, value_color) {window << value}
-        set_color(window, color) {window << '|'}
-      end
   end
 
   class TitleWindow

@@ -16,10 +16,10 @@ module Zgomot::Midi
         init = args[:init].nil? ? (type == :cont ? 0.0 : false) : args[:init]
         @ccs[cc] = name.to_sym
         (@params[name] ||= {})[channel] = {:min   => min,
-                                         :max   => max,
-                                         :value => init,
-                                         :type  => type,
-                                         :cc    => cc}
+                                           :max   => max,
+                                           :value => init,
+                                           :type  => type,
+                                           :cc    => cc}
         Zgomot.logger.info "ADDED CC #{cc}:#{name}:#{init}:#{channel}"
       end
       def learn_cc(name, cc, args)
@@ -46,13 +46,13 @@ module Zgomot::Midi
         name = @ccs[cc]
         unless name.nil?
           Zgomot.logger.info "UPDATED CC #{cc}:#{name}:#{value}:#{channel}"
-          params = @params[name][channel]
-          min = params[:min]
-          max = params[:max]
-          if params[:type] == :cont
-            params[:value] = min + (max - min)*value.to_f/127.0
+          p = @params[name][channel]
+          min = p[:min]
+          max = p[:max]
+          if p[:type] == :cont
+            p[:value] = min + (max - min)*value.to_f/127.0
           else
-            params[:value] = value == 127 ? true : false
+            p[:value] = value == 127 ? true : false
           end
         end
       end
