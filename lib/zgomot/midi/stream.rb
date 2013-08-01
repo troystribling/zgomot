@@ -28,9 +28,14 @@ module Zgomot::Midi
       alias_method :run, :play
       def pause(name=nil)
         if name.nil?
-          streams.each{|stream| stream.update_status(:paused)}; true
+          streams.each do |stream|
+            stream.update_status(:paused)
+          end; true
         else
-          apply_to_stream(name){|stream| stream.update_status(:paused)}; name
+          apply_to_stream(name) do |stream|
+            stream.update_status(:paused)
+            name
+          end
         end
       end
       def tog(name)
@@ -48,13 +53,14 @@ module Zgomot::Midi
       end
     end
 
-    attr_reader :patterns, :status, :count, :thread, :limit, :name, :play_meth,
+    attr_accessor :count
+    attr_reader :patterns, :status, :thread, :limit, :name, :play_meth,
                 :delay, :ch
 
     def initialize(name, arity, pattern, opts)
       @patterns = [Zgomot::Comp::Pattern.new(pattern)]
       @delay = (opts[:del].to_f * 60.0/ Zgomot.config[:beats_per_minute].to_f).to_i || 0
-      @limit, @name, @count, @thread, @status = opts[:lim] || :inf, name, 0, nil, :paused
+      @limit, @name, @thread, @status = opts[:lim] || :inf, name, nil, :paused
       @ch = Zgomot::Midi::Channel.ch(opts[:ch] || 0)
       @play_meth = "play#{arity.eql?(-1) ? 0 : arity}".to_sym
       @status_mutex = Mutex.new
@@ -73,7 +79,8 @@ module Zgomot::Midi
       [name, status, ch.number, count, limit, delay].map(&:to_s)
     end
     def dispatch(start_time)
-      ch_time = 0.0
+      @count = 0
+      ch.set_clock
       update_status(:playing)
       @thread = Thread.new do
                   while(status_eql?(:playing)) do

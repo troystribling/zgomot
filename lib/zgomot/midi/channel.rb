@@ -28,7 +28,6 @@ module Zgomot::Midi
 
     def initialize(num)
       @number = num
-      @clock = Clock.new
       @pattern = []
     end
 
@@ -54,15 +53,9 @@ module Zgomot::Midi
       pattern.each{|p| p.offset_time= secs}; self
     end
 
-    def reset_pattern_time
+    def set_clock
       @clock = Clock.new
-      pattern.each do |pat|
-        pat.time = clock.current_time
-        clock.update(pat.length_to_sec)
-      end
     end
-
-    private :reset_pattern_time
 
   end
 
