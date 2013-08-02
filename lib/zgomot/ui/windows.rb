@@ -14,6 +14,8 @@ module Zgomot::UI
   COLOR_WHITE = Curses::COLOR_WHITE
   COLOR_STREAM_PLAYING_SELECTED = 205
   COLOR_STREAM_PAUSED_SELECTED = 206
+  COLOR_CC_SWITCH_TRUE = 207
+  COLOR_CC_SWITCH_FALSE = 208
   module Utils
     def set_color(color, &blk)
       Curses.attron(Curses.color_pair(color)|Curses::A_NORMAL, &blk)
@@ -37,6 +39,8 @@ module Zgomot::UI
         Curses.init_color(COLOR_GREEN, 484, 980, 0)
         Curses.init_color(COLOR_PINK, 1000, 100, 575)
         Curses.init_color(COLOR_BLUE, 117, 575, 1000)
+        Curses.init_color(COLOR_CC_SWITCH_TRUE, 500, 500, 500)
+        Curses.init_color(COLOR_CC_SWITCH_FALSE, 1000, 100, 575)
         Curses.init_pair(COLOR_GREY,COLOR_GREY,COLOR_BLACK)
         Curses.init_pair(COLOR_GOLD,COLOR_GOLD,COLOR_BLACK)
         Curses.init_pair(COLOR_GREEN,COLOR_GREEN,COLOR_BLACK)
@@ -44,6 +48,8 @@ module Zgomot::UI
         Curses.init_pair(COLOR_BLUE,COLOR_BLUE,COLOR_BLACK)
         Curses.init_pair(COLOR_STREAM_PLAYING_SELECTED,COLOR_BLACK,COLOR_GREEN)
         Curses.init_pair(COLOR_STREAM_PAUSED_SELECTED,COLOR_BLACK,COLOR_GOLD)
+        Curses.init_pair(COLOR_CC_SWITCH_TRUE,COLOR_CC_SWITCH_TRUE,COLOR_BLACK)
+        Curses.init_pair(COLOR_CC_SWITCH_FALSE,COLOR_CC_SWITCH_FALSE,COLOR_BLACK)
       end
       def update
         globals_window.display
@@ -167,7 +173,7 @@ module Zgomot::UI
                   TableRowWindow.new(stream.info, widths, COLOR_GREY, top += 1, stream_color(stream, i))
                 end
         (STREAMS_HEIGHT - streams.length - 4).times do
-          TableRowWindow.new(nil,  widths, COLOR_GREY, top += 1, COLOR_GOLD)
+          TableRowWindow.new(nil,  widths, COLOR_GREY, top += 1)
         end
       end
       def stream_color(stream, i)
@@ -193,21 +199,38 @@ module Zgomot::UI
     end
     def display
       ccs = get_ccs
-      (0..ccs.length-1).each{|i| rows[i].display(ccs[i], COLOR_GOLD)}
+      (0..ccs.length-1).each{|i| rows[i].display(ccs[i], cc_color(ccs[i]))}
     end
     private
       def add_ccs(top)
         ccs = get_ccs
         @rows = ccs.map do |cc|
-                  TableRowWindow.new(cc, widths, COLOR_GREY, top += 1, COLOR_GOLD)
+          puts cc_color(cc)
+                  TableRowWindow.new(cc, widths, COLOR_GREY, top += 1, cc_color(cc))
                 end
         (height - ccs.length - 4).times do
-          TableRowWindow.new(nil,  widths, COLOR_GREY, top += 1, COLOR_GOLD)
+          TableRowWindow.new(nil,  widths, COLOR_GREY, top += 1)
         end
+      end
+      def cc_name(cc); cc[0]; end
+      def cc_ch(cc); cc[3]; end
+      def cc_type(cc); cc[4]; end
+      def cc_value(cc); cc[1]; end
+      def cc_updated_at(cc)
+        Zgomot::Midi::CC.update_at(cc_name(cc), cc_ch(cc))
       end
       def get_ccs
         cc_mgr = Zgomot::Midi::CC
         cc_mgr.cc_names.reduce([]){|c, cc_name| c + cc_mgr.info(cc_name)}
+      end
+      def cc_color(cc)
+        COLOR_IDLE
+        if cc_type(cc).eql?('cont')
+          delta = Time.now - cc_updated_at(cc)
+          delta > Zgomot::Midi::Clock.beat_sec ? COLOR_IDLE : COLOR_ACTIVE
+        else
+          cc_value(cc).eql?('true') ? COLOR_CC_SWITCH_TRUE : COLOR_CC_SWITCH_FALSE
+        end
       end
   end
 
@@ -249,7 +272,7 @@ module Zgomot::UI
   class TableRowWindow
     include Utils
     attr_reader :window, :columns, :color, :value_color, :values, :widths
-    def initialize(values, widths, color, top, value_color)
+    def initialize(values, widths, color, top, value_color = COLOR_GREY)
       left = 0
       @columns = (0..widths.length-1).reduce([]) do|rs, i|
                     width = widths[i]
