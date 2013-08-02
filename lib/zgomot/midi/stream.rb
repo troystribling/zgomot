@@ -60,7 +60,7 @@ module Zgomot::Midi
     def initialize(name, arity, pattern, opts)
       @patterns = [Zgomot::Comp::Pattern.new(pattern)]
       @delay = (opts[:del].to_f * 60.0/ Zgomot.config[:beats_per_minute].to_f).to_i || 0
-      @limit, @name, @thread, @status = opts[:lim] || :inf, name, nil, :paused
+      @limit, @name, @thread, @status, @count = opts[:lim] || :inf, name, nil, :paused, 0
       @ch = Zgomot::Midi::Channel.ch(opts[:ch] || 0)
       @play_meth = "play#{arity.eql?(-1) ? 0 : arity}".to_sym
       @status_mutex = Mutex.new

@@ -11,6 +11,9 @@ module Zgomot::UI
   COLOR_IDLE = COLOR_GOLD
   COLOR_ACTIVE = COLOR_GREEN
   COLOR_BLACK = Curses::COLOR_BLACK
+  COLOR_WHITE = Curses::COLOR_WHITE
+  COLOR_STREAM_PLAYING_SELECTED = 205
+  COLOR_STREAM_PAUSED_SELECTED = 206
   module Utils
     def set_color(color, &blk)
       Curses.attron(Curses.color_pair(color)|Curses::A_NORMAL, &blk)
@@ -26,6 +29,7 @@ module Zgomot::UI
       def init_curses
         Curses.init_screen
         Curses.noecho
+        Curses.stdscr.keypad(true)
         Curses.start_color
         Curses.curs_set(0)
         Curses.init_color(COLOR_GREY, 700, 700, 700)
@@ -38,14 +42,19 @@ module Zgomot::UI
         Curses.init_pair(COLOR_GREEN,COLOR_GREEN,COLOR_BLACK)
         Curses.init_pair(COLOR_PINK,COLOR_PINK,COLOR_BLACK)
         Curses.init_pair(COLOR_BLUE,COLOR_BLUE,COLOR_BLACK)
+        Curses.init_pair(COLOR_STREAM_PLAYING_SELECTED,COLOR_BLACK,COLOR_GREEN)
+        Curses.init_pair(COLOR_STREAM_PAUSED_SELECTED,COLOR_BLACK,COLOR_GOLD)
       end
       def update
+        globals_window.display
+        cc_window.display
+        str_window.display
+        Curses.refresh
+      end
+      def poll
         @thread = Thread.new do
                     loop do
-                      globals_window.display
-                      cc_window.display
-                      str_window.display
-                      Curses.refresh
+                      update
                       sleep(Zgomot::Midi::Clock.beat_sec)
                     end
                   end
@@ -55,10 +64,22 @@ module Zgomot::UI
         @globals_window = GlobalsWindow.new(0)
         @cc_window = CCWindow.new(Curses.lines - CCS_TOP, CCS_TOP)
         @str_window = StrWindow.new(GLOBALS_HEIGHT)
-        update
         Curses.refresh
+        poll
         loop do
           case Curses.getch
+          when ?t
+            str_window.set_tog_mode
+            update
+          when Curses::Key::UP
+            str_window.dec_selected
+            update
+          when Curses::Key::DOWN
+            str_window.inc_selected
+            update
+          when 10
+            str_window.tog
+            update
           when ?q
             @thread.kill
             Curses.close_screen
@@ -106,36 +127,63 @@ module Zgomot::UI
   end
 
   class StrWindow
-    attr_accessor :window, :rows, :widths
+    attr_reader :selected, :tog_mode, :window, :rows, :widths
     def initialize(top)
+      @tog_mode, @selected = false, 0
       @widths = Zgomot::UI::Output::STREAM_OUTPUT_FORMAT_WIDTHS
       TitleWindow.new('Streams', COLOR_GREY, top, COLOR_BLUE)
       TableRowWindow.new(Zgomot::UI::Output::STREAM_HEADER, widths, COLOR_GREY, top + 3, COLOR_GREY)
       add_streams(top + 3)
     end
     def display
-      streams = Zgomot::Midi::Stream.streams
       (0..streams.length-1).each do |i|
-        rows[i].display(streams[i].info, stream_color(streams[i]))
+        stream = streams[i]
+        rows[i].display(stream.info, stream_color(stream, i))
       end
+    end
+    def inc_selected
+      if tog_mode
+       @selected = (selected + 1) % streams.length
+      end
+    end
+    def dec_selected
+      if tog_mode
+        @selected = (selected - 1) % streams.length
+      end
+    end
+    def set_tog_mode
+      @selected = 0
+      @tog_mode = tog_mode ? false : true
+    end
+    def tog
+      stream = streams[selected]
+      Zgomot::Midi::Stream.tog(stream.name)
+      set_tog_mode
     end
     private
       def add_streams(top)
-        streams = Zgomot::Midi::Stream.streams
-        @rows = streams.map do |stream|
-                  TableRowWindow.new(stream.info, widths, COLOR_GREY, top += 1, stream_color(stream))
+        @rows = (0..streams.length-1).map do |i|
+                  stream = streams[i]
+                  TableRowWindow.new(stream.info, widths, COLOR_GREY, top += 1, stream_color(stream, i))
                 end
         (STREAMS_HEIGHT - streams.length - 4).times do
           TableRowWindow.new(nil,  widths, COLOR_GREY, top += 1, COLOR_GOLD)
         end
       end
-      def stream_color(stream)
-        stream.status_eql?(:playing) ? COLOR_ACTIVE : COLOR_IDLE
+      def stream_color(stream, i)
+        if tog_mode && i == selected
+          stream.status_eql?(:playing) ? COLOR_STREAM_PLAYING_SELECTED : COLOR_STREAM_PAUSED_SELECTED
+        else
+          stream.status_eql?(:playing) ? COLOR_ACTIVE : COLOR_IDLE
+        end
+      end
+      def streams
+        Zgomot::Midi::Stream.streams
       end
   end
 
   class CCWindow
-    attr_accessor :height, :widths, :rows
+    attr_reader :height, :widths, :rows
     def initialize(height, top)
       @height = height
       @widths = Zgomot::UI::Output::CC_OUTPUT_FORMAT_WIDTHS
@@ -235,7 +283,7 @@ module Zgomot::UI
         write(top, left+width-1-offset, '|')
       }
       set_color(value_color) {
-        write(top, left+offset, "%-#{width-offset-1}s" % value)
+        write(top, left+offset, "%-#{width-offset-2}s" % value)
       }
     end
   end
