@@ -5,4 +5,4 @@ begin
   load ENV['HOME'] + '/.zgomot'
 rescue LoadError; end
 Zgomot::Boot.boot
-Pry.config.prompt_name = "\e[38;5;198mzgomot\e[0m"
+Pry.config.prompt_name = "zgomot"

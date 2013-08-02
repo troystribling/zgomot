@@ -204,20 +204,20 @@ module Zgomot::UI
     private
       def add_ccs(top)
         ccs = get_ccs
-        @rows = ccs.map do |cc|
-          puts cc_color(cc)
-                  TableRowWindow.new(cc, widths, COLOR_GREY, top += 1, cc_color(cc))
+        @rows = ccs.map do |cc_params|
+          puts cc_color(cc_params)
+                  TableRowWindow.new(cc_params, widths, COLOR_GREY, top += 1, cc_color(cc_params))
                 end
         (height - ccs.length - 4).times do
           TableRowWindow.new(nil,  widths, COLOR_GREY, top += 1)
         end
       end
-      def cc_name(cc); cc[0]; end
-      def cc_ch(cc); cc[3]; end
-      def cc_type(cc); cc[4]; end
-      def cc_value(cc); cc[1]; end
-      def cc_updated_at(cc)
-        Zgomot::Midi::CC.update_at(cc_name(cc), cc_ch(cc))
+      def cc_name(cc_params); cc_params[0]; end
+      def cc_ch(cc_params); cc_params[3]; end
+      def cc_type(cc_params); cc_params[4]; end
+      def cc_value(cc_params); cc_params[1]; end
+      def cc_updated_at(cc_params)
+        Zgomot::Midi::CC.update_at(cc_name(cc_params), cc_ch(cc_params))
       end
       def get_ccs
         cc_mgr = Zgomot::Midi::CC

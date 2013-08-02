@@ -49,11 +49,11 @@ module Zgomot::Midi
       def apply(cc_num, value, channel)
         name = @ccs[cc_num]
         unless name.nil?
-          Zgomot.logger.info "UPDATED CC #{cc}:#{name}:#{value}:#{channel}"
+          #Zgomot.logger.info "UPDATED CC #{cc}:#{name}:#{value}:#{channel}"
           p = @params[name][channel]
+          p[:updated_at] = ::Time.now
           min = p[:min]
           max = p[:max]
-          p[:updated_at] = ::Time.now
           if p[:type] == :cont
             p[:value] = min + (max - min)*value.to_f/127.0
           else
