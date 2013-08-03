@@ -39,7 +39,7 @@ For OS X the IAC Driver must be enabled for zgomot programs to communicate with 
 
 == Supported Platforms
 
-zgomot has been tested on Ruby 1.8.7, 1.9.1 and 1.9.2. The only OS supported is OS X Snow Leopard.
+zgomot has been tested on Ruby 1.8.7, 1.9.1, 1.9.2, 1.9.3. The only OS supported is OS X Snow Leopard.
 
 == Configuration
 
