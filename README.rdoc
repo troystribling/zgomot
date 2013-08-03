@@ -227,7 +227,7 @@ An note progression in a key of F# dorian at octave 5 with notes of half note le
 
 Progressions internally are arrays of notes so all methods supported by the Ruby <tt>Array</tt> class are also supported.
 
-=== Progression with Defined Length and Velocity by Note
+== Progression with Defined Length and Velocity by Note
 
 Different durations and velocities for each note in a progression can be defined by by using arrays for the length and velocity options.
 
@@ -311,7 +311,7 @@ A program can write to multiple MIDI channels with multiple <tt>str</tt> calls. 
 
 === Chord Note Routing
 
-The notes of a chord and chord progression can be routed to different MIDI channels to be rendered by different instruments using the note command. This makes harmonizing instruments easy.
+The notes of a chord and chord progression can be routed to different MIDI channels to be rendered by different instruments using the <tt>note</tt> command. This makes harmonizing instruments easy.
 The program sample below demonstrates how this is done,
 
     chords = cp([:B,3],:ionian,:l=>4)[1,4,5,5]
