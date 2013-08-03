@@ -368,7 +368,7 @@ All commands and objects described previously are available and can be typed dir
 * <tt>lcc</tt>: List all loaded MIDI CC definitions created with <tt>add_cc</tt>.
 * <tt>lconfig</tt>: List the current configuration.
 * <tt>clk</tt>: Show the current time on the global MIDI clock. Displayed format is <tt>measure:beat:tick</tt>.
-* <tt>run name</tt>: Play the named stream. If no name is given all <tt>paused<\tt> streams are started. <tt>run</tt> is an alias for <tt>play</tt> discussed previously. In the shell <tt>run<\tt> must be used since <tt>pry</tt> has a <tt>play</tt> command.
+* <tt>run name</tt>: Play the named stream. If no name is given all <tt>paused</tt> streams are started. <tt>run</tt> is an alias for <tt>play</tt> discussed previously. In the shell <tt>run</tt> must be used since <tt>pry</tt> has a <tt>play</tt> command.
 * <tt>pause name</tt>: Pause the named stream. If no name is given pause all <tt>playing</tt> streams.
 * <tt>stop name</tt>: An alias for <tt>pause</tt>.
 * <tt>tog name</tt>: Toggle the status of the named stream. <tt>name</tt> is required.
