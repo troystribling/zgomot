@@ -43,11 +43,15 @@ zgomot has been tested on Ruby 1.8.7, 1.9.1 and 1.9.2. The only OS supported is 
 
 == Configuration
 
-Three parameters are defined in the configuration file, <tt>zgomot.yml</tt>, that specify the timing of a composition.
+Three parameters are defined in the configuration file, <tt>zgomot.yml</tt> or programmatically, that specify the timing of a composition.
 
-* <b>time_signature</b>: Beats per measure.
-* <b>beats_per_minute</b>: To map to real time the beats per minute are specified.
-* <b>resolution</b>: Defines the length of a clock tick and is defined by the duration of the shortest note that can be played. In the first example this is a 64'th note. The maximum resolution is 1/1024 if your computer can do it.
+* <b>time_signature</b>: Beats per measure. The default value is 4/4.
+* <b>beats_per_minute</b>: To map to real time the beats per minute are specified. The default value 120.
+* <b>resolution</b>: Defines the length of a clock tick and is defined by the duration of the shortest note that can be played. In the first example this is a 64'th note. The maximum resolution is 1/1024 if your computer can do it. The default value 1/32.
+
+to set the configuration programmatically use,
+
+    set_config(:beats_per_minute=>120, :time_signature=>"4/4", :resolution=>"1/64")
 
 == Pitch
 
@@ -323,7 +327,7 @@ Different note duration and velocities for each note in a progression can be def
 
 == MIDI Input
 
-A MIDI input device can be used to send messages to programs. Commands to list MIDI sources, add MIDI inputs devices and assign MIDI CC messages to progeram variables
+A MIDI input device can be used to send messages to programs. Commands to list MIDI sources, add MIDI inputs devices and assign MIDI CC messages to program variables
 are available.
 
 === MIDI Sources
@@ -334,11 +338,15 @@ The names of MIDI sources are listed with,
 
 === Add Input Device
 
-A MIDI input device is added with
+A MIDI input device is added with,
 
-    add_input(device_name)
+    add_input(name)
 
-where <tt>device_name</tt> is the name of the MIDI source returned by the <tt>sources</tt> command.
+where <tt>name</tt> is the name of the MIDI source returned by the <tt>sources</tt> command. To remove a MIDI input use,
+
+    remove_input(name)
+
+where <tt>name</tt> is the name of the <tt>input</tt>. There can be only one MIDI input. Adding another will automatically remove the input added previously.
 
 === Input CC Messages
 
@@ -346,7 +354,7 @@ MIDI CC messages can be used to assign values to variables that can be read by p
 
     add_cc(name, ch, options)
 
-Where name is the variable, ch is the MIDI CC identifier, a number between 0 and 255 and options are the following,
+Where name is the variable name, ch is the MIDI CC identifier, a number between 0 and 255 and options are the following,
 
 * <tt>:max</tt>: The maximum value of the CC message. The default is 1.
 * <tt>:min</tt>: The minimum value of the CC message. The default is 0.
@@ -355,9 +363,35 @@ Where name is the variable, ch is the MIDI CC identifier, a number between 0 and
 
 == Shell
 
+Type <tt>zgomot</tt> to start the shell. The shell uses <tt>pry</tt>, http://pryrepl.org, so <tt>.pryrc</tt> can be used for initialization.
+
 === Commands
 
+All commands and objects described previously are available and can be typed directly into the shell or can be loaded from programs you have written. Additionally the following are useful to manage a composition,
+
+* <tt>sources</tt>: List the names of all MIDI sources.
+* <tt>destinations</tt>: List the names of all MIDI destinations.
+* <tt>output</tt>: Show the name of the current MIDI source assigned as output. This value cannot be changed.
+* <tt>input</tt>: Show the name of the current MIDI destination assigned as input.
+* <tt>lstr</tt>: List all loaded stream objects created with the <tt>str</tt> command.
+* <tt>lcc</tt>: List all loaded MIDI CC definitions created with <tt>add_cc</tt>.
+* <tt>lconfig</tt>: List the current configuration.
+* <tt>clk</tt>: Show the current time on the global MIDI clock. Displayed format is <tt>measure:beat:tick</tt>.
+* <tt>run name</tt>: Play the named stream. If no name is given all <tt>paused<\tt> streams are started. <tt>run</tt> is an alias for <tt>play</tt> discussed previously. In the shell <tt>run<\tt> must be used since <tt>pry</tt> has a <tt>play</tt> command.
+* <tt>pause name</tt>: Pause the names stream. If no name is given pause all <tt>playing</tt> streams.
+* <tt>stop name</tt>: An alias for <tt>pause</tt>.
+* <tt>tog name</tt>: Toggle the status of the named stream. <tt>name</tt> is required.
+
+
 === Dashboard
+
+The dashboard is started by typing <tt>dash<\tt> in the <tt>zgomot</tt> shell. The <tt>dash</tt> shows the current configuration and global time and lists the status of all loaded streams
+and CCs. The time and stream and CC status are updated every beat. Also, streams can be started and stopped. When <tt>dash<\tt> is loaded the following control commands are available,
+
+* <tt>q</tt>: Quit <tt>dash</t>.
+* <tt>p</tt>: Play all streams.
+* <tt>s</tt>: Stop all streams.
+* <tt>t</tt>: Toggle the play/pause status of a stream. When <tt>t</tt> is entered use the up/down keys to traverse the list of streams and type return to select a stream. Type <tt>t<\t> again to exit without selecting a stream.
 
 == Copyright
 
