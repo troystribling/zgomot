@@ -27,8 +27,8 @@ module Zgomot::Midi
     attr_reader :number, :clock, :pattern, :length_to_sec
 
     def initialize(num)
-      @number = num
-      @pattern = []
+      @number, @pattern = num, []
+      set_clock
     end
 
     def <<(pat)

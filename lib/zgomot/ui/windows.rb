@@ -324,7 +324,7 @@ module Zgomot::UI
       set_color(color) {
         if left == 0
           write(top, left, '|')
-          offset += 1
+          offset = 1
         end
         write(top, left+width-1-offset, '|')
       }

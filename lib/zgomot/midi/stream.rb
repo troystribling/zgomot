@@ -77,7 +77,7 @@ module Zgomot::Midi
       end
     end
     def info
-      [name, status, ch.number, count, limit, delay].map(&:to_s)
+      [name, status, ch.number, ch.clock, count, limit, delay].map(&:to_s)
     end
     def dispatch(start_time)
       @count = 0

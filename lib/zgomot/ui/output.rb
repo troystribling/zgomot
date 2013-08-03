@@ -4,8 +4,8 @@ module Zgomot::UI
     @cc_mgr = Zgomot::Midi::CC
     @clk_mgr = Zgomot::Midi::Clock
     HEADER_COLOR = '#666666'
-    STREAM_OUTPUT_FORMAT_WIDTHS = [30, 10, 10, 10, 10, 10]
-    STREAM_HEADER = %w(Name Status Chan Count Limit Delay)
+    STREAM_OUTPUT_FORMAT_WIDTHS = [30, 9, 6, 11, 9, 8, 7]
+    STREAM_HEADER = %w(Name Status Chan Time Count Limit Delay)
     STREAM_STATUS_PLAY_COLOR = '#19D119'
     STREAM_STATUS_PAUSE_COLOR = '#EAC117'
     CC_OUTPUT_FORMAT_WIDTHS = [30, 10, 8, 8, 8, 8, 8]
