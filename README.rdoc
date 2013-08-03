@@ -31,7 +31,7 @@ Run the program to play the tune,
 
     ruby mytune.rb
 
-A simple object model is defined by zgomot that makes it possible to write iterative transformations on note patterns within <tt>str</tt> blocks, which generate MIDI data streams. In the following details of the object model and supported transformations will be described.
+A simple object model is defined by zgomot that makes it possible to write iterative transformations on note patterns within <tt>str</tt> blocks that generate MIDI data streams. In the following details of the object model and supported transformations will be described.
 
 == OS X IAC Driver
 
