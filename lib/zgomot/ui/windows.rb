@@ -8,14 +8,24 @@ module Zgomot::UI
   COLOR_GREEN = 202
   COLOR_PINK = 103
   COLOR_BLUE = 104
-  COLOR_IDLE = COLOR_GOLD
-  COLOR_ACTIVE = COLOR_GREEN
   COLOR_BLACK = Curses::COLOR_BLACK
   COLOR_WHITE = Curses::COLOR_WHITE
+  COLOR_VIOLET = 209
+  COLOR_MAGENTA = 210
+  COLOR_YELLOW_GREEN = 211
+  COLOR_LIGHT_BLUE = 212
+  COLOR_ORANGE = 213
+
   COLOR_STREAM_PLAYING_SELECTED = 205
   COLOR_STREAM_PAUSED_SELECTED = 206
   COLOR_CC_SWITCH_TRUE = 207
   COLOR_CC_SWITCH_FALSE = 208
+  COLOR_IDLE = 204
+  COLOR_ACTIVE = 203
+  COLOR_BORDER = 201
+  COLOR_CC_IDLE = 200
+  COLOR_CC_ACTIVE = 199
+
   module Utils
     def set_color(color, &blk)
       Curses.attron(Curses.color_pair(color)|Curses::A_NORMAL, &blk)
@@ -39,17 +49,24 @@ module Zgomot::UI
         Curses.init_color(COLOR_GREEN, 484, 980, 0)
         Curses.init_color(COLOR_PINK, 1000, 100, 575)
         Curses.init_color(COLOR_BLUE, 117, 575, 1000)
-        Curses.init_color(COLOR_CC_SWITCH_TRUE, 500, 500, 500)
-        Curses.init_color(COLOR_CC_SWITCH_FALSE, 1000, 100, 575)
-        Curses.init_pair(COLOR_GREY,COLOR_GREY,COLOR_BLACK)
+        Curses.init_color(COLOR_VIOLET, 810, 410, 980)
+        Curses.init_color(COLOR_MAGENTA, 1000, 200, 1000)
+        Curses.init_color(COLOR_YELLOW_GREEN, 750, 980, 410)
+        Curses.init_color(COLOR_LIGHT_BLUE,600, 1000, 1000)
+        Curses.init_color(COLOR_ORANGE,1000 , 600, 0)
         Curses.init_pair(COLOR_GOLD,COLOR_GOLD,COLOR_BLACK)
         Curses.init_pair(COLOR_GREEN,COLOR_GREEN,COLOR_BLACK)
         Curses.init_pair(COLOR_PINK,COLOR_PINK,COLOR_BLACK)
         Curses.init_pair(COLOR_BLUE,COLOR_BLUE,COLOR_BLACK)
+        Curses.init_pair(COLOR_BORDER,COLOR_GREY,COLOR_BLACK)
+        Curses.init_pair(COLOR_IDLE,COLOR_GOLD,COLOR_BLACK)
+        Curses.init_pair(COLOR_ACTIVE,COLOR_GREEN,COLOR_BLACK)
         Curses.init_pair(COLOR_STREAM_PLAYING_SELECTED,COLOR_BLACK,COLOR_GREEN)
         Curses.init_pair(COLOR_STREAM_PAUSED_SELECTED,COLOR_BLACK,COLOR_GOLD)
-        Curses.init_pair(COLOR_CC_SWITCH_TRUE,COLOR_CC_SWITCH_TRUE,COLOR_BLACK)
-        Curses.init_pair(COLOR_CC_SWITCH_FALSE,COLOR_CC_SWITCH_FALSE,COLOR_BLACK)
+        Curses.init_pair(COLOR_CC_SWITCH_TRUE,COLOR_ORANGE,COLOR_BLACK)
+        Curses.init_pair(COLOR_CC_SWITCH_FALSE,COLOR_LIGHT_BLUE,COLOR_BLACK)
+        Curses.init_pair(COLOR_CC_IDLE,COLOR_VIOLET,COLOR_BLACK)
+        Curses.init_pair(COLOR_CC_ACTIVE,COLOR_BLACK,COLOR_VIOLET)
       end
       def update
         globals_window.display
@@ -108,13 +125,13 @@ module Zgomot::UI
       time_signature = Zgomot::Midi::Clock.time_signature
       resolution = "1/#{Zgomot::Midi::Clock.resolution.to_i}"
       seconds_per_beat = Zgomot::Midi::Clock.beat_sec.to_s
-      @title_window = TitleWindow.new('zgomot', COLOR_GREY, 0, COLOR_PINK)
-      @input_window = TextWithValueWindow.new('Input', input, COLOR_GREY, 3, 0, COLOR_IDLE)
-      @output_window = TextWithValueWindow.new('Output', output, COLOR_GREY, 4, 0, COLOR_IDLE)
-      @time_signature_window = TextWithValueWindow.new('Time Signature', time_signature, COLOR_GREY, 5, 0, COLOR_IDLE)
-      @beats_per_minute_window = TextWithValueWindow.new('Beats/Minute', beats_per_minute, COLOR_GREY, 3, ITEM_WIDTH, COLOR_IDLE)
-      @seconds_per_beat_window = TextWithValueWindow.new('Seconds/Beat', seconds_per_beat, COLOR_GREY, 4, ITEM_WIDTH, COLOR_IDLE)
-      @resolution_window = TextWithValueWindow.new('Resolution', resolution, COLOR_GREY, 5, ITEM_WIDTH, COLOR_IDLE)
+      @title_window = TitleWindow.new('zgomot', COLOR_BORDER, 0, COLOR_PINK)
+      @input_window = TextWithValueWindow.new('Input', input, COLOR_BORDER, 3, 0, COLOR_IDLE)
+      @output_window = TextWithValueWindow.new('Output', output, COLOR_BORDER, 4, 0, COLOR_IDLE)
+      @time_signature_window = TextWithValueWindow.new('Time Signature', time_signature, COLOR_BORDER, 5, 0, COLOR_IDLE)
+      @beats_per_minute_window = TextWithValueWindow.new('Beats/Minute', beats_per_minute, COLOR_BORDER, 3, ITEM_WIDTH, COLOR_IDLE)
+      @seconds_per_beat_window = TextWithValueWindow.new('Seconds/Beat', seconds_per_beat, COLOR_BORDER, 4, ITEM_WIDTH, COLOR_IDLE)
+      @resolution_window = TextWithValueWindow.new('Resolution', resolution, COLOR_BORDER, 5, ITEM_WIDTH, COLOR_IDLE)
       @time_window = TextWindow.new(time_to_s, COLOR_ACTIVE, 3, WIDTH - TIME_WIDTH)
     end
     def time_to_s
@@ -137,8 +154,8 @@ module Zgomot::UI
     def initialize(top)
       @tog_mode, @selected = false, 0
       @widths = Zgomot::UI::Output::STREAM_OUTPUT_FORMAT_WIDTHS
-      TitleWindow.new('Streams', COLOR_GREY, top, COLOR_BLUE)
-      TableRowWindow.new(Zgomot::UI::Output::STREAM_HEADER, widths, COLOR_GREY, top + 3, COLOR_GREY)
+      TitleWindow.new('Streams', COLOR_BORDER, top, COLOR_BLUE)
+      TableRowWindow.new(Zgomot::UI::Output::STREAM_HEADER, widths, COLOR_BORDER, top + 3, COLOR_BORDER)
       add_streams(top + 3)
     end
     def display
@@ -170,10 +187,10 @@ module Zgomot::UI
       def add_streams(top)
         @rows = (0..streams.length-1).map do |i|
                   stream = streams[i]
-                  TableRowWindow.new(stream.info, widths, COLOR_GREY, top += 1, stream_color(stream, i))
+                  TableRowWindow.new(stream.info, widths, COLOR_BORDER, top += 1, stream_color(stream, i))
                 end
         (STREAMS_HEIGHT - streams.length - 4).times do
-          TableRowWindow.new(nil,  widths, COLOR_GREY, top += 1)
+          TableRowWindow.new(nil,  widths, COLOR_BORDER, top += 1)
         end
       end
       def stream_color(stream, i)
@@ -193,8 +210,8 @@ module Zgomot::UI
     def initialize(height, top)
       @height = height
       @widths = Zgomot::UI::Output::CC_OUTPUT_FORMAT_WIDTHS
-      TitleWindow.new('Input CCs', COLOR_GREY, top, COLOR_BLUE)
-      TableRowWindow.new(Zgomot::UI::Output::CC_HEADER, widths, COLOR_GREY, top + 3, COLOR_GREY)
+      TitleWindow.new('Input CCs', COLOR_BORDER, top, COLOR_BLUE)
+      TableRowWindow.new(Zgomot::UI::Output::CC_HEADER, widths, COLOR_BORDER, top + 3, COLOR_BORDER)
       add_ccs(top + 3)
     end
     def display
@@ -206,10 +223,10 @@ module Zgomot::UI
         ccs = get_ccs
         @rows = ccs.map do |cc_params|
           puts cc_color(cc_params)
-                  TableRowWindow.new(cc_params, widths, COLOR_GREY, top += 1, cc_color(cc_params))
+                  TableRowWindow.new(cc_params, widths, COLOR_BORDER, top += 1, cc_color(cc_params))
                 end
         (height - ccs.length - 4).times do
-          TableRowWindow.new(nil,  widths, COLOR_GREY, top += 1)
+          TableRowWindow.new(nil,  widths, COLOR_BORDER, top += 1)
         end
       end
       def cc_name(cc_params); cc_params[0]; end
@@ -227,7 +244,7 @@ module Zgomot::UI
         COLOR_IDLE
         if cc_type(cc).eql?('cont')
           delta = Time.now - cc_updated_at(cc)
-          delta > Zgomot::Midi::Clock.beat_sec ? COLOR_IDLE : COLOR_ACTIVE
+          delta > Zgomot::Midi::Clock.beat_sec ? COLOR_CC_IDLE : COLOR_CC_ACTIVE
         else
           cc_value(cc).eql?('true') ? COLOR_CC_SWITCH_TRUE : COLOR_CC_SWITCH_FALSE
         end
@@ -272,7 +289,7 @@ module Zgomot::UI
   class TableRowWindow
     include Utils
     attr_reader :window, :columns, :color, :value_color, :values, :widths
-    def initialize(values, widths, color, top, value_color = COLOR_GREY)
+    def initialize(values, widths, color, top, value_color = COLOR_BORDER)
       left = 0
       @columns = (0..widths.length-1).reduce([]) do|rs, i|
                     width = widths[i]
