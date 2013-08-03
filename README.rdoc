@@ -49,7 +49,7 @@ Three parameters are defined in the configuration file, <tt>zgomot.yml</tt> or p
 * <b>beats_per_minute</b>: To map to real time the beats per minute are specified. The default value 120.
 * <b>resolution</b>: Defines the length of a clock tick and is defined by the duration of the shortest note that can be played. In the first example this is a 64'th note. The maximum resolution is 1/1024 if your computer can do it. The default value 1/32.
 
-to set the configuration programmatically use,
+To set the configuration programmatically use,
 
     set_config(:beats_per_minute=>120, :time_signature=>"4/4", :resolution=>"1/64")
 
