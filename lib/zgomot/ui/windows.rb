@@ -103,6 +103,12 @@ module Zgomot::UI
           when 10
             str_window.tog
             update
+          when ?p
+            Zgomot::Midi::Stream.play
+            update
+          when ?s
+            Zgomot::Midi::Stream.stop
+            update
           when ?q
             @thread.kill
             Curses.close_screen

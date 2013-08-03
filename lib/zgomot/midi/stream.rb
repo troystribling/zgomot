@@ -38,6 +38,7 @@ module Zgomot::Midi
           end
         end
       end
+      alias_method :stop, :pause
       def tog(name)
         apply_to_stream(name) do |stream|
           stream.status_eql?(:playing) ? pause(name) : play(name)

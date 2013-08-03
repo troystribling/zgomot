@@ -13,7 +13,7 @@ module Zgomot
     end
     delegate Zgomot::Boot, :before_start
     delegate Zgomot::Midi::Clock, :set_config
-    delegate Zgomot::Midi::Stream, :str, :run, :play, :pause, :tog
+    delegate Zgomot::Midi::Stream, :str, :run, :play, :pause, :stop, :tog
     delegate Zgomot::Midi::Dispatcher, :clk
     delegate Zgomot::Midi::CC, :cc, :add_cc, :learn_cc
     delegate Zgomot::Comp::Pattern, :np, :cp, :c, :n, :pr
