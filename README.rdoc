@@ -358,8 +358,7 @@ Where name is the variable name, ch is the MIDI CC identifier, a number between 
 
 * <tt>:max</tt>: The maximum value of the CC message. The default is 1.
 * <tt>:min</tt>: The minimum value of the CC message. The default is 0.
-* <tt>:type</tt>: The CC message type. Accepted values are <tt>:cont</tt> and <tt>:switch</tt>. :cont is a variable that varies continuously between
-<tt>:max</tt> and <tt>:min</tt> and <tt>:switch</tt> is boolean.
+* <tt>:type</tt>: The CC message type. Accepted values are <tt>:cont</tt> and <tt>:switch</tt>. <tt>:cont</tt> type varies continuously between <tt>:max</tt> and <tt>:min</tt>. <tt>:switch</tt> type is boolean.
 
 == Shell
 
