@@ -179,7 +179,7 @@ Accepted options are,
 * <tt>:l</tt>: Reciprocal length of chord, Accepted values are <tt>1, 2, 4,..., max</tt>. Where max is the inverse resolution defined in <tt>zgomot.yml</tt>. Mapping to standard durations gives; 1 a whole note, 2 a half note, 4 a quarter note, 8 and eighth note, ... The default value is 4, a quarter note.
 * <tt>:v</tt>: The velocity of the note is a number between 0 ad 1 defining its loudness. Low values correspond to piano and larger values forte. The default is 0.6.
 
-An chord progression in a key of F# dorian at octave 5 with notes of half note length and velocity 0.5 would be defined by,
+A chord progression in a key of F# dorian at octave 5 with notes of half note length and velocity 0.5 would be defined by,
 
           cp([:Fs, 5], :dorian, :l => 2, :v => 0.5)
 
@@ -247,11 +247,11 @@ Accepted options are,
 
 A program will consist of one or more <tt>str</tt> calls followed by a <tt>play</tt> call. Blocks passed to <tt>str</tt> perform operations on the yielded pattern and write the results to a MIDI channel. On the call to <tt>play</tt> a thread is spawned for each <tt>str</tt> which calls the defined blocks the specified number of times.
 
-    str 'grovin-1', cp([:C,3],:ionian), :lim => 3 do |pattern|
+    str 'grovin-1', cp([:C,3],:ionian), :lim=>3 do |pattern|
         do_stuff_1(pattern)
     end
 
-    str 'grovin-2', cp([:A,5],:dorian), , :lim => 3, :ch => 1 do |pattern|
+    str 'grovin-2', cp([:A,5],:dorian), :lim=>3, :ch=>1 do |pattern|
         do_stuff_2(pattern)
     end
 
@@ -261,10 +261,6 @@ Within a <tt>str</tt> block the following attributes are available,
 
 * <tt>count</tt>: Current iteration.
 * <tt>patterns</tt>: Chronological list of patterns.
-
-== Callbacks
-
-* <tt>before_start</tt>: called before application starts.
 
 === Markov Matrix
 
@@ -293,7 +289,7 @@ A simple Markov Matrix with two patterns.
 
     play
 
-=== Multiple MIDI Channels
+== Multiple MIDI Channels
 
 A program can write to multiple MIDI channels with multiple <tt>str</tt> calls. The following example writes the same melody to two different MIDI channels at different bit rates producing a phasing effect.
 
@@ -301,13 +297,13 @@ A program can write to multiple MIDI channels with multiple <tt>str</tt> calls. 
       pattern.mode!((count/4) % 7 + 1)
     end
 
-    str 'melody-2', np([:B,3],:ionian,:l=>4)[1,4,5,5].bpm!(16.0/15.0), :lim=>:inf, :ch => 1  do |pattern|
+    str 'melody-2', np([:B,3],:ionian,:l=>4)[1,4,5,5].bpm!(16.0/15.0), :lim=>:inf, :ch=>1  do |pattern|
       pattern
     end
 
     play
 
-=== Progression with Length and Velocity Defined for each Note
+== Progression with Length and Velocity Defined for each Note
 
 Different note duration and velocities for each note in a progression can be defined by by using arrays for the length and velocity options.
 
@@ -316,6 +312,27 @@ Different note duration and velocities for each note in a progression can be def
     end
 
     play
+
+== Chord Note Routing
+
+The notes of a chord and chord progression can be routed to different MIDI channels to be rendered by different instruments using the note command. This makes harmonizing instruments easy.
+The program sample below demonstrates how this is done,
+
+    chords = cp([:B,3],:ionian,:l=>4)[1,4,5,5]
+
+    str 'note-0', chords.note(0), :ch=>0 do |pattern|
+      pattern
+    end
+
+    str 'note-1', chords.note(1), :ch=>1 do |pattern|
+      pattern
+    end
+
+    str 'note-2', chords.note(2), :ch=>2 do |pattern|
+      pattern
+    end
+
+    run
 
 == MIDI Input
 
@@ -390,9 +407,22 @@ and defined CCs. The time, stream and CC status are updated every beat. Also, st
 * <tt>s</tt>: Stop all streams.
 * <tt>t</tt>: Toggle the <tt>playing/paused</tt> status of a stream. When <tt>t</tt> is entered use the up/down keys to traverse the list of streams and type return to select a stream. Type <tt>t<\tt> again to exit without selecting a stream.
 
+== Callbacks
+
+When running composition programs callbacks are useful. The following are available,
+
+* <tt>before_start</tt>: called before application starts.
+
 == Logging
 
 By default logging is performed to STDOUT with level <tt>Logger::WARN</tt>. This can be changed by defining a new <tt>logger</tt> or specifying a new logger level in <tt>before_start</tt>.
+To write <tt>DEBUG</tt> logger statements while in the shell enter,
+
+    Zgomot.logger.level = Logger::DEBUG
+
+to disable logger statements enter,
+
+    Zgomot.logger.level = Logger::ERROR
 
 == Examples
 
