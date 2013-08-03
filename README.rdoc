@@ -338,7 +338,7 @@ where <tt>name</tt> is the name of the MIDI source returned by the <tt>sources</
 
     remove_input(name)
 
-where <tt>name</tt> is the name of the <tt>input</tt>. There can be only one MIDI input. Adding another will automatically remove the input added previously.
+where <tt>name</tt> is the name of the <tt>input</tt>. There can be only one MIDI input. Adding another will automatically remove the <tt>input</tt> added previously.
 
 === Input CC Messages
 
@@ -351,6 +351,12 @@ Where name is the variable name, ch is the MIDI CC identifier, a number between 
 * <tt>:max</tt>: The maximum value of the CC message. The default is 1.
 * <tt>:min</tt>: The minimum value of the CC message. The default is 0.
 * <tt>:type</tt>: The CC message type. Accepted values are <tt>:cont</tt> and <tt>:switch</tt>. <tt>:cont</tt> type varies continuously between <tt>:max</tt> and <tt>:min</tt>. <tt>:switch</tt> type is boolean.
+
+To read a variable assigned to a CC message use,
+
+    cc(name, ch)
+
+where <tt>name</tt> is the variable name and <tt>ch</tt> is the channel number. The default value of <tt>ch</tt> is 1.
 
 == Shell
 
@@ -377,7 +383,7 @@ All commands and objects described previously are available and can be typed dir
 === Dashboard
 
 The dashboard is started by typing <tt>dash</tt> in the <tt>zgomot</tt> shell. The <tt>dash</tt> shows the current configuration and global time and lists the status of all loaded streams
-and CCs. The time and stream and CC status are updated every beat. Also, streams can be started and stopped. When <tt>dash<\tt> is loaded the following control commands are available,
+and defined CCs. The time, stream and CC status are updated every beat. Also, streams can be started and stopped. When <tt>dash<\tt> is loaded the following control commands are available,
 
 * <tt>q</tt>: Quit <tt>dash</tt>.
 * <tt>p</tt>: Play all streams.
