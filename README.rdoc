@@ -11,7 +11,7 @@ zgomot is a DSL for composing MIDI music. It does not do synthesis so to create 
 
     # define a MIDI stream writing to channel 0 which plays the pattern 3 times
     str 'notes', tune, :lim=>3 do |pattern|
-        ch << pattern
+       pattern
     end
 
     # write the MIDI stream
