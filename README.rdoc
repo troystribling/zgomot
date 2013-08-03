@@ -17,12 +17,12 @@ zgomot is a DSL for composing MIDI music. It does not do synthesis so to create 
     # write the MIDI stream
     play
 
-Now, specify beats per minute, time signature and resolution in <tt>zgomot.yml</tt>. 
+Now, specify beats per minute, time signature and resolution in <tt>zgomot.yml</tt>.
 
     time_signature: 4/4
     beats_per_minute: 120
     resolution: 1/64
-    
+
 Install the gem,
 
     sudo gem install zgomot
@@ -30,17 +30,17 @@ Install the gem,
 Run the program to play the tune,
 
     ruby mytune.rb
-         
+
 A simple object model is defined by zgomot that makes it possible to write iterative transformations on note patterns within <tt>str</tt> blocks, which generate MIDI data streams. In the following details of the object model and supported transformations will be described.
-            
+
 == OS X IAC Driver
 
-For OS X the IAC Driver must be enabled for zgomot programs to communicate with the digital audio software used to render the generated MIDI stream. To enable the IAC Driver open <em>Audio MIDI Setup</em>. Under the <em>Window</em> menu item select <em>Show MIDI Window</em>. Find the <em>IAC Driver</em>, double click it and be sure <em>Device is online</em> is selected and at least one port exists. 
-    
+For OS X the IAC Driver must be enabled for zgomot programs to communicate with the digital audio software used to render the generated MIDI stream. To enable the IAC Driver open <em>Audio MIDI Setup</em>. Under the <em>Window</em> menu item select <em>Show MIDI Window</em>. Find the <em>IAC Driver</em>, double click it and be sure <em>Device is online</em> is selected and at least one port exists.
+
 == Supported Platforms
 
 zgomot has been tested on Ruby 1.8.7, 1.9.1 and 1.9.2. The only OS supported is OS X Snow Leopard.
-      
+
 == Configuration
 
 Three parameters are defined in the configuration file, <tt>zgomot.yml</tt>, that specify the timing of a composition.
@@ -53,48 +53,48 @@ Three parameters are defined in the configuration file, <tt>zgomot.yml</tt>, tha
 
 Pitch is defined by a 2 dimensional array specifying the pitch class and octave, For example [:C, 4] would denote the note C at octave 4. Octave is an integer between -1 and 9 and acceptable values for pitch class with enharmonics, where <em>s</em> denotes a sharp, <em>b</em> a flat, and rest by :R are,
 
-    :C,  :Bs; 
+    :C,  :Bs;
     :Cs, :Db
     :D
     :Ds, :Ed
     :E,  :Fd
     :F,  :Es
     :Fs, :Gb
-    :G, 
-    :Gs,  :Ab
+    :G,
+    :Gs, :Ab
     :A,
     :As, :Bb,
-    :B, :Cb, 
-    :R, 
+    :B,  :Cb,
+    :R,
 
 == Notes
 
 A note is defined by,
 
     n(pitch, opts)
-    
+
 Accepted options are,
 
 * <tt>:l</tt>: Reciprocal length of note, Accepted values are 1, 2, 4,..., max. Where max is the inverse resolution defined in <tt>zgomot.yml</tt>. Mapping to standard durations gives; 1 a whole note, 2 a half note, 4 a quarter note, 8 and eighth note, ... The default value is 4, a quarter note.
 * <tt>:v</tt>: The velocity of the note is a number between 0 ad 1 defining its loudness. Low values correspond to piano and larger values forte. The default is 0.6.
-          
+
 An F# half note at octave 5 with velocity 0.5 would be defined by,
 
           n([:Fs, 5], :l => 2, :v => 0.5)
-          
+
 ==== Transforms
 
 Notes support the following transformations,
 
 * <tt>bpm!(bpm)</tt>: change the bits per minute at which the note is played.
 * <tt>octave!(ocatve)</tt>: change the octave of the note.
-         
+
 == Chords
 
 A chord is defined by,
 
     c(root, interval, opts)
-    
+
 Only trichords are supported. Here root is the chord root pitch and interval is the interval type. Accepted values of the interval type are: <tt>:maj</tt>, <tt>:min</tt>, <tt>:dim</tt>, <tt>:aug</tt>, <tt>:sus2</tt>, <tt>:sus4</tt>, representing major, minor, diminished, augmented, suspended second and suspended forth chord intervals respectively. If not specified the default value of interval is <tt>:maj</tt>.
 
 Accepted options are,
@@ -112,7 +112,7 @@ Chords support the following transformations,
 
 * <tt>bpm!(bpm)</tt>: change the bits per minute at which the chord is played.
 * <tt>octave!(ocatve)</tt>: change the octave of the chord.
-* <tt>arp!(length)</tt>: arpeggiate the chord using the specified length in units of note length. Accepted values are 1, 2, 4, 8, ... resolution, representing arpeggiation by a whole note, half note, quarter note, eighth note up to the specified clock resolution.  
+* <tt>arp!(length)</tt>: arpeggiate the chord using the specified length in units of note length. Accepted values are 1, 2, 4, 8, ... resolution, representing arpeggiation by a whole note, half note, quarter note, eighth note up to the specified clock resolution.
 * <tt>inv!(number)</tt>: Invert the chord. When 0 the chord is unchanged, 1 is the first inversion and 2 is the second. Higher inversions just shift the chord to a higher octave.
 * <tt>rev!</tt>: Reverse the order in which the notes are played. Only noticeable if the chord is also arpeggiated.
 
@@ -120,40 +120,40 @@ Chords support the following transformations,
 
 The General MIDI Percussion Map that maps percussion type to MIDI note is supported.
 
-    :acoustic_bass_drum => [:B,1], 
+    :acoustic_bass_drum => [:B,1],
     :bass_drum_1        => [:C,2],  :side_stick     => [:Cs,2], :acoustic_snare => [:D,2],
     :hand_clap          => [:Ds,2], :electric_snare => [:E,2],  :low_floor_tom  => [:F,2],
     :closed_hi_hat      => [:Fs,2], :high_floor_tom => [:G,2],  :pedal_hi_hat   => [:Gs,2],
     :low_tom            => [:A,2],  :open_hi_hat    => [:As,2], :low_mid_tom    => [:B,2],
-    :high_mid_tom       => [:C,3],  :crash_cymbal_1 => [:Cs,3], :high_tom       => [:D,3], 
-    :ride_cymbal_1      => [:Ds,3], :chinese_cymbal => [:E,3],  :ride_bell      => [:F,3], 
-    :tambourine         => [:Fs,3], :splash_cymbal  => [:G,3],  :cowbell        => [:Gs,3], 
+    :high_mid_tom       => [:C,3],  :crash_cymbal_1 => [:Cs,3], :high_tom       => [:D,3],
+    :ride_cymbal_1      => [:Ds,3], :chinese_cymbal => [:E,3],  :ride_bell      => [:F,3],
+    :tambourine         => [:Fs,3], :splash_cymbal  => [:G,3],  :cowbell        => [:Gs,3],
     :crash_cymbal_2     => [:A,3],  :vibraslap      => [:As,3], :ride_cymbal_2  => [:B,3],
-    :high_bongo         => [:C,4],  :low_bongo      => [:Cs,4], :mute_hi_conga  => [:D,4], 
-    :open_hi_conga      => [:Ds,4], :low_conga      => [:E,4],  :high_timbale   => [:F,4], 
-    :low_timbale        => [:Fs,4], :high_agogo     => [:G,4],  :low_agogo      => [:Gs,4], 
+    :high_bongo         => [:C,4],  :low_bongo      => [:Cs,4], :mute_hi_conga  => [:D,4],
+    :open_hi_conga      => [:Ds,4], :low_conga      => [:E,4],  :high_timbale   => [:F,4],
+    :low_timbale        => [:Fs,4], :high_agogo     => [:G,4],  :low_agogo      => [:Gs,4],
     :cabasa             => [:A,4],  :maracas        => [:As,4], :short_whistle  => [:B,4],
-    :long_whistle       => [:C,5],  :short_guiro    => [:Cs,5], :long_guiro     => [:D,5],  
-    :claves             => [:Ds,5], :hi_woodblock   => [:E,5],  :low_woodblock  => [:F,5], 
-    :mute_cuica         => [:Fs,5], :open_cuica     => [:G,5],  :mute_triangle  => [:Gs,5], 
+    :long_whistle       => [:C,5],  :short_guiro    => [:Cs,5], :long_guiro     => [:D,5],
+    :claves             => [:Ds,5], :hi_woodblock   => [:E,5],  :low_woodblock  => [:F,5],
+    :mute_cuica         => [:Fs,5], :open_cuica     => [:G,5],  :mute_triangle  => [:Gs,5],
     :open_triangle      => [:A,5],
-    :R                  => :R,      
+    :R                  => :R,
 
 A percussive tone is defined by
 
     pr(perc, opts)
-    
-Where perc is the General MIDI Percussion code defined above that has a default value of <tt>:acoustic_bass_drum</tt>.   
-    
+
+Where perc is the General MIDI Percussion code defined above that has a default value of <tt>:acoustic_bass_drum</tt>.
+
 Accepted options are,
 
 * <b>:l</b>: Reciprocal length of note, Accepted values are 1, 2, 4,..., max. Where max is the inverse resolution defined in <tt>zgomot.yml</tt>. Mapping to standard durations gives: 1 a whole note, 2 a half note, 4 a quarter note, 8 and eighth note, ... The default value is 4, a quarter note.
 * <b>:v</b>: The velocity of the note is a number between 0 ad 1 defining its loudness. Low values correspond to piano and larger values forte. The default is 0.6.
-   
+
 A <tt>:closed_hi_hat</tt> percussive tone of half note length with velocity 0.5 would be defined by,
 
     pr(:closed_hi_hat, :l => 2, :v => 0.5)
-    
+
 ==== Transforms
 
 Percussion supports the following transformations,
@@ -166,7 +166,7 @@ Chord Progressions or Roman Numeral Notation permit the definition of a melody t
 
 A chord progression consisting of the 7 notes of a specified key in a diatonic mode played sequentially will be defined by,
 
-    cp(tonic, mode, opts)  
+    cp(tonic, mode, opts)
 
 Where tonic is the tonic pitch of the key, mode is one of the 7 diatonic modes: <tt>:ionian</tt>, <tt>:dorian</tt>, <tt>:phrygian</tt>, <tt>:lydian</tt>, <tt>:mixolydian</tt>, <tt>:aeolian</tt>, <tt>:locrian</tt> or a number between 0 and 6 mapping sequentially onto the these modes.
 
@@ -188,7 +188,7 @@ An chord progression in a key of F# dorian at octave 5 with notes of half note l
 * <tt>length=(v)</tt>: Change the length of all notes in the progression.
 * <tt>bpm!(bpm)</tt>: change the bits per minute at which the chord is played.
 * <tt>octave!(ocatve)</tt>: change the octave of all notes in the progression.
-* <tt>arp!(length)</tt>: arpeggiate the chords in the progression using the specified length in units of note length. Accepted values are 1, 2, 4, 8, ... resolution, representing arpeggiation by a whole note, half note, quarter note, eighth note up to the specified clock resolution.  
+* <tt>arp!(length)</tt>: arpeggiate the chords in the progression using the specified length in units of note length. Accepted values are 1, 2, 4, 8, ... resolution, representing arpeggiation by a whole note, half note, quarter note, eighth note up to the specified clock resolution.
 * <tt>inv!(number)</tt>: The inversion number. A value of zero will leave the chord unchanged, 1 is the first inversion and 2 is the second. Higher inversions just shift the chord to a higher octave.
 * <tt>rev!</tt>: Reverse the order in which the notes are played. Only noticeable if the chords in the progression are also arpeggiated.
 
@@ -198,7 +198,7 @@ Progressions internally are arrays of notes so all methods supported by the Ruby
 
 Note Progressions are similar to chord progressions but are composed of notes instead of chords. Most of the options and transformation are the same. To define a Note Progression use,
 
-    np(tonic, mode, opts)  
+    np(tonic, mode, opts)
 
 Where tonic is the tonic pitch of the key, mode is one of the 7 diatonic modes: <tt>:ionian</tt>, <tt>:dorian</tt>, <tt>:phrygian</tt>, <tt>:lydian</tt>, <tt>:mixolydian</tt>, <tt>:aeolian</tt>, <tt>:locrian</tt> or a number between 0 and 6 mapping sequentially onto the these modes.
 
@@ -227,50 +227,35 @@ Progressions internally are arrays of notes so all methods supported by the Ruby
 
 Patterns are heterogeneous arrays of notes, chords, Chord Progressions and Note Progressions. Operations applied to the pattern will be delegated to the appropriate elements of the pattern array. Patterns also support all methods supported by Ruby the <tt>Array</tt> class.
 
-== MIDI Channels
-
-The MIDI Channel is used to specify MIDI device IO. A channel is created with the call,
-
-    ch(num)
-
-Where number is the MIDI channel number which must be between 0 and 15. The default value is 0.
-
-The << operator is used to write patterns to the MIDI IO device.
-    
-Write a note pattern to MIDI channel 1,
-
-    ch(1) << [n([:C,5]), n(:B), n(:R), n(:G), n(:C,:l=>2), n([:E,5],:l=>2)]
- 
-Channels are created within stream blocks which are discussed in the next section.
-
 == Streams
 
-A stream is used to define iteration on a pattern and outputs a stream of MIDI data. 
+A stream is used to define iteration on a pattern and outputs a stream of MIDI data.
 
     str(name, pattern, opt, &blk)
-    
+
 Where name is an identifying string defining, pattern is an initial pattern, which may be nil, and blk is used to define operations on pattern and is yielded pattern.
 
 Accepted options are,
 
 * <tt>:lim</tt>: The number of iterations performed by the stream. The default value is infinite.
 * <tt>:del</tt>: The number beats delayed before the stream begins to play. The default value is 0.
+* <tt>:ch</tt>:  The MIDI channel used for output. The default value is 0.
 
-A program will consist of one or more <tt>str</tt> calls followed by a <tt>play</tt> call. Blocks passed to <tt>str</tt> perform operations on the yielded pattern and write the results to a MIDI channel. On the call to <tt>play</tt> a thread is spawned for each <tt>str</tt> which calls the defined blocks the specified number of times.  
+A program will consist of one or more <tt>str</tt> calls followed by a <tt>play</tt> call. Blocks passed to <tt>str</tt> perform operations on the yielded pattern and write the results to a MIDI channel. On the call to <tt>play</tt> a thread is spawned for each <tt>str</tt> which calls the defined blocks the specified number of times.
 
     str 'grovin-1', cp([:C,3],:ionian), :lim => 3 do |pattern|
-        ch(0) << do_stuff_1(pattern)
+        do_stuff_1(pattern)
     end
 
-    str 'grovin-2', cp([:A,5],:dorian), , :lim => 3 do |pattern|
-        ch(1) << do_stuff_2(pattern)
+    str 'grovin-2', cp([:A,5],:dorian), , :lim => 3, :ch => 1 do |pattern|
+        do_stuff_2(pattern)
     end
 
     play
-        
+
 Within a <tt>str</tt> block the following attributes are available,
-        
-* <tt>count</tt>: Current iteration.     
+
+* <tt>count</tt>: Current iteration.
 * <tt>patterns</tt>: Chronological list of patterns.
 
 == Callbacks
@@ -279,7 +264,7 @@ Within a <tt>str</tt> block the following attributes are available,
 
 == Logging
 
-By default logging is performed to STDOUT with level <tt>Logger::WARN</tt>. This can be changed by defining a new <tt>logger</tt> or specifying a new logger level in <tt>before_start</tt>. 
+By default logging is performed to STDOUT with level <tt>Logger::WARN</tt>. This can be changed by defining a new <tt>logger</tt> or specifying a new logger level in <tt>before_start</tt>.
 
 == Examples
 
@@ -290,8 +275,8 @@ Many examples can be found at https://github.com/troystribling/zgomot/tree/maste
 The Markov Matrix randomly plays a list of specified patterns with specified probabilities. The size of the matrix is determined by the number of patterns. For each pattern a list transition probabilities must be defined for all other patterns.
 
 === Methods
-    
-* <tt>add(transition_probs, &blk)</tt>:  Add a pattern to the Markov matrix. Arguments are: <tt>transitition_probs</tt> a list that defines the transition probabilities between patterns and <tt>blk</tt> is a block in which the pattern is defined.  
+
+* <tt>add(transition_probs, &blk)</tt>:  Add a pattern to the Markov matrix. Arguments are: <tt>transitition_probs</tt> a list that defines the transition probabilities between patterns and <tt>blk</tt> is a block in which the pattern is defined.
 * <tt>next</tt>: Called within a <tt>str</tt> block to return the next random pattern.
 
 ==== Code Sample
@@ -307,7 +292,7 @@ A simple Markov Matrix with two patterns.
     end
 
     str 'markov' do
-      ch << m.next
+      m.next
     end
 
     play
@@ -317,11 +302,11 @@ A simple Markov Matrix with two patterns.
 A program can write to multiple MIDI channels with multiple <tt>str</tt> calls. The following example writes the same melody to two different MIDI channels at different bit rates producing a phasing effect.
 
     str 'melody-1', np([:B,3],nil,:l=>4)[1,4,5,5], :lim=>:inf do |pattern|
-      ch(0) << pattern.mode!((count/4) % 7 + 1)
+      pattern.mode!((count/4) % 7 + 1)
     end
 
-    str 'melody-2', np([:B,3],:ionian,:l=>4)[1,4,5,5].bpm!(16.0/15.0), :lim=>:inf  do |pattern|
-      ch(1) << pattern
+    str 'melody-2', np([:B,3],:ionian,:l=>4)[1,4,5,5].bpm!(16.0/15.0), :lim=>:inf, :ch => 1  do |pattern|
+      pattern
     end
 
     play
@@ -331,10 +316,48 @@ A program can write to multiple MIDI channels with multiple <tt>str</tt> calls. 
 Different note duration and velocities for each note in a progression can be defined by by using arrays for the length and velocity options.
 
     str 'prog', cp([:A,4],nil,:l=>[4,4,8,8,4], :v=>[0.6, 0.4, 0.7, 0.6, 0.4])[7,5,3,3,1], :lim=>6 do |pattern|
-      ch << pattern.mode!(count)
+      pattern.mode!(count)
     end
 
     play
+
+== MIDI Input
+
+A MIDI input device can be used to send messages to programs. Commands to list MIDI sources, add MIDI inputs devices and assign MIDI CC messages to progeram variables
+are available.
+
+=== MIDI Sources
+
+The names of MIDI sources are listed with,
+
+    sources
+
+=== Add Input Device
+
+A MIDI input device is added with
+
+    add_input(device_name)
+
+where <tt>device_name</tt> is the name of the MIDI source returned by the <tt>sources</tt> command.
+
+=== Input CC Messages
+
+MIDI CC messages can be used to assign values to variables that can be read by programs. To assign a CC message to a variable use,
+
+    add_cc(name, ch, options)
+
+Where name is the variable, ch is the MIDI CC identifier, a number between 0 and 255 and options are the following,
+
+* <tt>:max</tt>: The maximum value of the CC message. The default is 1.
+* <tt>:min</tt>: The minimum value of the CC message. The default is 0.
+* <tt>:type</tt>: The CC message type. Accepted values are <tt>:cont</tt> and <tt>:switch</tt>. :cont is a variable that varies continuously between
+<tt>:max</tt> and <tt>:min</tt> and <tt>:switch</tt> is boolean.
+
+== Shell
+
+=== Commands
+
+=== Dashboard
 
 == Copyright
 
