@@ -196,7 +196,7 @@ A chord progression in a key of F# dorian at octave 5 with notes of half note le
 * <tt>inv!(number)</tt>: The inversion number. A value of zero will leave the chord unchanged, 1 is the first inversion and 2 is the second. Higher inversions just shift the chord to a higher octave.
 * <tt>rev!</tt>: Reverse the order in which the notes are played. Only noticeable if the chords in the progression are also arpeggiated.
 
-Progressions internally are arrays of notes so all methods supported by the Ruby <tt>Array</tt> class are also supported.
+Progressions internally are arrays of notes. The following array methods are supported: <tt>reverse!, shift, pop, push, unshift</tt>
 
 == Note Progressions
 
@@ -225,7 +225,7 @@ An note progression in a key of F# dorian at octave 5 with notes of half note le
 * <tt>bpm!(bpm)</tt>: change the bits per minute at which the chord is played.
 * <tt>octave!(ocatve)</tt>: change the octave of all notes in the progression.
 
-Progressions internally are arrays of notes so all methods supported by the Ruby <tt>Array</tt> class are also supported.
+Progressions internally are arrays of notes. The following array methods are supported: <tt>reverse!, shift, pop, push, unshift</tt>
 
 == Progression with Defined Length and Velocity by Note
 
@@ -235,7 +235,7 @@ Different durations and velocities for each note in a progression can be defined
 
 == Patterns
 
-Patterns are heterogeneous arrays of notes, chords, Chord Progressions and Note Progressions. Operations applied to the pattern will be delegated to the appropriate elements of the pattern array. Patterns also support all methods supported by Ruby the <tt>Array</tt> class.
+Patterns are heterogeneous arrays of notes, chords, Chord Progressions and Note Progressions. Operations applied to the pattern will be delegated to the appropriate elements of the pattern array.
 
 == Streams
 
@@ -243,7 +243,7 @@ A stream is used to define iteration on a pattern and outputs a stream of MIDI d
 
     str(name, pattern, opt, &blk)
 
-Where name is an identifying string defining, pattern is an initial pattern, which may be nil, and blk is used to define operations on pattern and is yielded pattern.
+Where <tt>name</tt> is an identifying string defining, <tt>pattern</tt> is an initial pattern, which may be nil, and <tt>blk</tt> is used to define operations on pattern and is yielded pattern.
 
 Accepted options are,
 
@@ -311,7 +311,7 @@ A program can write to multiple MIDI channels with multiple <tt>str</tt> calls. 
 
 === Chord Note Routing
 
-The notes of a chord and chord progression can be routed to different MIDI channels to be rendered by different instruments using the <tt>note</tt> command. This makes harmonizing instruments easy.
+The notes of a chord and chord progression can be routed to different MIDI channels to be rendered by different instruments using the <tt>note(note_number)</tt> command. This makes harmonizing instruments easy.
 The program sample below demonstrates how this is done,
 
     chords = cp([:B,3],:ionian,:l=>4)[1,4,5,5]
@@ -359,7 +359,7 @@ MIDI CC messages can be used to assign values to variables that can be read by p
 
     add_cc(name, ch, options)
 
-Where name is the variable name, ch is the MIDI CC identifier, a number between 0 and 255 and options are the following,
+Where <tt>name</tt> is the variable name, ,<tt>ch</tt> is the MIDI CC identifier, a number between 0 and 255 and options are the following,
 
 * <tt>:max</tt>: The maximum value of the CC message. The default is 1.
 * <tt>:min</tt>: The minimum value of the CC message. The default is 0.
@@ -396,12 +396,12 @@ All commands and objects described previously are available and can be typed dir
 === Dashboard
 
 The dashboard is started by typing <tt>dash</tt> in the <tt>zgomot</tt> shell. The <tt>dash</tt> shows the current configuration and global time and lists the status of all loaded streams
-and defined CCs. The time, stream and CC status are updated every beat. Also, streams can be started and stopped. When <tt>dash<\tt> is loaded the following control commands are available,
+and defined CCs. The time, stream and CC status are updated every beat. Also, streams can be started and stopped. When <tt>dash</tt> is loaded the following control commands are available,
 
 * <tt>q</tt>: Quit <tt>dash</tt>.
 * <tt>p</tt>: Play all streams.
 * <tt>s</tt>: Stop all streams.
-* <tt>t</tt>: Toggle the <tt>playing/paused</tt> status of a stream. When <tt>t</tt> is entered use the up/down keys to traverse the list of streams and type return to select a stream. Type <tt>t<\tt> again to exit without selecting a stream.
+* <tt>t</tt>: Toggle the <tt>playing/paused</tt> status of a stream. When <tt>t</tt> is entered use the up/down keys to traverse the list of streams and type return to select a stream. Type <tt>t</tt> again to exit without selecting a stream.
 
 == Callbacks
 
