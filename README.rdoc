@@ -227,6 +227,12 @@ An note progression in a key of F# dorian at octave 5 with notes of half note le
 
 Progressions internally are arrays of notes so all methods supported by the Ruby <tt>Array</tt> class are also supported.
 
+=== Progression with Defined Length and Velocity by Note
+
+Different durations and velocities for each note in a progression can be defined by by using arrays for the length and velocity options.
+
+    cp([:A,4],nil,:l=>[4,4,8,8,4], :v=>[0.6, 0.4, 0.7, 0.6, 0.4])[7,5,3,3,1]
+
 == Patterns
 
 Patterns are heterogeneous arrays of notes, chords, Chord Progressions and Note Progressions. Operations applied to the pattern will be delegated to the appropriate elements of the pattern array. Patterns also support all methods supported by Ruby the <tt>Array</tt> class.
@@ -262,7 +268,7 @@ Within a <tt>str</tt> block the following attributes are available,
 * <tt>count</tt>: Current iteration.
 * <tt>patterns</tt>: Chronological list of patterns.
 
-=== Markov Matrix
+== Markov Matrix
 
 The Markov Matrix randomly plays a list of specified patterns with specified probabilities. The size of the matrix is determined by the number of patterns. For each pattern a list transition probabilities must be defined for all other patterns.
 
@@ -303,17 +309,7 @@ A program can write to multiple MIDI channels with multiple <tt>str</tt> calls. 
 
     play
 
-== Progression with Length and Velocity Defined for each Note
-
-Different note duration and velocities for each note in a progression can be defined by by using arrays for the length and velocity options.
-
-    str 'prog', cp([:A,4],nil,:l=>[4,4,8,8,4], :v=>[0.6, 0.4, 0.7, 0.6, 0.4])[7,5,3,3,1], :lim=>6 do |pattern|
-      pattern.mode!(count)
-    end
-
-    play
-
-== Chord Note Routing
+=== Chord Note Routing
 
 The notes of a chord and chord progression can be routed to different MIDI channels to be rendered by different instruments using the note command. This makes harmonizing instruments easy.
 The program sample below demonstrates how this is done,
