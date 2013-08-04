@@ -10,7 +10,7 @@ module Zgomot::Midi
 
     class << self
 
-      attr_reader :resolution, :queue, :thread, :clock, :tick, :qmutex, :qdispatch, :playing, :last_time
+      attr_reader :resolution, :queue, :thread, :clock, :tick, :qmutex, :qdispatch, :playing
 
       def clk
         clock.to_s
@@ -65,11 +65,12 @@ module Zgomot::Midi
     end
 
     @thread = Thread.new do
+      last_time = nil
       loop do
         now = ::Time.now.truncate_to(Clock.tick_sec)
         dispatch(now)
         clock.update(last_time.nil? ? tick : now-last_time)
-        @last_time = now
+        last_time = now
         sleep(tick)
       end
     end
