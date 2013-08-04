@@ -12,17 +12,16 @@ module Zgomot::Midi
         @streams[name] = strm
       end
       def play(name=nil)
-        start_time = ::Time.now.truncate_to(Clock.tick_sec) + Zgomot::PLAY_DELAY
         if name.nil?
           streams.values.reduce([]) do |a, s|
             if s.status_eql?(:paused)
-              s.dispatch(start_time + s.delay)
+              s.dispatch
               a << s.name
             end; a
           end
         else
           apply_to_stream(name){|stream|
-            stream.status_eql?(:paused) ? (stream.dispatch(start_time + stream.delay); name) : nil}
+            stream.status_eql?(:paused) ? (stream.dispatch; name) : nil}
         end
       end
       alias_method :run, :play
@@ -79,26 +78,25 @@ module Zgomot::Midi
     def info
       [name, status, ch.number, ch.clock, count, limit, delay].map(&:to_s)
     end
-    def dispatch(start_time)
+    def dispatch
       @count = 0
       ch.set_clock
       update_status(:playing)
       @thread = Thread.new do
                   while(status_eql?(:playing)) do
                     @count += 1
-                    loop_time = ::Time.now
                     break if not limit.eql?(:inf) and count > limit
                     if self.respond_to?(play_meth, true)
                       if pattern = self.send(play_meth)
                         ch << pattern
-                        Dispatcher.enqueue(ch.time_shift(start_time))
+                        Dispatcher.enqueue(ch)
                       else; break; end
                     else
                       raise(Zgomot::Error, 'str block arity not supported')
                     end
                     Zgomot.logger.info "STREAM:#{count}:#{name}"
                     patterns << Zgomot::Comp::Pattern.new(ch.pattern)
-                    sleep(ch.length_to_sec) if count > 1
+                    sleep(ch.length_to_sec)
                   end
         Zgomot.logger.info "STREAM FINISHED:#{name}"
         update_status(:paused)

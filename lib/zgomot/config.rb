@@ -3,7 +3,6 @@ module Zgomot
   class Error < Exception; end
 
   VERSION = "0.0.0"
-  PLAY_DELAY = 1.0
   DISPATCHER_POLL = 1.133
 
   DEFAULT_CONFIG = {

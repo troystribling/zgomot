@@ -3,7 +3,7 @@ module Zgomot::Midi
   class Dispatcher
 
     @queue, @playing = [], []
-    @qmutex, @qdispatch = Mutex.new, Mutex.new
+    @qmutex = Mutex.new
 
     @clock = Clock.new
     @tick = Clock.tick_sec
@@ -16,61 +16,50 @@ module Zgomot::Midi
         clock.to_s
       end
 
-      def flush
-        @queue.clear
-      end
-
-      def done?
-        qdispatch.synchronize{queue.empty? and playing.empty?}
-      end
-
       def enqueue(ch)
+        ch.offset = clock.ceil
         qmutex.synchronize do
-          @queue += ch.pattern.map{|p| p.to_midi}.flatten.compact.select{|n| not n.pitch_class.eql?(:R)}
+          pattern = ch.pattern.map{|p| p.to_midi}.flatten.compact.select{|n| not n.pitch_class.eql?(:R)}
+          @queue += pattern
         end
       end
 
-      def dequeue(time)
+      def dequeue
         qmutex.synchronize do
-          queue.partition{|n| n.play_at <= time}
+          queue.partition{|n| n.note_on.to_f <= clock.current_time.to_f}
         end
       end
 
-      def dispatch(now)
-        qdispatch.synchronize do
-          ready, @queue = dequeue(now)
-          notes_off(now)
+      private
+
+        def dispatch
+          ready, @queue = dequeue
+          notes_off
           notes_on(ready)
         end
-      end
 
-      def notes_on(notes)
-        notes.each do |n|
-          Zgomot.logger.info "NOTE ON: #{n.channel} : #{n.to_s} : #{n.time.to_s} : #{clock.current_time.to_s}"
-          Zgomot::Drivers::Mgr.note_on(n.midi, n.channel, (127*n.velocity).to_i)
+        def notes_on(notes)
+          @playing += notes
+          notes.each do |n|
+            Zgomot.logger.info "NOTE ON: #{n.channel} : #{n.to_s} - #{n.time.to_s} - #{n.note_on.to_s} - #{clock.current_time.to_s}"
+            Zgomot::Drivers::Mgr.note_on(n.midi, n.channel, (127*n.velocity).to_i)
+          end
         end
-        @playing += notes
-      end
 
-      def notes_off(time)
-        turn_off, @playing = playing.partition{|n| (n.play_at+n.length_to_sec) <= time}
-        turn_off.each do |n|
-          Zgomot.logger.info "NOTE OFF:#{n.channel} : #{n.to_s} : #{n.time.to_s} : #{clock.current_time.to_s}"
-          Zgomot::Drivers::Mgr.note_off(n.midi, n.channel, (127*n.velocity).to_i)
+        def notes_off
+          turn_off, @playing = playing.partition{|n| n.note_off.to_f <= clock.current_time.to_f}
+          turn_off.each do |n|
+            Zgomot.logger.info "NOTE OFF:#{n.channel} : #{n.to_s} - #{n.time.to_s} - #{n.note_off.to_s} - #{clock.current_time.to_s}"
+            Zgomot::Drivers::Mgr.note_off(n.midi, n.channel, (127*n.velocity).to_i)
+          end
         end
-      end
-
-      private :dispatch, :notes_on, :notes_off
 
     end
 
     @thread = Thread.new do
-      last_time = nil
       loop do
-        now = ::Time.now.truncate_to(Clock.tick_sec)
-        dispatch(now)
-        clock.update(last_time.nil? ? tick : now-last_time)
-        last_time = now
+        dispatch
+        clock.update(tick)
         sleep(tick)
       end
     end

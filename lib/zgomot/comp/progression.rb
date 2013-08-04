@@ -87,8 +87,8 @@ module Zgomot::Comp
     def to_midi
       notes.map{|n| n.to_midi}
     end
-    def offset_time=(t)
-      notes.each{|n| n.offset_time = t}
+    def offset=(t)
+      notes.each{|n| n.offset = t}
     end
     def notes
       @notes ||= item.notes(self)

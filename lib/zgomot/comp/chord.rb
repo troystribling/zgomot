@@ -91,8 +91,8 @@ module Zgomot::Comp
     def channel=(chan)
       notes.each{|n| n.channel = chan}
     end
-    def offset_time=(time)
-      notes.each{|n| n.offset_time = time}
+    def offset=(time)
+      notes.each{|n| n.offset = time}
     end
     def time=(time)
       @clock = Zgomot::Midi::Clock.new

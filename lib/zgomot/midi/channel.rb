@@ -24,10 +24,10 @@ module Zgomot::Midi
 
     end
 
-    attr_reader :number, :clock, :pattern, :length_to_sec
+    attr_reader :number, :clock, :pattern, :length_to_sec, :offset
 
     def initialize(num)
-      @number, @pattern = num, []
+      @number, @pattern, @offset = num, [], nil
       set_clock
     end
 
@@ -46,15 +46,16 @@ module Zgomot::Midi
     end
 
     def method_missing(meth, *args, &blk )
-      pattern.send(meth, *args, &blk); reset_pattern_time; self
-    end
-
-    def time_shift(secs)
-      pattern.each{|p| p.offset_time= secs}; self
+      pattern.send(meth, *args, &blk); reset_pattern_time;self
     end
 
     def set_clock
-      @clock = Clock.new
+      @offset, @clock = nil, Clock.new
+    end
+
+    def offset=(time)
+      @offset ||= time
+      pattern.each{|p| p.offset = offset}; self
     end
 
   end

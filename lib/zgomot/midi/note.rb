@@ -27,7 +27,7 @@ module Zgomot::Midi
     end
 
     attr_reader :pitch_class, :octave, :midi, :time_scale
-    attr_accessor :time, :offset_time, :channel, :velocity, :length
+    attr_accessor :time, :offset, :global_offset, :channel, :velocity, :length
 
     def initialize(args)
       @pitch_class, @octave = case args[:pitch]
@@ -56,12 +56,16 @@ module Zgomot::Midi
       @octave = oct; self
     end
 
-    def play_at
-      time.to_f + offset_time.to_f
+    def note_on
+      time + offset
     end
 
     def length_to_sec
       time_scale*Clock.whole_note_sec/length
+    end
+
+    def note_off
+      note_on + length_to_sec
     end
 
     def to_midi
