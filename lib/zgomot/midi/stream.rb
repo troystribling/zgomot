@@ -2,19 +2,19 @@ module Zgomot::Midi
 
   class Stream
 
-    @streams = []
+    @streams = {}
 
     class << self
       attr_reader :streams
       def str(name, pattern=nil, opts={}, &blk)
         strm = new(name, blk.arity, pattern, opts)
         strm.define_meta_class_method(:play, &blk)
-        @streams << strm
+        @streams[name] = strm
       end
       def play(name=nil)
         start_time = ::Time.now.truncate_to(Clock.tick_sec) + Zgomot::PLAY_DELAY
         if name.nil?
-          streams.reduce([]) do |a, s|
+          streams.values.reduce([]) do |a, s|
             if s.status_eql?(:paused)
               s.dispatch(start_time + s.delay)
               a << s.name
@@ -28,7 +28,7 @@ module Zgomot::Midi
       alias_method :run, :play
       def pause(name=nil)
         if name.nil?
-          streams.each do |stream|
+          streams.values.each do |stream|
             stream.update_status(:paused)
           end; true
         else
@@ -45,7 +45,7 @@ module Zgomot::Midi
         end
       end
       def apply_to_stream(name)
-        stream = streams.find{|s| s.name == name.to_s}
+        stream = streams.values.find{|s| s.name == name.to_s}
         if stream
           yield stream
         else

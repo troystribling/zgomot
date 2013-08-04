@@ -207,7 +207,7 @@ module Zgomot::UI
         end
       end
       def streams
-        Zgomot::Midi::Stream.streams
+        Zgomot::Midi::Stream.streams.values
       end
   end
 

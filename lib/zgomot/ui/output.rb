@@ -44,7 +44,7 @@ module Zgomot::UI
         end
         def format_streams(name=nil)
           if name.nil?
-            stream_mgr.streams.map{|stream| format_stream_info(stream)}
+            stream_mgr.streams.values.map{|stream| format_stream_info(stream)}
           else
             [stream_mgr.apply_to_stream(name.to_s){|stream| stream_info(stream)}]
           end

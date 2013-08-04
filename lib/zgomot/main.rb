@@ -30,7 +30,7 @@ include Zgomot::Delegator
 at_exit do
   unless Zgomot.live
     Zgomot::Boot.boot
-    Zgomot::Midi::Stream.streams.each{|s| s.thread.join unless s.thread.nil?}
+    Zgomot::Midi::Stream.streams.values.each{|s| s.thread.join unless s.thread.nil?}
     loop do
       break if Zgomot::Midi::Dispatcher.done?
       sleep(Zgomot::DISPATCHER_POLL)
