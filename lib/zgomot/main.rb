@@ -22,6 +22,33 @@ module Zgomot
              :add_input, :remove_input
     delegate Zgomot::UI::MainWindow, :dash
     delegate Zgomot::UI::Output, :lstr, :lcc, :lconfig
+    delegate Zgomot, :watch
+  end
+
+  def self.watch(dir=nil)
+    dir ||= '.'
+    Zgomot.logger.info "WATCHING '#{dir}' FOR UPDATES"
+    Thread.new do
+      FSSM.monitor(dir) do
+        update do |dir, file|
+          playing_streams = Zgomot::Midi::Streams.streams.select{|s| s.status == :playing}
+          playing_streams.each{|s| Zgomot::Midi::Streams.pause(s.name)}
+          while(Zgomot::Midi::Streams.streams.any{|s| s.status_eql?(:playing)}) do
+            sleep(Zgomot::Midi::Clock.measure_sec)
+          end
+          path = File.join(dir, file)
+          Zgomot.logger.info "LOADED UPDATED FILE: #{path}"
+          load path
+          playing_streams.each{|s| Zgomot::Midi::Streams.play(s.name)}
+        end
+        create do |dir, file|
+          path = File.join(dir, file)
+          Zgomot.logger.info "LOADED CREATED FILE: #{path}"
+          load path
+        end
+      end
+    end
+    dir
   end
 end
 

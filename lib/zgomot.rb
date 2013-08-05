@@ -9,6 +9,7 @@ require 'monitor'
 require 'ffi'
 require 'rainbow'
 require 'curses'
+require 'fssm'
 
 require 'zgomot/config'
 require 'zgomot/boot'
