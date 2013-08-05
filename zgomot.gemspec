@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "zgomot"
-  s.version = "1.0.0"
+  s.version = "1.0.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Troy Stribling"]
-  s.date = "2013-08-03"
+  s.date = "2013-08-05"
   s.email = "troy.stribling@gmail.com"
   s.executables = ["zgomot"]
   s.extra_rdoc_files = [
