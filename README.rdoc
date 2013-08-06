@@ -391,6 +391,7 @@ All commands and objects described previously are available and can be typed dir
 * <tt>pause name</tt>: Pause the named stream. If no name is given pause all <tt>playing</tt> streams.
 * <tt>stop name</tt>: An alias for <tt>pause</tt>.
 * <tt>tog name</tt>: Toggle the status of the named stream. <tt>name</tt> is required.
+* <tt>watch dir</tt>: Automatically load any new or updated files in <tt>dir</tt>. The default value of <tt>dir</tt> is the current directory.
 
 
 === Dashboard
