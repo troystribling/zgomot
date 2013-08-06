@@ -92,7 +92,8 @@ module Zgomot::UI
         loop do
           case Curses.getch
           when ?t
-            str_window.set_tog_mode
+            str_window.set_select_mode
+            str_window.tog
             update
           when Curses::Key::UP
             str_window.dec_selected
@@ -101,7 +102,7 @@ module Zgomot::UI
             str_window.inc_selected
             update
           when 10
-            str_window.tog
+            str_window.select
             update
           when ?p
             Zgomot::Midi::Stream.play
@@ -155,9 +156,9 @@ module Zgomot::UI
   end
 
   class StrWindow
-    attr_reader :selected, :tog_mode, :window, :rows, :widths, :top
+    attr_reader :selected, :select_mode, :window, :rows, :widths, :top, :current
     def initialize(top)
-      @tog_mode, @selected, @top = false, 0, top
+      @select_mode, @selected, @top, @current = false, [], top, 0
       @widths = Zgomot::UI::Output::STREAM_OUTPUT_FORMAT_WIDTHS
       TitleWindow.new('Streams', COLOR_BORDER, top, COLOR_BLUE)
       TableRowWindow.new(Zgomot::UI::Output::STREAM_HEADER, widths, COLOR_BORDER, top + 3, COLOR_BORDER)
@@ -174,23 +175,36 @@ module Zgomot::UI
       end
     end
     def inc_selected
-      if tog_mode
-       @selected = (selected + 1) % streams.length
+      if select_mode
+       @current = (current + 1) % streams.length
       end
     end
     def dec_selected
-      if tog_mode
-        @selected = (selected - 1) % streams.length
+      if select_mode
+        @current = (current - 1) % streams.length
       end
     end
-    def set_tog_mode
-      @selected = 0
-      @tog_mode = tog_mode ? false : true
+    def select
+      @selected << current
+    end
+    def reset
+      @selected = []
+      @current = 0
+    end
+    def set_select_mode
+      if select_mode
+        @select_mode = false
+        reset
+        set_select_mode
+      else
+        @select_mode = true
+      end
     end
     def tog
-      stream = streams[selected]
-      Zgomot::Midi::Stream.tog(stream.name)
-      set_tog_mode
+      selected.each do |s|
+        stream = streams[s]
+        Zgomot::Midi::Stream.tog(stream.name)
+      end
     end
     private
       def add_streams(top)
@@ -203,7 +217,7 @@ module Zgomot::UI
         end
       end
       def stream_color(stream, i)
-        if tog_mode && i == selected
+        if select_mode && (selected.include?(i) || current == i)
           stream.status_eql?(:playing) ? COLOR_STREAM_PLAYING_SELECTED : COLOR_STREAM_PAUSED_SELECTED
         else
           stream.status_eql?(:playing) ? COLOR_ACTIVE : COLOR_IDLE

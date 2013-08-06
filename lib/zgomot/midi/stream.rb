@@ -43,6 +43,12 @@ module Zgomot::Midi
           stream.status_eql?(:playing) ? pause(name) : play(name)
         end
       end
+      def delete(name)
+        apply_to_stream(name) do |stream|
+          stream.update_status(:paused)
+          streams.delete(name)
+        end
+      end
       def apply_to_stream(name)
         stream = streams.values.find{|s| s.name == name.to_s}
         if stream
