@@ -122,7 +122,7 @@ module Zgomot::UI
   class GlobalsWindow
     ITEM_WIDTH = 32
     TIME_WIDTH = 15
-    attr_reader :time_window, :title_window, :input_window, :output_window, :time_signature_window,
+    attr_reader :time_window, :input_window, :output_window, :time_signature_window,
       :beats_per_minute_window, :seconds_per_beat_window, :resolution_window
     def initialize(top)
       output = Zgomot::Drivers::Mgr.output
@@ -131,7 +131,7 @@ module Zgomot::UI
       time_signature = Zgomot::Midi::Clock.time_signature
       resolution = "1/#{Zgomot::Midi::Clock.resolution.to_i}"
       seconds_per_beat = Zgomot::Midi::Clock.beat_sec.to_s
-      @title_window = TitleWindow.new('zgomot', COLOR_BORDER, 0, COLOR_PINK)
+      TitleWindow.new('zgomot', COLOR_BORDER, 0, COLOR_PINK)
       @input_window = TextWithValueWindow.new('Input', input, COLOR_BORDER, 3, 0, COLOR_IDLE)
       @output_window = TextWithValueWindow.new('Output', output, COLOR_BORDER, 4, 0, COLOR_IDLE)
       @time_signature_window = TextWithValueWindow.new('Time Signature', time_signature, COLOR_BORDER, 5, 0, COLOR_IDLE)
@@ -144,30 +144,33 @@ module Zgomot::UI
       "%#{TIME_WIDTH}s" % /(\d*:\d*)/.match(Zgomot::Midi::Dispatcher.clk).captures.first
     end
     def display
-      title_window.display
       time_window.display(time_to_s)
-      input_window.display
-      output_window.display
-      time_signature_window.display
-      beats_per_minute_window.display
-      seconds_per_beat_window.display
-      resolution_window.display
+      input_window.display(Zgomot::Drivers::Mgr.input || 'None')
+      output_window.display(Zgomot::Drivers::Mgr.output)
+      time_signature_window.display(Zgomot::Midi::Clock.time_signature)
+      beats_per_minute_window.display(Zgomot::Midi::Clock.beats_per_minute.to_i.to_s)
+      seconds_per_beat_window.display(Zgomot::Midi::Clock.beat_sec.to_s)
+      resolution_window.display("1/#{Zgomot::Midi::Clock.resolution.to_i}")
     end
   end
 
   class StrWindow
-    attr_reader :selected, :tog_mode, :window, :rows, :widths
+    attr_reader :selected, :tog_mode, :window, :rows, :widths, :top
     def initialize(top)
-      @tog_mode, @selected = false, 0
+      @tog_mode, @selected, @top = false, 0, top
       @widths = Zgomot::UI::Output::STREAM_OUTPUT_FORMAT_WIDTHS
       TitleWindow.new('Streams', COLOR_BORDER, top, COLOR_BLUE)
       TableRowWindow.new(Zgomot::UI::Output::STREAM_HEADER, widths, COLOR_BORDER, top + 3, COLOR_BORDER)
       add_streams(top + 3)
     end
     def display
-      (0..streams.length-1).each do |i|
-        stream = streams[i]
-        rows[i].display(stream.info, stream_color(stream, i))
+      if streams.length == rows.length
+        (0..streams.length-1).each do |i|
+          stream = streams[i]
+          rows[i].display(stream.info, stream_color(stream, i))
+        end
+      else
+        add_streams(top + 3)
       end
     end
     def inc_selected
@@ -212,9 +215,9 @@ module Zgomot::UI
   end
 
   class CCWindow
-    attr_reader :height, :widths, :rows
+    attr_reader :height, :widths, :rows, :top
     def initialize(height, top)
-      @height = height
+      @height, @top = height, top
       @widths = Zgomot::UI::Output::CC_OUTPUT_FORMAT_WIDTHS
       TitleWindow.new('Input CCs', COLOR_BORDER, top, COLOR_BLUE)
       TableRowWindow.new(Zgomot::UI::Output::CC_HEADER, widths, COLOR_BORDER, top + 3, COLOR_BORDER)
@@ -222,13 +225,16 @@ module Zgomot::UI
     end
     def display
       ccs = get_ccs
-      (0..ccs.length-1).each{|i| rows[i].display(ccs[i], cc_color(ccs[i]))}
+      if ccs.length == rows.length
+        (0..ccs.length-1).each{|i| rows[i].display(ccs[i], cc_color(ccs[i]))}
+      else
+        add_ccs(top + 3)
+      end
     end
     private
       def add_ccs(top)
         ccs = get_ccs
         @rows = ccs.map do |cc_params|
-          puts cc_color(cc_params)
                   TableRowWindow.new(cc_params, widths, COLOR_BORDER, top += 1, cc_color(cc_params))
                 end
         (height - ccs.length - 4).times do

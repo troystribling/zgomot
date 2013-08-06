@@ -31,15 +31,15 @@ module Zgomot
     Thread.new do
       FSSM.monitor(dir) do
         update do |dir, file|
-          playing_streams = Zgomot::Midi::Streams.streams.select{|s| s.status == :playing}
-          playing_streams.each{|s| Zgomot::Midi::Streams.pause(s.name)}
-          while(Zgomot::Midi::Streams.streams.any{|s| s.status_eql?(:playing)}) do
-            sleep(Zgomot::Midi::Clock.measure_sec)
-          end
           path = File.join(dir, file)
           Zgomot.logger.info "LOADED UPDATED FILE: #{path}"
+          playing_streams = Zgomot::Midi::Stream.streams.values.select{|s| s.status_eql?(:playing)}
+          playing_streams.each{|s| Zgomot::Midi::Stream.pause(s.name)}
+          while(Zgomot::Midi::Stream.streams.values.any?{|s| s.status_eql?(:playing)}) do
+            sleep(2*Zgomot::Midi::Clock.measure_sec)
+          end
           load path
-          playing_streams.each{|s| Zgomot::Midi::Streams.play(s.name)}
+          playing_streams.each{|s| Zgomot::Midi::Stream.play(s.name)}
         end
         create do |dir, file|
           path = File.join(dir, file)
