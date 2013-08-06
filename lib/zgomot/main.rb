@@ -36,8 +36,9 @@ module Zgomot
           playing_streams = Zgomot::Midi::Stream.streams.values.select{|s| s.status_eql?(:playing)}
           playing_streams.each{|s| Zgomot::Midi::Stream.pause(s.name)}
           while(Zgomot::Midi::Stream.streams.values.any?{|s| s.status_eql?(:playing)}) do
-            sleep(2*Zgomot::Midi::Clock.measure_sec)
+            sleep(Zgomot::Midi::Clock.measure_sec)
           end
+          sleep(Zgomot::Midi::Clock.measure_sec)
           load path
           playing_streams.each{|s| Zgomot::Midi::Stream.play(s.name)}
         end
