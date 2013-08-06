@@ -46,7 +46,7 @@ module Zgomot::Midi
       def delete(name)
         apply_to_stream(name) do |stream|
           stream.update_status(:paused)
-          streams.delete(name)
+          streams.delete(name.to_s).name
         end
       end
       def apply_to_stream(name)

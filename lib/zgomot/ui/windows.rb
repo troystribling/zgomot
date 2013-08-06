@@ -92,8 +92,12 @@ module Zgomot::UI
         loop do
           case Curses.getch
           when ?t
-            str_window.set_select_mode
             str_window.tog
+            str_window.set_select_mode
+            update
+          when ?d
+            str_window.delete
+            str_window.set_select_mode
             update
           when Curses::Key::UP
             str_window.dec_selected
@@ -185,17 +189,17 @@ module Zgomot::UI
       end
     end
     def select
-      @selected << current
-    end
-    def reset
-      @selected = []
-      @current = 0
+      if selected.include?(current)
+        @selected.delete(current)
+      else
+        @selected << current
+      end
     end
     def set_select_mode
       if select_mode
         @select_mode = false
-        reset
-        set_select_mode
+        @selected = []
+        @current = 0
       else
         @select_mode = true
       end
@@ -204,6 +208,12 @@ module Zgomot::UI
       selected.each do |s|
         stream = streams[s]
         Zgomot::Midi::Stream.tog(stream.name)
+      end
+    end
+    def delete
+      selected.each do |s|
+        stream = streams[s]
+        Zgomot::Midi::Stream.delete(stream.name)
       end
     end
     private
@@ -266,13 +276,12 @@ module Zgomot::UI
         cc_mgr = Zgomot::Midi::CC
         cc_mgr.cc_names.reduce([]){|c, cc_name| c + cc_mgr.info(cc_name)}
       end
-      def cc_color(cc)
-        COLOR_IDLE
-        if cc_type(cc).eql?('cont')
-          delta = Time.now - cc_updated_at(cc)
+      def cc_color(cc_params)
+        if cc_type(cc_params).eql?('cont')
+          delta = Time.now - cc_updated_at(cc_params)
           delta > Zgomot::Midi::Clock.beat_sec ? COLOR_CC_IDLE : COLOR_CC_ACTIVE
         else
-          cc_value(cc).eql?('true') ? COLOR_CC_SWITCH_TRUE : COLOR_CC_SWITCH_FALSE
+          cc_value(cc_params).eql?('true') ? COLOR_CC_SWITCH_TRUE : COLOR_CC_SWITCH_FALSE
         end
       end
   end
