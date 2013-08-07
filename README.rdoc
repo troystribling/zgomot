@@ -407,8 +407,8 @@ and defined CCs. The time, stream and CC status are updated every beat. Also, st
 * <tt>q</tt>: Quit <tt>dash</tt>.
 * <tt>p</tt>: Play all streams.
 * <tt>s</tt>: Stop all streams.
-* <tt>t</tt>: Toggle the <tt>playing/paused</tt> status of selected streams. When <tt>t</tt> is entered use the up/down keys to traverse the list of streams and type return to select a stream. Multiple streams can be selected. type <tt>t</tt> again to toggle the status of the selected streams.
-* <tt>d</tt>: Delete selected streams. When <tt>d</tt> is entered use the up/down keys to traverse the list of streams and type return to select a stream. Multiple streams can be selected. type <tt>d</tt> again to delete the selected streams.
+* <tt>t</tt>: Toggle the <tt>playing/paused</tt> status of selected streams. When <tt>t</tt> is entered use the up/down keys to traverse the list of streams and type return to select a stream. Multiple streams can be selected. Type <tt>t</tt> again to toggle the status of the selected streams.
+* <tt>d</tt>: Delete selected streams. When <tt>d</tt> is entered use the up/down keys to traverse the list of streams and type return to select a stream. Multiple streams can be selected. Type <tt>d</tt> again to delete the selected streams.
 
 
 == Callbacks
