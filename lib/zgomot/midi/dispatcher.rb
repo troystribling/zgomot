@@ -16,6 +16,14 @@ module Zgomot::Midi
         clock.to_s
       end
 
+      def flush
+        @queue.clear
+      end
+
+      def done?
+        qmutex.synchronize{queue.empty? and playing.empty?}
+      end
+
       def enqueue(ch)
         ch.offset = clock.ceil
         qmutex.synchronize do

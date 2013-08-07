@@ -8,7 +8,7 @@ module Zgomot::Midi
 
       attr_reader :ccs, :params
 
-      def add_cc(name, cc, args)
+      def add_cc(name, cc, args, &blk)
         channel = args[:channel].nil? ? 1 : args[:channel]
         min = args[:min].nil? ? 0.0 : args[:min]
         max = args[:max].nil? ? 1.0 : args[:max]
@@ -20,7 +20,8 @@ module Zgomot::Midi
                                            :value       => init,
                                            :type        => type,
                                            :updated_at  => ::Time.now,
-                                           :cc          => cc}
+                                           :cc          => cc,
+                                           :blk         => blk}
         Zgomot.logger.info "ADDED CC #{cc}:#{name}:#{init}:#{channel}"
       end
       def learn_cc(name, cc, args)
@@ -58,6 +59,9 @@ module Zgomot::Midi
             p[:value] = min + (max - min)*value.to_f/127.0
           else
             p[:value] = value == 127 ? true : false
+          end
+          if p[:blk]
+            p[:blk].call(p)
           end
         end
       end
