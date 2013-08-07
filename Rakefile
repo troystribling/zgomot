@@ -18,6 +18,7 @@ require 'jeweler'
     gem.add_dependency('ffi', '~> 1.0.9')
     gem.add_dependency('rainbow', '~> 1.1.4')
     gem.add_dependency('pry', '~> 0.9.12.2')
+    gem.add_dependency('fssm', '~> 0.2.10')
   end
 rescue LoadError
   abort "jeweler is not available. In order to run test, you must: sudo gem install technicalpickles-jeweler --source=http://gems.github.com"
