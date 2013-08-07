@@ -357,13 +357,19 @@ where <tt>name</tt> is the name of the <tt>input</tt>. There can be only one MID
 
 MIDI CC messages can be used to assign values to variables that can be read by programs. To assign a CC message to a variable use,
 
-    add_cc(name, ch, options)
+    add_cc(name, cc, options)
 
-Where <tt>name</tt> is the variable name, ,<tt>ch</tt> is the MIDI CC identifier, a number between 0 and 255 and options are the following,
+Where <tt>name</tt> is the variable name, ,<tt>cc</tt> is the MIDI CC identifier, a number between 0 and 255 and options are the following,
 
 * <tt>:max</tt>: The maximum value of the CC message. The default is 1.
 * <tt>:min</tt>: The minimum value of the CC message. The default is 0.
 * <tt>:type</tt>: The CC message type. Accepted values are <tt>:cont</tt> and <tt>:switch</tt>. <tt>:cont</tt> type varies continuously between <tt>:max</tt> and <tt>:min</tt>. <tt>:switch</tt> type is boolean.
+
+A plock can also be passed to <tt>add_cc</tt> which is yielded the updated cc parameters. For example a CC which pauses a stream would look like,
+
+    add_cc('pause', 17, :type => :switch) do
+      pause('my_stream')
+    end
 
 To read a variable assigned to a CC message use,
 
@@ -393,7 +399,6 @@ All commands and objects described previously are available and can be typed dir
 * <tt>tog name</tt>: Toggle the status of the named stream. <tt>name</tt> is required.
 * <tt>watch dir</tt>: Automatically load any new or updated files in <tt>dir</tt>. The default value of <tt>dir</tt> is the current directory.
 
-
 === Dashboard
 
 The dashboard is started by typing <tt>dash</tt> in the <tt>zgomot</tt> shell. The <tt>dash</tt> shows the current configuration and global time and lists the status of all loaded streams
@@ -402,7 +407,9 @@ and defined CCs. The time, stream and CC status are updated every beat. Also, st
 * <tt>q</tt>: Quit <tt>dash</tt>.
 * <tt>p</tt>: Play all streams.
 * <tt>s</tt>: Stop all streams.
-* <tt>t</tt>: Toggle the <tt>playing/paused</tt> status of a stream. When <tt>t</tt> is entered use the up/down keys to traverse the list of streams and type return to select a stream. Type <tt>t</tt> again to exit without selecting a stream.
+* <tt>t</tt>: Toggle the <tt>playing/paused</tt> status of selected streams. When <tt>t</tt> is entered use the up/down keys to traverse the list of streams and type return to select a stream. Multiple streams can be selected in this manner. type <tt>t</tt> again to toggle the status of the selected streams.
+* <tt>d</tt>: Delete selected streams. When <tt>d</tt> is entered use the up/down keys to traverse the list of streams and type return to select a stream. Multiple streams can be selected in this manner. type <tt>d</tt> again to delete the selected streams.
+
 
 == Callbacks
 
