@@ -2,6 +2,7 @@ module Zgomot::UI
   WIDTH = 80
   GLOBALS_HEIGHT = 6
   STREAMS_HEIGHT = 20
+  ERROR_WINDOW_HEIGHT = 4
   CCS_TOP = GLOBALS_HEIGHT + STREAMS_HEIGHT
   COLOR_GREY = 100
   COLOR_GOLD = 101
@@ -15,6 +16,7 @@ module Zgomot::UI
   COLOR_YELLOW_GREEN = 211
   COLOR_LIGHT_BLUE = 212
   COLOR_ORANGE = 213
+  COLOR_RED = 214
 
   COLOR_STREAM_PLAYING_SELECTED = 205
   COLOR_STREAM_PAUSED_SELECTED = 206
@@ -25,6 +27,7 @@ module Zgomot::UI
   COLOR_BORDER = 201
   COLOR_CC_IDLE = 200
   COLOR_CC_ACTIVE = 199
+  COLOR_ERROR = 198
 
   module Utils
     def set_color(color, &blk)
@@ -37,7 +40,7 @@ module Zgomot::UI
   end
   class MainWindow
     class << self
-      attr_reader :globals_window, :cc_window, :str_window, :main_window
+      attr_reader :globals_window, :cc_window, :str_window, :main_window, :error_window
       def init_curses
         Curses.init_screen
         Curses.noecho
@@ -54,6 +57,7 @@ module Zgomot::UI
         Curses.init_color(COLOR_YELLOW_GREEN, 750, 980, 410)
         Curses.init_color(COLOR_LIGHT_BLUE,600, 1000, 1000)
         Curses.init_color(COLOR_ORANGE,1000 , 600, 0)
+        Curses.init_color(COLOR_RED, 750, 0, 0)
         Curses.init_pair(COLOR_GOLD,COLOR_GOLD,COLOR_BLACK)
         Curses.init_pair(COLOR_GREEN,COLOR_GREEN,COLOR_BLACK)
         Curses.init_pair(COLOR_PINK,COLOR_PINK,COLOR_BLACK)
@@ -67,11 +71,13 @@ module Zgomot::UI
         Curses.init_pair(COLOR_CC_SWITCH_FALSE,COLOR_LIGHT_BLUE,COLOR_BLACK)
         Curses.init_pair(COLOR_CC_IDLE,COLOR_VIOLET,COLOR_BLACK)
         Curses.init_pair(COLOR_CC_ACTIVE,COLOR_BLACK,COLOR_VIOLET)
+        Curses.init_pair(COLOR_ERROR,COLOR_RED,COLOR_BLACK)
       end
       def update
         globals_window.display
         cc_window.display
         str_window.display
+        error_window.display
         Curses.refresh
       end
       def poll
@@ -85,8 +91,9 @@ module Zgomot::UI
       def dash
         init_curses
         @globals_window = GlobalsWindow.new(0)
-        @cc_window = CCWindow.new(Curses.lines - CCS_TOP, CCS_TOP)
+        @cc_window = CCWindow.new(Curses.lines - CCS_TOP - ERROR_WINDOW_HEIGHT, CCS_TOP)
         @str_window = StrWindow.new(GLOBALS_HEIGHT)
+        @error_window = ErrorWindow.new(Curses.lines - ERROR_WINDOW_HEIGHT)
         Curses.refresh
         poll
         loop do
@@ -286,6 +293,35 @@ module Zgomot::UI
       end
   end
 
+  class ErrorWindow
+    include Utils
+    attr_reader :top
+    def initialize(top)
+      @top = top
+      display
+    end
+    def display
+      error_message = Zgomot.last_error
+      text, text_color = if error_message.nil?
+                           [["it's cool"], COLOR_BORDER]
+                         else
+                           [error_message.scan(/.{1,#{WIDTH-4}}/), COLOR_ERROR]
+                         end
+      set_color(COLOR_BORDER) {
+        write(top, 0, '-' * WIDTH)
+        write(top + 1, 0, '|')
+        write(top + 1, WIDTH-1, '|')
+        write(top + 2, 0, '|')
+        write(top + 2, WIDTH-1, '|')
+        write(top + 3, 0, '-' * WIDTH)
+      }
+      set_color(text_color) {
+        lines = text.length > 1 ? 2 : 1
+        lines.times{|i| write(top + 1 + i, 2, "%-#{WIDTH-4}s" % text[i])}
+      }
+    end
+  end
+
   class TextWindow
     include Utils
     attr_reader :text, :top, :color, :left
@@ -365,7 +401,7 @@ module Zgomot::UI
 
   class TitleWindow
     include Utils
-    attr_reader :windows, :text, :top, :color, :text_color
+    attr_reader :text, :top, :color, :text_color
     def initialize(text, color, top, text_color = nil)
       @text_color = text_color || color
       @text, @color, @top = text, color, top

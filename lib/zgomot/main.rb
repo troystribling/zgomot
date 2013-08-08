@@ -25,6 +25,14 @@ module Zgomot
     delegate Zgomot, :watch
   end
 
+  def self.last_error
+    @last_error
+  end
+
+  def self.set_last_error(error)
+    @last_error = error
+  end
+
   def self.watch(dir=nil)
     dir ||= '.'
     raise(Zgomot::Error, "Directory '#{dir}' does not exist") unless Dir.exists?(dir)
@@ -32,18 +40,28 @@ module Zgomot
     Thread.new do
       FSSM.monitor(dir) do
         update do |dir, file|
+          Zgomot.set_last_error(nil)
           path = File.join(dir, file)
           Zgomot.logger.info "LOADED UPDATED FILE: #{path}"
           playing_streams = Zgomot::Midi::Stream.streams.values.select{|s| s.status_eql?(:playing)}
           playing_streams.each{|s| Zgomot::Midi::Stream.pause(s.name)}
           sleep(Zgomot::Midi::Clock.measure_sec)
-          load path
+          begin
+            load path
+          rescue Exception => e
+            Zgomot.set_last_error(e.message)
+          end
           playing_streams.each{|s| Zgomot::Midi::Stream.play(s.name)}
         end
         create do |dir, file|
+          Zgomot.set_last_error(nil)
           path = File.join(dir, file)
           Zgomot.logger.info "LOADED CREATED FILE: #{path}"
-          load path
+          begin
+            load path
+          rescue Exception => e
+            Zgomot.set_last_error(e.message)
+          end
         end
       end
     end
