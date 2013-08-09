@@ -318,6 +318,8 @@ module Zgomot::UI
       set_color(text_color) {
         lines = text.length > 1 ? 2 : 1
         lines.times{|i| write(top + 1 + i, 2, "%-#{WIDTH-4}s" % text[i])}
+        blank_width = WIDTH - 4
+        (2 - lines).times{|i| write(top + 2 - i, 2, ' ' * blank_width)}
       }
     end
   end

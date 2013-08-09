@@ -7,7 +7,7 @@ add_cc(:toggle_input, 12, :type => :switch) do
   tog(:input)
 end
 
-str 'input', np([:A,4],6,:l=>4)[1,3,5,2], :ch=>0 do |pattern|
+str 'input', np([:A,4],6,:l=>4)[1,3,7,2], :ch=>0 do |pattern|
   if cc(:reverse)
     pattern.mode!(cc(:mode).to_i).reverse!
   else
