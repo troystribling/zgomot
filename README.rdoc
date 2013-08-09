@@ -363,9 +363,9 @@ Where <tt>name</tt> is the variable name, ,<tt>cc</tt> is the MIDI CC identifier
 
 * <tt>:max</tt>: The maximum value of the CC message. The default is 1.
 * <tt>:min</tt>: The minimum value of the CC message. The default is 0.
-* <tt>:init</tt>: The initial value of the CC message. The default is 0.
 * <tt>:channel</tt>: The CC channel number. The default is 1.
 * <tt>:type</tt>: The CC message type. Accepted values are <tt>:cont</tt> and <tt>:switch</tt>. <tt>:cont</tt> type varies continuously between <tt>:max</tt> and <tt>:min</tt>. <tt>:switch</tt> type is boolean.
+* <tt>:init</tt>: The initial value of the CC message. The default is 0 if type is <tt>:cont</tt> and <tt>false</tt> if type is <tt>:switch</tt>.
 
 A block can also be passed to <tt>add_cc</tt> which is yielded the updated cc parameters. For example a CC which pauses a stream would look like,
 
