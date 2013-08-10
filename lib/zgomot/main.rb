@@ -23,6 +23,7 @@ module Zgomot
     delegate Zgomot::UI::MainWindow, :dash
     delegate Zgomot::UI::Output, :lstr, :lcc, :lconfig
     delegate Zgomot, :watch
+    delegate Zgomot::Comp::NoteList, :nl
   end
 
   def self.last_error

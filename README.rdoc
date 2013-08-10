@@ -164,6 +164,16 @@ Percussion supports the following transformations,
 
 * <tt>bpm!(bpm)</tt>: change the bits per minute at which the note is played.
 
+== Note List
+
+A Note List is a set of notes played simultaneously. The Note List may contain any number of notes and its duration is the duration of the longest note in the list. It is defined by
+
+    nl(n1, n2, ..., nN)
+
+where <tt>nN</tt> is the <tt>N'th</tt> note in the list.
+
+Note Lists internally are arrays of notes and support the following array methods: <tt>reverse!, shift, pop, push, unshift</tt>
+
 == Chord Progressions
 
 Chord Progressions or Roman Numeral Notation permit the definition of a melody that is independent of key. Using Chord progressions it is possible to iteratively shift the key of a specified sequence of chords.
@@ -196,7 +206,7 @@ A chord progression in a key of F# dorian at octave 5 with notes of half note le
 * <tt>inv!(number)</tt>: The inversion number. A value of zero will leave the chord unchanged, 1 is the first inversion and 2 is the second. Higher inversions just shift the chord to a higher octave.
 * <tt>rev!</tt>: Reverse the order in which the notes are played. Only noticeable if the chords in the progression are also arpeggiated.
 
-Progressions internally are arrays of notes. The following array methods are supported: <tt>reverse!, shift, pop, push, unshift</tt>
+Progressions internally are arrays of notes and support the following array methods: <tt>reverse!, shift, pop, push, unshift</tt>
 
 == Note Progressions
 
@@ -225,7 +235,7 @@ An note progression in a key of F# dorian at octave 5 with notes of half note le
 * <tt>bpm!(bpm)</tt>: change the bits per minute at which the chord is played.
 * <tt>octave!(ocatve)</tt>: change the octave of all notes in the progression.
 
-Progressions internally are arrays of notes. The following array methods are supported: <tt>reverse!, shift, pop, push, unshift</tt>
+Progressions internally are arrays of notes and support the following array methods: <tt>reverse!, shift, pop, push, unshift</tt>
 
 == Progression with Defined Length and Velocity by Note
 
