@@ -12,7 +12,9 @@ module Zgomot::Comp
     attr_reader :notes, :clock
 
     def initialize(*notes)
-      raise(Zgomot::Error, "all arguments must be class Zgomot::Midi::Note") unless notes.all?{|n| n.class == Zgomot::Midi::Note}
+      unless notes.all?{|n| n.class == Zgomot::Midi::Note or n.class == Zgomot::Comp::Perc}
+        raise(Zgomot::Error, "all arguments must be class Zgomot::Midi::Note Zgomot::Comp::Perc")
+      end
       @notes = notes
     end
     def <<(note)
