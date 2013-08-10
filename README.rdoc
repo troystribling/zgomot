@@ -166,7 +166,7 @@ Percussion supports the following transformations,
 
 == Note List
 
-A Note List is a set of notes played simultaneously. The Note List may contain any number of notes and its duration is the duration of the longest note in the list. It is defined by
+A Note List is a set of notes that start playing simultaneously. The Note List may contain any number of notes and its duration is the duration of the longest note in the list. It is defined by
 
     nl(n1, n2, ..., nN)
 
