@@ -3,7 +3,6 @@ module Zgomot::UI
   GLOBALS_HEIGHT = 6
   STREAMS_HEIGHT = 20
   ERROR_WINDOW_HEIGHT = 4
-  CCS_TOP = GLOBALS_HEIGHT + STREAMS_HEIGHT
   COLOR_GREY = 100
   COLOR_GOLD = 101
   COLOR_GREEN = 202
@@ -91,8 +90,9 @@ module Zgomot::UI
       def dash
         init_curses
         @globals_window = GlobalsWindow.new(0)
-        @cc_window = CCWindow.new(Curses.lines - CCS_TOP - ERROR_WINDOW_HEIGHT, CCS_TOP)
-        @str_window = StrWindow.new(GLOBALS_HEIGHT)
+        str_height = 2*(Curses.lines - GLOBALS_HEIGHT - ERROR_WINDOW_HEIGHT)/3
+        @cc_window = CCWindow.new(Curses.lines - str_height - GLOBALS_HEIGHT - ERROR_WINDOW_HEIGHT, str_height + GLOBALS_HEIGHT)
+        @str_window = StrWindow.new(str_height, GLOBALS_HEIGHT)
         @error_window = ErrorWindow.new(Curses.lines - ERROR_WINDOW_HEIGHT)
         Curses.refresh
         poll
@@ -167,9 +167,9 @@ module Zgomot::UI
   end
 
   class StrWindow
-    attr_reader :selected, :select_mode, :window, :rows, :widths, :top, :current
-    def initialize(top)
-      @select_mode, @selected, @top, @current = false, [], top, 0
+    attr_reader :selected, :select_mode, :window, :rows, :widths, :top, :current, :height
+    def initialize(height, top)
+      @select_mode, @selected, @top, @current, @height = false, [], top, 0, height
       @widths = Zgomot::UI::Output::STREAM_OUTPUT_FORMAT_WIDTHS
       TitleWindow.new('Streams', COLOR_BORDER, top, COLOR_BLUE)
       TableRowWindow.new(Zgomot::UI::Output::STREAM_HEADER, widths, COLOR_BORDER, top + 3, COLOR_BORDER)
@@ -225,11 +225,12 @@ module Zgomot::UI
     end
     private
       def add_streams(top)
-        @rows = (0..streams.length-1).map do |i|
+        displayed_streams = streams.length > (height - 4) ? (height - 4) : streams.length
+        @rows = (0..displayed_streams-1).map do |i|
                   stream = streams[i]
                   TableRowWindow.new(stream.info, widths, COLOR_BORDER, top += 1, stream_color(stream, i))
                 end
-        (STREAMS_HEIGHT - streams.length - 4).times do
+        (height - displayed_streams - 4).times do
           TableRowWindow.new(nil,  widths, COLOR_BORDER, top += 1)
         end
       end
@@ -265,7 +266,8 @@ module Zgomot::UI
     private
       def add_ccs(top)
         ccs = get_ccs
-        @rows = ccs.map do |cc_params|
+        displayed_ccs = ccs.length > (height - 4) ? (height - 4) : ccs.length
+        @rows = ccs[0..(displayed_ccs-1)].map do |cc_params|
                   TableRowWindow.new(cc_params, widths, COLOR_BORDER, top += 1, cc_color(cc_params))
                 end
         (height - ccs.length - 4).times do
