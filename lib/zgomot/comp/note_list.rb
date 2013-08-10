@@ -12,7 +12,7 @@ module Zgomot::Comp
     attr_reader :notes, :clock
 
     def initialize(*notes)
-      raise(Zgomot::Error, "#{chord.inspect} is invalid") unless notes.all?{|n| n.class == Zgomot::Midi::Note}
+      raise(Zgomot::Error, "all arguments must be class Zgomot::Midi::Note") unless notes.all?{|n| n.class == Zgomot::Midi::Note}
       @notes = notes
     end
     def <<(note)
