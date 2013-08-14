@@ -97,34 +97,38 @@ module Zgomot::UI
         Curses.refresh
         poll
         loop do
-          case Curses.getch
-          when ?t
-            str_window.tog
-            str_window.set_select_mode
-            update
-          when ?d
-            str_window.delete
-            str_window.set_select_mode
-            update
-          when Curses::Key::UP
-            str_window.dec_selected
-            update
-          when Curses::Key::DOWN
-            str_window.inc_selected
-            update
-          when 10
-            str_window.select
-            update
-          when ?p
-            Zgomot::Midi::Stream.play
-            update
-          when ?s
-            Zgomot::Midi::Stream.stop
-            update
-          when ?q
-            @thread.kill
-            Curses.close_screen
-            break
+          begin
+            case Curses.getch
+            when ?t
+              str_window.tog
+              str_window.set_select_mode
+              update
+            when ?d
+              str_window.delete
+              str_window.set_select_mode
+              update
+            when Curses::Key::UP
+              str_window.dec_selected
+              update
+            when Curses::Key::DOWN
+              str_window.inc_selected
+              update
+            when 10
+              str_window.select
+              update
+            when ?p
+              Zgomot::Midi::Stream.play
+              update
+            when ?s
+              Zgomot::Midi::Stream.stop
+              update
+            when ?q
+              @thread.kill
+              Curses.close_screen
+              break
+            end
+          rescue Exception => e
+            Zgomot.set_last_error(e.message)
           end
         end
       end
