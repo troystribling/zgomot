@@ -4,14 +4,13 @@
 # -*- encoding: utf-8 -*-
 
 Gem::Specification.new do |s|
-  s.name = %q{zgomot}
+  s.name = "zgomot"
   s.version = "1.0.3"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Troy Stribling"]
-  s.date = %q{2013-08-14}
-  s.default_executable = %q{zgomot}
-  s.email = %q{troy.stribling@gmail.com}
+  s.date = "2013-08-15"
+  s.email = "troy.stribling@gmail.com"
   s.executables = ["zgomot"]
   s.extra_rdoc_files = [
     "LICENSE",
@@ -19,6 +18,7 @@ Gem::Specification.new do |s|
   ]
   s.files = [
     ".document",
+    ".rvmrc",
     "LICENSE",
     "README.rdoc",
     "Rakefile",
@@ -87,39 +87,33 @@ Gem::Specification.new do |s|
     "lib/zgomot/ui/output.rb",
     "lib/zgomot/ui/windows.rb",
     "lib/zgomot_sh.rb",
+    "zgomot.gems",
     "zgomot.gemspec"
   ]
-  s.homepage = %q{http://github.com/troystribling/zgomot}
+  s.homepage = "http://github.com/troystribling/zgomot"
   s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.3.6}
-  s.summary = %q{zgomot is a simple DSL for writting MIDI music.}
+  s.rubygems_version = "1.8.23"
+  s.summary = "zgomot is a simple DSL for writting MIDI music."
 
   if s.respond_to? :specification_version then
-    current_version = Gem::Specification::CURRENT_SPECIFICATION_VERSION
     s.specification_version = 3
 
-    if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
+    if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
       s.add_runtime_dependency(%q<ffi>, ["~> 1.0.9"])
       s.add_runtime_dependency(%q<rainbow>, ["~> 1.1.4"])
       s.add_runtime_dependency(%q<pry>, ["~> 0.9.12.2"])
       s.add_runtime_dependency(%q<fssm>, ["~> 0.2.10"])
-      s.add_development_dependency(%q<rake>, [">= 0"])
-      s.add_development_dependency(%q<jeweler>, [">= 0"])
     else
       s.add_dependency(%q<ffi>, ["~> 1.0.9"])
       s.add_dependency(%q<rainbow>, ["~> 1.1.4"])
       s.add_dependency(%q<pry>, ["~> 0.9.12.2"])
       s.add_dependency(%q<fssm>, ["~> 0.2.10"])
-      s.add_dependency(%q<rake>, [">= 0"])
-      s.add_dependency(%q<jeweler>, [">= 0"])
     end
   else
     s.add_dependency(%q<ffi>, ["~> 1.0.9"])
     s.add_dependency(%q<rainbow>, ["~> 1.1.4"])
     s.add_dependency(%q<pry>, ["~> 0.9.12.2"])
     s.add_dependency(%q<fssm>, ["~> 0.2.10"])
-    s.add_dependency(%q<rake>, [">= 0"])
-    s.add_dependency(%q<jeweler>, [">= 0"])
   end
 end
 
