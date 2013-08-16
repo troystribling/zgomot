@@ -25,43 +25,39 @@ module Zgomot::Comp
     class << self
     end
 
-    attr_reader :percs, :length, :velocity, :time_scale
+    attr_reader :perc, :length, :velocity, :time_scale
 
     def initialize(args)
-      @length, @velocity, @percs = args[:length], args[:velocity], [args[:percs]].flatten
-      @time_scale = 1.0
+      @length, @velocity, @perc = args[:length], args[:velocity], args[:perc]
     end
-    def pitches
-      percs.inject([]){|p,r| (m = Perc::PERC_MAP[r]).nil? ? p : p << m}
+    def note
+      @note ||= Zgomot::Midi::Note.new(:pitch => Perc::PERC_MAP[perc],
+                                       :length => length,
+                                       :velocity => velocity)
     end
-    def notes
-      @notes ||= pitches.map do |p|
-                   Zgomot::Midi::Note.new(:pitch => p, :length => length, :velocity => velocity)
-                 end
-    end
-    def bpm_scale!(v)
-      @time_scale = 1.0/v.to_f; self
+    def bpm!(v)
+      note.bpm!(v); self
     end
     def channel=(chan)
-      notes.each{|n| n.channel = chan}
+      note.channel = chan
     end
     def offset=(time)
-      notes.each{|n| n.offset = time}
+      note.offset = time
     end
     def time=(time)
-      notes.each{|n| n.time = time}
+      note.time = time
     end
     def velocity=(v)
-      notes.each{|n| n.velocity = v}; self
+      note.velocity = v; self
     end
     def length=(v)
-      notes.each{|n| n.length = v}; self
+      note.length = v; self
     end
     def length_to_sec
-      time_scale*Zgomot::Midi::Clock.whole_note_sec/length
+      note.length_to_sec
     end
     def to_midi
-      notes.map{|n| n.to_midi}
+      note.to_midi
     end
 
   end

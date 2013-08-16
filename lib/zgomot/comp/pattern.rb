@@ -21,9 +21,9 @@ module Zgomot::Comp
         Progression.new(:item => Chord::Progression.new(:scale), :tonic => tonic, :mode => mode, :length => l, :velocity => v)
       end
 
-      def pr(percs = acoustic_bass_drum, opts = {})
+      def pr(perc = :acoustic_bass_drum, opts = {})
         l = opts[:l] || 4; v = opts[:v] || 0.6
-        Perc.new(:percs => percs, :length => l, :velocity => v)
+        Perc.new(:perc => perc, :length => l, :velocity => v)
       end
     end
     attr_reader :seq
