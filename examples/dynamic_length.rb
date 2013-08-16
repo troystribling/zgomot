@@ -10,7 +10,6 @@ if sources.include?("nanoKONTROL")
   add_cc(:mult, 17, :type => :cont, :min => 1, :max => 3, :init => 0)
   len = 4
   str 'simple_input', np([:A,4],2,:l=>len)[7,5,3,1] do |pattern|
-    puts (2**cc(:mult).to_i)*len
     pattern.length = (2**cc(:mult).to_i)*len
     pattern
   end

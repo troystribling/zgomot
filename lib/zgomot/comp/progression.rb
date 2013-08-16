@@ -58,10 +58,10 @@ module Zgomot::Comp
       @items = args.flatten; self
     end
     def velocity=(v)
-      notes.each{|n| n.velocity = v}
+      notes.each{|n| n.velocity = v}; self
     end
     def length=(v)
-      notes.each{|n| n.length = v}
+      notes.each{|n| n.length = v}; self
     end
     def note(number)
       notes.map{|n| n.note(number)}

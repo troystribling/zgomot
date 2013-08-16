@@ -51,6 +51,12 @@ module Zgomot::Comp
     def time=(time)
       notes.each{|n| n.time = time}
     end
+    def velocity=(v)
+      notes.each{|n| n.velocity = v}; self
+    end
+    def length=(v)
+      notes.each{|n| n.length = v}; self
+    end
     def length_to_sec
       time_scale*Zgomot::Midi::Clock.whole_note_sec/length
     end

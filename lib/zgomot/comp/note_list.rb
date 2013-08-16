@@ -32,6 +32,18 @@ module Zgomot::Comp
     def offset=(time)
       notes.each{|n| n.offset = time}
     end
+    def velocity=(v)
+      notes.each{|n| n.velocity = v}; self
+    end
+    def length=(v)
+      notes.each{|n| n.length = v}; self
+    end
+    def bpm!(bpm)
+      notes.each{|n| n.bpm!(bpm)}; self
+    end
+    def octave!(oct)
+      notes.each{|n| n.octave!(oct)}; self
+    end
     def time=(time)
       @clock = Zgomot::Midi::Clock.new
       clock.update(time)

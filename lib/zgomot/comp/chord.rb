@@ -36,8 +36,8 @@ module Zgomot::Comp
       attr_reader :chord_intervals
     end
 
-    attr_reader :tonic, :chord, :clock, :intervals, :arp, :time_scale, :items, :inversion, :reverse
-    attr_accessor :length, :velocity
+    attr_reader :tonic, :chord, :clock, :intervals, :arp, :time_scale, :items, :inversion, :reverse,
+                :length, :velocity
 
     def initialize(args)
       @length, @velocity, @chord = args[:length], args[:velocity], args[:chord]
@@ -81,6 +81,12 @@ module Zgomot::Comp
     end
     def octave!(v)
       @notes = nil; @octave = v; self
+    end
+    def length=(v)
+      @length = v; self
+    end
+    def valocity=(v)
+      @length = v; self
     end
     def length_to_sec
       time_scale*Zgomot::Midi::Clock.whole_note_sec*(1.0/length + (arp.to_f.eql?(0.0) ? 0.0 : intervals.length.to_f/arp.to_f))
