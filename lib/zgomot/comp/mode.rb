@@ -19,7 +19,7 @@ module Zgomot::Comp
     def initialize(mode = 1)
       @mode = case mode
                  when Symbol then self.class.modes.index(mode)+1
-                 when Fixnum then mode
+                 when Fixnum then mode % 7
                  when nil then 1
                  else raise(Zgomot::Error, "#{mode.inspect} is invalid mode")
                end

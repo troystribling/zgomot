@@ -15,9 +15,9 @@ if sources.include?("nanoKONTROL")
   end
   str 'simple_input', np([:A,4],2,:l=>4)[7,5,3,1] do |pattern|
     if cc(:reverse)
-      pattern.mode!(cc(:mode).to_i).reverse!
+      pattern.mode!(mode.to_i).reverse!
     else
-      pattern.mode!(cc(:mode).to_i)
+      pattern.mode!(mode.to_i)
     end
   end
   play

@@ -52,16 +52,18 @@ module Zgomot::Midi
         unless name.nil?
           Zgomot.logger.info "UPDATED CC #{cc_num}:#{name}:#{value}:#{channel}"
           p = @params[name][channel]
-          p[:updated_at] = ::Time.now
-          min = p[:min]
-          max = p[:max]
-          if p[:type] == :cont
-            p[:value] = min + (max - min)*value.to_f/127.0
-          else
-            p[:value] = value == 127 ? true : false
-          end
-          if p[:blk]
-            p[:blk].call(p)
+          unless p.nil?
+            p[:updated_at] = ::Time.now
+            min = p[:min]
+            max = p[:max]
+            if p[:type] == :cont
+              p[:value] = min + (max - min)*value.to_f/127.0
+            else
+              p[:value] = value == 127 ? true : false
+            end
+            if p[:blk]
+              p[:blk].call(p)
+            end
           end
         end
       end

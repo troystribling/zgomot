@@ -109,14 +109,14 @@ class Zgomot::Drivers
       def load_destinations
         @destinations = (0..(Interface.MIDIGetNumberOfDestinations()-1)).reduce([]) do |dest, i|
                           destination_ptr = Interface.MIDIGetDestination(i)
-                          dest << get_property(:model, destination_ptr)
+                          dest << get_entity_name(destination_ptr)
                         end
       end
 
       def load_sources
         @sources = (0..(Interface.MIDIGetNumberOfSources()-1)).reduce([]) do |src, i|
                      source_ptr = Interface.MIDIGetSource(i)
-                     src << get_property(:model, source_ptr)
+                     src << get_entity_name(source_ptr)
                    end
       end
 
@@ -136,11 +136,20 @@ class Zgomot::Drivers
         @output = @destinations[iac_index]
       end
 
+      def get_entity_name(from)
+        name = get_property(:model, from)
+        name.nil? ? (get_property(:name, from) || 'Unknown') : name
+      end
+
       def get_property(name, from)
         prop = Interface::CFString.CFStringCreateWithCString(nil, name.to_s, 0)
-        val = Interface::CFString.CFStringCreateWithCString(nil, name.to_s, 0)
-        Interface::MIDIObjectGetStringProperty(from, prop, val)
-        Interface::CFString.CFStringGetCStringPtr(val.read_pointer, 0).read_string
+        val_ptr = FFI::MemoryPointer.new(:pointer)
+        Interface::MIDIObjectGetStringProperty(from, prop, val_ptr)
+        if val_ptr.read_pointer.address > 0
+          Interface::CFString.CFStringGetCStringPtr(val_ptr.read_pointer, 0).read_string
+        else
+          nil
+        end
       end
 
       def create_client(name)
