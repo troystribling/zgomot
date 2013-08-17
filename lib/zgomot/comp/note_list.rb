@@ -6,9 +6,6 @@ module Zgomot::Comp
       NoteList.new(*args)
     end
 
-    extend Forwardable
-    def_delegators :notes, :reverse!, :shift, :pop, :push, :unshift
-
     attr_reader :notes, :clock
 
     def initialize(*notes)
@@ -43,6 +40,21 @@ module Zgomot::Comp
     end
     def octave!(oct)
       notes.each{|n| n.octave!(oct)}; self
+    end
+    def shift
+      @notes.shift
+    end
+    def unshift(n)
+      @notes.unshift(n); self
+    end
+    def pop
+      @notes.pop
+    end
+    def push(n)
+      @notes.push(n); self
+    end
+    def reverse!
+      @notes.reverse!; self
     end
     def time=(time)
       @clock = Zgomot::Midi::Clock.new

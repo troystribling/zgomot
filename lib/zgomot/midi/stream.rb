@@ -102,7 +102,11 @@ module Zgomot::Midi
                     end
                     Zgomot.logger.info "STREAM:#{count}:#{name}"
                     patterns << Zgomot::Comp::Pattern.new(ch.pattern)
-                    sleep(ch.length_to_sec)
+                    if ch.length_to_sec > 0.0
+                      sleep(ch.length_to_sec)
+                    else
+                      break
+                    end
                   end
         Zgomot.logger.info "STREAM FINISHED:#{name}"
         update_status(:paused)

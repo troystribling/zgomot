@@ -172,7 +172,13 @@ A Note List is a set of notes or percussive notes that start playing simultaneou
 
 where <tt>nN</tt> is the <tt>N'th</tt> note in the list.
 
-Note Lists internally are arrays of notes and support the following array methods: <tt>reverse!, shift, pop, push, unshift</tt>
+==== Transforms
+
+* <tt>shift</tt>: Remove and return the first note from the progression.
+* <tt>unshift</tt>: Add a note to the beginning of the progression.
+* <tt>pop</tt>: Remove and return the last note from the progression.
+* <tt>unshift</tt>: Add a note to the end of the progression.
+* <tt>reverse!</tt>: Reverse the notes in the progression.
 
 == Chord Progressions
 
@@ -205,8 +211,11 @@ A chord progression in a key of F# dorian at octave 5 with notes of half note le
 * <tt>arp!(length)</tt>: arpeggiate the chords in the progression using the specified length in units of note length. Accepted values are 1, 2, 4, 8, ... resolution, representing arpeggiation by a whole note, half note, quarter note, eighth note up to the specified clock resolution.
 * <tt>inv!(number)</tt>: The inversion number. A value of zero will leave the chord unchanged, 1 is the first inversion and 2 is the second. Higher inversions just shift the chord to a higher octave.
 * <tt>rev!</tt>: Reverse the order in which the notes are played. Only noticeable if the chords in the progression are also arpeggiated.
-
-Progressions internally are arrays of notes and support the following array methods: <tt>reverse!, shift, pop, push, unshift</tt>
+* <tt>shift</tt>: Remove and return the first chord from the progression.
+* <tt>unshift</tt>: Add a chord to the beginning of the progression.
+* <tt>pop</tt>: Remove and return the last chord from the progression.
+* <tt>unshift</tt>: Add a chord to the end of the progression.
+* <tt>reverse!</tt>: Reverse the chords in the progression.
 
 == Note Progressions
 
@@ -232,10 +241,13 @@ An note progression in a key of F# dorian at octave 5 with notes of half note le
 * <tt>[](*args)</tt>: By default when a progression is created it only consists of one each of the notes in the key played sequentially using this transformation it is possible to change the the notes played in the progression. For example <tt>np([:Fs, 5], :dorian)[1,5,5,7]</tt> will play the sequence 1, 5, 5, 7 instead of 1, 2, 3, 4, 5, 6, 7.
 * <tt>velocity!(v)</tt>: Change the velocity of all notes in the progression.
 * <tt>length!(v)</tt>: Change the length of all notes in the progression.
-* <tt>bpm!(bpm)</tt>: change the bits per minute at which the chord is played.
-* <tt>octave!(ocatve)</tt>: change the octave of all notes in the progression.
-
-Progressions internally are arrays of notes and support the following array methods: <tt>reverse!, shift, pop, push, unshift</tt>
+* <tt>bpm!(bpm)</tt>: Change the bits per minute at which the chord is played.
+* <tt>octave!(ocatve)</tt>: Change the octave of all notes in the progression.
+* <tt>shift</tt>: Remove and return the first note from the progression.
+* <tt>unshift</tt>: Add a note to the beginning of the progression.
+* <tt>pop</tt>: Remove and return the last note from the progression.
+* <tt>unshift</tt>: Add a note to the end of the progression.
+* <tt>reverse!</tt>: Reverse the notes in the progression.
 
 == Progression with Defined Length and Velocity by Note
 
@@ -246,6 +258,12 @@ Different durations and velocities for each note in a progression can be defined
 == Patterns
 
 Patterns are heterogeneous arrays of notes, chords, Chord Progressions and Note Progressions. Operations applied to the pattern will be delegated to the appropriate elements of the pattern array.
+
+Also, custom transformations can be applied to the items of a pattern using <tt>map</tt>,
+
+  pattern.map do |item|
+    transform(item)
+  end
 
 == Streams
 

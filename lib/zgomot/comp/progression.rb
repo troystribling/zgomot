@@ -20,9 +20,7 @@ module Zgomot::Comp
       end.unshift(tonic)
     end
     def new_respond_to?(meth, include_private=false)
-      old_respond_to?(meth) or
-      notes.any?{|n| n.respond_to?(meth)} or
-      (items.respond_to?(meth) and [:reverse!, :shift, :pop, :push, :unshift].include?(meth))
+      old_respond_to?(meth) or notes.any?{|n| n.respond_to?(meth)}
     end
     alias_method :old_respond_to?, :respond_to?
     alias_method :respond_to?, :new_respond_to?
@@ -65,6 +63,21 @@ module Zgomot::Comp
     end
     def note(number)
       notes.map{|n| n.note(number)}
+    end
+    def shift
+      @notes = nil; @items.shift
+    end
+    def unshift(n)
+      @notes = nil; @items.unshift(n); self
+    end
+    def pop
+      @notes = nil; @items.pop
+    end
+    def push(n)
+      @notes = nil; @items.push(n); self
+    end
+    def reverse!
+      @notes = nil; @items.reverse!; self
     end
 
     #.........................................................................................................

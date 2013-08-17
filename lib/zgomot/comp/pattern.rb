@@ -31,10 +31,18 @@ module Zgomot::Comp
       @seq = [seq].flatten
     end
     def method_missing(meth, *args, &blk)
-      @seq = seq.map do |p|
+      result = seq.map do |p|
                p.respond_to?(meth) ? p.send(meth, *args, &blk) : p
              end
-      self
+      if [:shift, :pop].include?(meth)
+        result
+      else
+        @seq = result
+        self
+      end
+    end
+    def map(&blk)
+      @seq = seq.map(&blk); self
     end
   end
 end
