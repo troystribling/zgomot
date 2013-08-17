@@ -82,10 +82,10 @@ module Zgomot::Comp
     def octave!(v)
       @notes = nil; @octave = v; self
     end
-    def length=(v)
+    def length!(v)
       @length = v; self
     end
-    def valocity=(v)
+    def valocity!(v)
       @length = v; self
     end
     def length_to_sec

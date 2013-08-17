@@ -47,11 +47,11 @@ module Zgomot::Comp
     def time=(time)
       note.time = time
     end
-    def velocity=(v)
-      note.velocity = v; self
+    def velocity!(v)
+      note.velocity!(v); self
     end
-    def length=(v)
-      note.length = v; self
+    def length!(v)
+      note.length!(v); self
     end
     def length_to_sec
       note.length_to_sec
