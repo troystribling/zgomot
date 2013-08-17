@@ -198,8 +198,8 @@ A chord progression in a key of F# dorian at octave 5 with notes of half note le
 * <tt>tonic!(tonic)</tt>: Change the tonic pitch of the progression.
 * <tt>mode!(mode)</tt>: Change the mode of the progression
 * <tt>[](*args)</tt>: By default when a progression is created it only consists of one each of the notes in the key played sequentially. Using this transformation it is possible to change the the notes played in the progression. For example <tt>cp([:Fs, 5], :dorian)[1,5,5,7]</tt> will play the sequence <tt>1, 5, 5, 7</tt> instead of <tt>1, 2, 3, 4, 5, 6, 7</tt>.
-* <tt>velocity=(v)</tt>: Change the velocity of all notes in the progression.
-* <tt>length=(v)</tt>: Change the length of all notes in the progression.
+* <tt>velocity!(v)</tt>: Change the velocity of all notes in the progression.
+* <tt>length!(v)</tt>: Change the length of all notes in the progression.
 * <tt>bpm!(bpm)</tt>: change the bits per minute at which the chord is played.
 * <tt>octave!(ocatve)</tt>: change the octave of all notes in the progression.
 * <tt>arp!(length)</tt>: arpeggiate the chords in the progression using the specified length in units of note length. Accepted values are 1, 2, 4, 8, ... resolution, representing arpeggiation by a whole note, half note, quarter note, eighth note up to the specified clock resolution.
@@ -230,8 +230,8 @@ An note progression in a key of F# dorian at octave 5 with notes of half note le
 * <tt>tonic!(tonic)</tt>: Change the tonic pitch of the progression.
 * <tt>mode!(mode)</tt>: Change the mode of the progression
 * <tt>[](*args)</tt>: By default when a progression is created it only consists of one each of the notes in the key played sequentially using this transformation it is possible to change the the notes played in the progression. For example <tt>np([:Fs, 5], :dorian)[1,5,5,7]</tt> will play the sequence 1, 5, 5, 7 instead of 1, 2, 3, 4, 5, 6, 7.
-* <tt>velocity=(v)</tt>: Change the velocity of all notes in the progression.
-* <tt>length=(v)</tt>: Change the length of all notes in the progression.
+* <tt>velocity!(v)</tt>: Change the velocity of all notes in the progression.
+* <tt>length!(v)</tt>: Change the length of all notes in the progression.
 * <tt>bpm!(bpm)</tt>: change the bits per minute at which the chord is played.
 * <tt>octave!(ocatve)</tt>: change the octave of all notes in the progression.
 
