@@ -177,7 +177,7 @@ where <tt>nN</tt> is the <tt>N'th</tt> note in the list.
 * <tt>shift</tt>: Remove and return the first note from the progression.
 * <tt>unshift</tt>: Add a note to the beginning of the progression.
 * <tt>pop</tt>: Remove and return the last note from the progression.
-* <tt>unshift</tt>: Add a note to the end of the progression.
+* <tt>push</tt>: Add a note to the end of the progression.
 * <tt>reverse!</tt>: Reverse the notes in the progression.
 
 == Chord Progressions
@@ -214,7 +214,7 @@ A chord progression in a key of F# dorian at octave 5 with notes of half note le
 * <tt>shift</tt>: Remove and return the first chord from the progression.
 * <tt>unshift</tt>: Add a chord to the beginning of the progression.
 * <tt>pop</tt>: Remove and return the last chord from the progression.
-* <tt>unshift</tt>: Add a chord to the end of the progression.
+* <tt>push</tt>: Add a chord to the end of the progression.
 * <tt>reverse!</tt>: Reverse the chords in the progression.
 
 == Note Progressions
@@ -246,7 +246,7 @@ An note progression in a key of F# dorian at octave 5 with notes of half note le
 * <tt>shift</tt>: Remove and return the first note from the progression.
 * <tt>unshift</tt>: Add a note to the beginning of the progression.
 * <tt>pop</tt>: Remove and return the last note from the progression.
-* <tt>unshift</tt>: Add a note to the end of the progression.
+* <tt>push</tt>: Add a note to the end of the progression.
 * <tt>reverse!</tt>: Reverse the notes in the progression.
 
 == Progression with Defined Length and Velocity by Note
