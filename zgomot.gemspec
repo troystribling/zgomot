@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Troy Stribling"]
-  s.date = "2013-08-15"
+  s.date = "2013-08-25"
   s.email = "troy.stribling@gmail.com"
   s.executables = ["zgomot"]
   s.extra_rdoc_files = [
@@ -25,8 +25,13 @@ Gem::Specification.new do |s|
     "VERSION",
     "bin/zgomot",
     "examples/arp_chords.rb",
+    "examples/cycle.rb",
+    "examples/cycle_note_list.rb",
     "examples/delay.rb",
+    "examples/dynamic_length.rb",
+    "examples/dynamic_length_perc.rb",
     "examples/full_scale_notes.rb",
+    "examples/geco_input.rb",
     "examples/inv_chords.rb",
     "examples/modes_notes.rb",
     "examples/notes.rb",
@@ -91,6 +96,7 @@ Gem::Specification.new do |s|
     "zgomot.gemspec"
   ]
   s.homepage = "http://github.com/troystribling/zgomot"
+  s.licenses = ["MIT"]
   s.require_paths = ["lib"]
   s.rubygems_version = "1.8.23"
   s.summary = "zgomot is a simple DSL for writting MIDI music."

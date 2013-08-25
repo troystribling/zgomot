@@ -14,6 +14,7 @@ require 'jeweler'
     gem.email = "troy.stribling@gmail.com"
     gem.homepage = "http://github.com/troystribling/zgomot"
     gem.authors = ["Troy Stribling"]
+    gem.license = 'MIT'
     gem.files.include %w(lib/jeweler/templates/.gitignore VERSION)
     gem.add_dependency('ffi', '~> 1.0.9')
     gem.add_dependency('rainbow', '~> 1.1.4')
