@@ -1,5 +1,5 @@
 =zgomot
-https://github.com/troystribling/zgomot/blob/master/zgomot-logo.png
+<img src="https://github.com/troystribling/zgomot/blob/master/zgomot-logo.png">
 
 zgomot is a DSL for composing MIDI music. It does not do synthesis so to create sound it requires digital audio software such as Apple's GarageBand, Logic or Ableton Live. A program that plays a simple tune only requires a few lines of code.
 
