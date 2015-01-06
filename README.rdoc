@@ -1,4 +1,7 @@
-= zgomot
+=begin html
+<h1 style="float:left;">zgomot</h1>
+<img src="zgomot-logo.png" style="float:right;"/>
+=end
 
 zgomot is a DSL for composing MIDI music. It does not do synthesis so to create sound it requires digital audio software such as Apple's GarageBand, Logic or Ableton Live. A program that plays a simple tune only requires a few lines of code.
 

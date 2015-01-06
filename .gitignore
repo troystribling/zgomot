@@ -5,3 +5,5 @@ doc/*
 coverage
 rdoc
 pkg
+zgomot.sublime-project
+zgomot.sublime-workspace
