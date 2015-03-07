@@ -16,8 +16,9 @@ require 'jeweler'
     gem.authors = ["Troy Stribling"]
     gem.license = 'MIT'
     gem.files.include %w(lib/jeweler/templates/.gitignore VERSION)
-    gem.add_dependency('ffi', '~> 1.0.9')
-    gem.add_dependency('rainbow', '~> 1.1.4')
+    gem.add_dependency('ffi', '~> 1.9')
+    gem.add_dependency('curses', '~> 1.0')
+    gem.add_dependency('rainbow', '~> 1.1')
     gem.add_dependency('pry', '~> 0.9.12.2')
     gem.add_dependency('fssm', '~> 0.2.10')
   end
